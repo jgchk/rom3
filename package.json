@@ -42,9 +42,9 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --cache --fix",
-      "stylelint --fix"
+      "stylelint --fix --allow-empty-input"
     ],
-    "*.css": "stylelint --fix",
+    "*.css": "stylelint --fix --allow-empty-input",
     "*": "prettier --write --ignore-unknown"
   }
 }

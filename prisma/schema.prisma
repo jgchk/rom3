@@ -21,9 +21,29 @@ model Scene {
 }
 
 model SceneName {
-  Scene   Scene  @relation(fields: [sceneId], references: [id])
+  scene   Scene  @relation(fields: [sceneId], references: [id])
   sceneId Int
   name    String
 
   @@id([sceneId, name])
+}
+
+model Style {
+  id             Int         @id @default(autoincrement())
+  name           String
+  alternateNames StyleName[]
+  shortDesc      String
+  longDesc       String
+  parents        Style[]     @relation("StyleParents", references: [id])
+  children       Style[]     @relation("StyleParents", references: [id])
+  influences     Style[]     @relation("StyleInfluences", references: [id])
+  influencedBy   Style[]     @relation("StyleInfluences", references: [id])
+}
+
+model StyleName {
+  style   Style  @relation(fields: [styleId], references: [id])
+  styleId Int
+  name    String
+
+  @@id([styleId, name])
 }
