@@ -11,7 +11,7 @@ const handler = apiHandler({
   post: async (req, res) => {
     const scene = req.body as Scene
     const dbScene = await prisma.scene.create({ data: scene })
-    res.status(200).json(dbScene)
+    res.status(201).json(dbScene)
   },
 })
 
