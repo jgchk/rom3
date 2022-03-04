@@ -47,3 +47,27 @@ model StyleName {
 
   @@id([styleId, name])
 }
+
+model Trend {
+  id                Int         @id @default(autoincrement())
+  name              String
+  alternateNames    TrendName[]
+  shortDesc         String
+  longDesc          String
+  parentTrends      Trend[]     @relation("TrendTrendParents", references: [id])
+  childTrends       Trend[]     @relation("TrendTrendParents", references: [id])
+  parentStyles      Trend[]     @relation("TrendStyleParents", references: [id])
+  childStyles       Trend[]     @relation("TrendStyleParents", references: [id])
+  trendInfluences   Trend[]     @relation("TrendTrendInfluences", references: [id])
+  trendInfluencedBy Trend[]     @relation("TrendTrendInfluences", references: [id])
+  styleInfluences   Trend[]     @relation("TrendStyleInfluences", references: [id])
+  styleInfluencedBy Trend[]     @relation("TrendStyleInfluences", references: [id])
+}
+
+model TrendName {
+  trend   Trend  @relation(fields: [trendId], references: [id])
+  trendId Int
+  name    String
+
+  @@id([trendId, name])
+}
