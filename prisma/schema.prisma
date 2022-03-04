@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Scene {
+  id             Int         @id @default(autoincrement())
+  name           String
+  alternateNames SceneName[]
+  shortDesc      String
+  longDesc       String
+  influences     Scene[]     @relation("SceneInfluences", references: [id])
+  influencedBy   Scene[]     @relation("SceneInfluences", references: [id])
+}
+
+model SceneName {
+  Scene   Scene  @relation(fields: [sceneId], references: [id])
+  sceneId Int
+  name    String
+
+  @@id([sceneId, name])
+}
