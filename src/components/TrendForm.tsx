@@ -1,123 +1,67 @@
-import { Scene, Style, Trend } from '@prisma/client'
-import { useRouter } from 'next/router'
-import { FC, useCallback, useState } from 'react'
-import toast from 'react-hot-toast'
+import { Dispatch, FC, SetStateAction } from 'react'
 
-import trpc from '../utils/trpc'
+import { StyleObject, TrendInput, TrendObject } from '../pages/create'
+import trpc, { InferQueryOutput } from '../utils/trpc'
 import FormElement from './FormElement'
 import Multiselect from './Multiselect'
 
-const TrendForm: FC = () => {
-  const [name, setName] = useState('')
-  const [shortDesc, setShortDesc] = useState('')
-  const [longDesc, setLongDesc] = useState('')
-  const [alternateNamesStr, setAlternateNamesStr] = useState('')
-  const [influencedByObjs, setInfluencedByObjs] = useState<SelectItem[]>([])
+type Output = InferQueryOutput<'genres'>[number]
+const isStyleOrTrend = (o: Output): o is StyleObject | TrendObject =>
+  o.type === 'style' || o.type === 'trend'
 
-  const { mutate } = trpc.useMutation('trends.add')
-  const utils = trpc.useContext()
-  const router = useRouter()
-  const handleCreate = useCallback(() => {
-    const alternateNames = alternateNamesStr.split(',').map((s) => s.trim())
-    const styleInfluencedBy = influencedByObjs
-      .filter((item) => item.type === 'style')
-      .map((style) => style.id)
-    const trendInfluencedBy = influencedByObjs
-      .filter((item) => item.type === 'trend')
-      .map((trend) => trend.id)
-    return mutate(
-      {
-        name,
-        shortDesc,
-        longDesc,
-        alternateNames,
-        styleInfluencedBy,
-        trendInfluencedBy,
-      },
-      {
-        onError: (error) => {
-          console.log({ ...error })
-          toast.error(error.message)
-        },
-        onSuccess: async (data) => {
-          await utils.invalidateQueries(['trends.all'])
-          utils.setQueryData(['trends.byId'], data)
-
-          await router.push('/trends')
-        },
-      }
-    )
-  }, [
-    alternateNamesStr,
-    influencedByObjs,
-    longDesc,
-    mutate,
-    name,
-    router,
-    shortDesc,
-    utils,
-  ])
-
-  return (
-    <>
-      <FormElement>
-        <label>Name *</label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-      </FormElement>
-      <FormElement>
-        <label>Alternate Names</label>
-        <input
-          value={alternateNamesStr}
-          onChange={(e) => setAlternateNamesStr(e.target.value)}
-        />
-      </FormElement>
-      <FormElement>
-        <label>Influences</label>
-        <InfluencedByDropdown
-          value={influencedByObjs}
-          onChange={(value) => setInfluencedByObjs(value)}
-        />
-      </FormElement>
-      <FormElement>
-        <label>Short Description *</label>
-        <textarea
-          value={shortDesc}
-          onChange={(e) => setShortDesc(e.target.value)}
-          style={{ width: '100%' }}
-          required
-        />
-      </FormElement>
-      <FormElement>
-        <label>Long Description *</label>
-        <textarea
-          value={longDesc}
-          onChange={(e) => setLongDesc(e.target.value)}
-          style={{ width: '100%', height: 300 }}
-          required
-        />
-      </FormElement>
-    </>
-  )
-}
-
-type SelectItem =
-  | (Scene & {
-      type: 'scene'
-    })
-  | (Style & {
-      type: 'style'
-    })
-  | (Trend & {
-      type: 'trend'
-    })
+const TrendForm: FC<{
+  data: TrendInput
+  onChange: Dispatch<SetStateAction<TrendInput>>
+}> = ({ data, onChange }) => (
+  <>
+    <FormElement>
+      <label>Name *</label>
+      <input
+        value={data.name}
+        onChange={(e) => onChange((d) => ({ ...d, name: e.target.value }))}
+        required
+      />
+    </FormElement>
+    <FormElement>
+      <label>Alternate Names</label>
+      <input
+        value={data.alternateNames}
+        onChange={(e) =>
+          onChange((d) => ({ ...d, alternateNames: e.target.value }))
+        }
+      />
+    </FormElement>
+    <FormElement>
+      <label>Influences</label>
+      <InfluencedByDropdown
+        value={[...data.styleInfluencedBy, ...data.trendInfluencedBy]}
+        onChange={(influencedBy) => onChange((d) => ({ ...d, influencedBy }))}
+      />
+    </FormElement>
+    <FormElement>
+      <label>Short Description *</label>
+      <textarea
+        value={data.shortDesc}
+        onChange={(e) => onChange((d) => ({ ...d, shortDesc: e.target.value }))}
+        style={{ width: '100%' }}
+        required
+      />
+    </FormElement>
+    <FormElement>
+      <label>Long Description *</label>
+      <textarea
+        value={data.longDesc}
+        onChange={(e) => onChange((d) => ({ ...d, longDesc: e.target.value }))}
+        style={{ width: '100%', height: 300 }}
+        required
+      />
+    </FormElement>
+  </>
+)
 
 const InfluencedByDropdown: FC<{
-  value: SelectItem[]
-  onChange: (value: SelectItem[]) => void
+  value: (TrendObject | StyleObject)[]
+  onChange: (value: (TrendObject | StyleObject)[]) => void
 }> = ({ value, onChange }) => {
   const { data, error, isLoading } = trpc.useQuery([
     'genres',
@@ -135,7 +79,7 @@ const InfluencedByDropdown: FC<{
       itemDisplay={(item) => item.name}
       itemKey={(item) => item.id}
       selected={value}
-      onChange={(selected) => onChange(selected)}
+      onChange={(selected) => onChange(selected.filter(isStyleOrTrend))}
     />
   )
 }

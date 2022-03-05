@@ -1,20 +1,23 @@
 import styled from '@emotion/styled'
-import { Scene, Style } from '@prisma/client'
+import { Scene, Style, Trend } from '@prisma/client'
 import { NextPage } from 'next'
 import { useState } from 'react'
 
 import FormElement from '../components/FormElement'
 import SceneForm from '../components/SceneForm'
 import StyleForm from '../components/StyleForm'
+import TrendForm from '../components/TrendForm'
 import { InferMutationInput } from '../utils/trpc'
 import { capitalize } from './utils/string'
 
 export type SceneObject = Scene & { type: 'scene' }
 export type StyleObject = Style & { type: 'style' }
-type GenreObject = SceneObject | StyleObject
+export type TrendObject = Trend & { type: 'trend' }
+type GenreObject = SceneObject | StyleObject | TrendObject
 
 const isScene = (o: GenreObject): o is SceneObject => o.type === 'scene'
 const isStyle = (o: GenreObject): o is StyleObject => o.type === 'style'
+const isTrend = (o: GenreObject): o is TrendObject => o.type === 'trend'
 
 export type SceneInput = Omit<
   InferMutationInput<'scenes.add'>,
@@ -32,10 +35,30 @@ export type StyleInput = Omit<
   alternateNames: string
   influencedBy: StyleObject[]
 }
-type InputType = SceneInput | StyleInput
+export type TrendInput = Omit<
+  InferMutationInput<'trends.add'>,
+  'alternateNames' | 'trendInfluencedBy' | 'styleInfluencedBy'
+> & {
+  type: 'trend'
+  alternateNames: string
+  trendInfluencedBy: TrendObject[]
+  styleInfluencedBy: StyleObject[]
+}
+type InputType = SceneInput | StyleInput | TrendInput
+
+const getInfluencedBy = (oldData?: InputType): GenreObject[] => {
+  if (!oldData) return []
+  switch (oldData.type) {
+    case 'scene':
+    case 'style':
+      return oldData.influencedBy
+    case 'trend':
+      return [...oldData.styleInfluencedBy, ...oldData.trendInfluencedBy]
+  }
+}
 
 const makeScene = (oldData?: InputType): [SceneInput, boolean] => {
-  const oldInfluencedBy: GenreObject[] = oldData?.influencedBy ?? []
+  const oldInfluencedBy = getInfluencedBy(oldData)
   const influencedBy = oldInfluencedBy.filter(isScene)
   const lostData = influencedBy.length !== oldInfluencedBy.length
   return [
@@ -52,7 +75,7 @@ const makeScene = (oldData?: InputType): [SceneInput, boolean] => {
 }
 
 const makeStyle = (oldData?: InputType): [StyleInput, boolean] => {
-  const oldInfluencedBy: GenreObject[] = oldData?.influencedBy ?? []
+  const oldInfluencedBy = getInfluencedBy(oldData)
   const influencedBy = oldInfluencedBy.filter(isStyle)
   const lostData = influencedBy.length !== oldInfluencedBy.length
   return [
@@ -68,15 +91,35 @@ const makeStyle = (oldData?: InputType): [StyleInput, boolean] => {
   ]
 }
 
+const makeTrend = (oldData?: InputType): [TrendInput, boolean] => {
+  const oldInfluencedBy = getInfluencedBy(oldData)
+  const trendInfluencedBy = oldInfluencedBy.filter(isTrend)
+  const styleInfluencedBy = oldInfluencedBy.filter(isStyle)
+  const lostData =
+    trendInfluencedBy.length + styleInfluencedBy.length !==
+    oldInfluencedBy.length
+  return [
+    {
+      type: 'trend',
+      name: oldData?.name ?? '',
+      alternateNames: oldData?.alternateNames ?? '',
+      shortDesc: oldData?.shortDesc ?? '',
+      longDesc: oldData?.longDesc ?? '',
+      trendInfluencedBy,
+      styleInfluencedBy,
+    },
+    lostData,
+  ]
+}
+
 type ObjectType = 'scene' | 'style' | 'trend'
 
 const objectTypes: ObjectType[] = ['scene', 'style', 'trend']
 
 const Create: NextPage = () => {
-  const [data, setData] = useState<
-    SceneInput | StyleInput
-    // | (InferMutationInput<'trends.add'> & { type: 'trend' })
-  >(makeScene()[0])
+  const [data, setData] = useState<SceneInput | StyleInput | TrendInput>(
+    makeScene()[0]
+  )
 
   const renderForm = () => {
     switch (data.type) {
@@ -100,8 +143,16 @@ const Create: NextPage = () => {
             }}
           />
         )
-      // case 'trend':
-      //   return <TrendForm />
+      case 'trend':
+        return (
+          <TrendForm
+            data={data}
+            onChange={(val) => {
+              const updatedData = typeof val === 'function' ? val(data) : val
+              setData({ ...updatedData, type: 'trend' })
+            }}
+          />
+        )
     }
   }
 
@@ -113,32 +164,23 @@ const Create: NextPage = () => {
           <select
             value={data.type}
             onChange={(e) => {
-              // TODO: change functino
               const objectType = e.target.value as ObjectType
-              switch (objectType) {
-                case 'scene': {
-                  const [newData, dataLost] = makeScene(data)
-                  const shouldRun = dataLost
-                    ? confirm(
-                        'Some data may be lost in the conversion. Are you sure you want to continue?'
-                      )
-                    : true
-                  if (shouldRun) setData(newData)
-                  break
+              const [newData, dataLost] = (() => {
+                switch (objectType) {
+                  case 'scene':
+                    return makeScene(data)
+                  case 'style':
+                    return makeStyle(data)
+                  case 'trend':
+                    return makeTrend(data)
                 }
-                case 'style': {
-                  const [newData, dataLost] = makeStyle(data)
-                  const shouldRun = dataLost
-                    ? confirm(
-                        'Some data may be lost in the conversion. Are you sure you want to continue?'
-                      )
-                    : true
-                  if (shouldRun) setData(newData)
-                  break
-                }
-                case 'trend':
-                  throw new Error('TODO')
-              }
+              })()
+              const shouldRun = dataLost
+                ? confirm(
+                    'Some data may be lost in the conversion. Are you sure you want to continue?'
+                  )
+                : true
+              if (shouldRun) setData(newData)
             }}
           >
             {objectTypes.map((objectType) => (
