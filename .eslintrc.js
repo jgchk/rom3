@@ -5,7 +5,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ['./tsconfig.json'],
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'simple-import-sort'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
@@ -23,6 +23,9 @@ module.exports = {
     },
   },
   rules: {
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
+
     'unicorn/prevent-abbreviations': 'off',
     'unicorn/filename-case': 'off',
     'unicorn/no-null': 'off',

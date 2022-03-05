@@ -2,6 +2,7 @@ import { PrismaClient, Scene, Style, Trend } from '@prisma/client'
 import * as trpc from '@trpc/server'
 import * as trpcNext from '@trpc/server/adapters/next'
 import { z } from 'zod'
+
 import scenesRouter from './scenes'
 import stylesRouter from './styles'
 import trendsRouter from './trends'

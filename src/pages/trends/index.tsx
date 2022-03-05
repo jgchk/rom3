@@ -1,4 +1,5 @@
 import { NextPage } from 'next'
+
 import trpc from '../../services'
 
 const Trends: NextPage = () => {
