@@ -1,5 +1,5 @@
 {
-  "stylelint.validate": ["css", "typescriptreact"],
+  "stylelint.validate": ["css", "typescript", "typescriptreact"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
     "source.fixAll.stylelint": true,

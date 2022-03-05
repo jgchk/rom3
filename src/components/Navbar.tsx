@@ -7,7 +7,10 @@ const Navbar: FC = () => (
       <a>Genres</a>
     </Link>
     <Link href='/scenes/create'>
-      <a>Submit</a>
+      <a>Create Scene</a>
+    </Link>
+    <Link href='/styles/create'>
+      <a>Create Style</a>
     </Link>
   </nav>
 )
