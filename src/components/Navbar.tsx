@@ -12,6 +12,9 @@ const Navbar: FC = () => (
     <Link href='/styles/create'>
       <a>Create Style</a>
     </Link>
+    <Link href='/trends/create'>
+      <a>Create Trend</a>
+    </Link>
   </nav>
 )
 
