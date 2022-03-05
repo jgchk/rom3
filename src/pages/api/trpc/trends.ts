@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Style, Trend } from '@prisma/client'
 import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
@@ -16,6 +16,15 @@ export const TrendInput = z.object({
   parentStyles: z.array(z.number()),
 })
 export type TrendInput = z.infer<typeof TrendInput>
+
+export type TrendOutput = Trend & {
+  type: 'trend'
+  alternateNames: string[]
+  trendInfluencedBy: Trend[]
+  styleInfluencedBy: Style[]
+  parentTrends: Trend[]
+  parentStyles: Style[]
+}
 
 export const addTrend = (input: TrendInput) =>
   prisma.trend.create({
@@ -37,6 +46,30 @@ export const addTrend = (input: TrendInput) =>
     },
   })
 
+export const getTrend = async (id: number): Promise<TrendOutput> => {
+  const trend = await prisma.trend.findUnique({
+    where: { id },
+    include: {
+      alternateNames: true,
+      trendInfluencedBy: true,
+      styleInfluencedBy: true,
+      parentTrends: true,
+      parentStyles: true,
+    },
+  })
+  if (!trend) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: `No trend with id '${id}'`,
+    })
+  }
+  return {
+    ...trend,
+    type: 'trend',
+    alternateNames: trend.alternateNames.map((an) => an.name),
+  }
+}
+
 const trendsRouter = trpc
   .router()
   .mutation('add', {
@@ -51,16 +84,7 @@ const trendsRouter = trpc
   })
   .query('byId', {
     input: z.object({ id: z.number() }),
-    resolve: async ({ input }) => {
-      const trend = await prisma.trend.findUnique({ where: { id: input.id } })
-      if (!trend) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: `No trend with id '${input.id}'`,
-        })
-      }
-      return trend
-    },
+    resolve: ({ input }) => getTrend(input.id),
   })
   .mutation('edit', {
     input: TrendInput.extend({

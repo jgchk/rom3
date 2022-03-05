@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Style } from '@prisma/client'
 import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
@@ -15,6 +15,13 @@ export const StyleInput = z.object({
 })
 export type StyleInput = z.infer<typeof StyleInput>
 
+export type StyleOutput = Style & {
+  type: 'style'
+  alternateNames: string[]
+  influencedBy: Style[]
+  parents: Style[]
+}
+
 export const addStyle = (input: StyleInput) =>
   prisma.style.create({
     data: {
@@ -26,6 +33,24 @@ export const addStyle = (input: StyleInput) =>
       parents: { connect: input.parents.map((id) => ({ id })) },
     },
   })
+
+export const getStyle = async (id: number): Promise<StyleOutput> => {
+  const style = await prisma.style.findUnique({
+    where: { id },
+    include: { alternateNames: true, influencedBy: true, parents: true },
+  })
+  if (!style) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: `No style with id '${id}'`,
+    })
+  }
+  return {
+    ...style,
+    type: 'style',
+    alternateNames: style.alternateNames.map((an) => an.name),
+  }
+}
 
 const stylesRouter = trpc
   .router()
@@ -41,16 +66,7 @@ const stylesRouter = trpc
   })
   .query('byId', {
     input: z.object({ id: z.number() }),
-    resolve: async ({ input }) => {
-      const style = await prisma.style.findUnique({ where: { id: input.id } })
-      if (!style) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: `No style with id '${input.id}'`,
-        })
-      }
-      return style
-    },
+    resolve: ({ input }) => getStyle(input.id),
   })
   .mutation('edit', {
     input: StyleInput.extend({

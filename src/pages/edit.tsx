@@ -1,25 +1,64 @@
 import styled from '@emotion/styled'
 import { NextPage } from 'next'
-import { useCallback, useState } from 'react'
+import { useRouter } from 'next/router'
+import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import FormElement from '../components/FormElement'
 import SceneForm from '../components/SceneForm'
 import StyleForm from '../components/StyleForm'
 import TrendForm from '../components/TrendForm'
-import { toApi } from '../utils/convert'
+import { getParam } from '../utils/api'
+import { fromApi, toApi } from '../utils/convert'
 import {
   GenreInput,
   GenreType,
   genreTypes,
+  isGenreType,
   makeInput,
-  makeScene,
 } from '../utils/create'
 import { capitalize } from '../utils/string'
-import trpc from '../utils/trpc'
+import trpc, { InferQueryOutput } from '../utils/trpc'
 
-const Create: NextPage = () => {
-  const [data, setData] = useState<GenreInput>(makeScene()[0])
+const Edit: NextPage = () => {
+  const router = useRouter()
+  const type = useMemo(() => {
+    const type_ = getParam(router.query.type)
+    if (type_ && isGenreType(type_)) return type_
+  }, [router.query.type])
+  const id = useMemo(() => {
+    const idStr = getParam(router.query.id)
+    if (idStr === undefined) return
+    const idNum = Number.parseInt(idStr)
+    if (Number.isNaN(idNum)) return
+    return idNum
+  }, [router.query.id])
+
+  if (type === undefined || id === undefined) {
+    return <div>Params missing</div>
+  }
+
+  return <EditInner type={type} id={id} />
+}
+
+const EditInner: FC<{ type: GenreType; id: number }> = ({ type, id }) => {
+  const { data, error } = trpc.useQuery(['get', { type, id }])
+
+  if (data) {
+    return <EditInnerInner data={data} />
+  }
+
+  if (error) {
+    return <div>Error</div>
+  }
+
+  return <div>Loading...</div>
+}
+
+const EditInnerInner: FC<{ data: InferQueryOutput<'get'> }> = ({
+  data: originalData,
+}) => {
+  const [data, setData] = useState<GenreInput>(fromApi(originalData))
 
   const { mutate, isLoading: isSubmitting } = trpc.useMutation('add')
   const utils = trpc.useContext()
@@ -129,7 +168,7 @@ const Create: NextPage = () => {
   )
 }
 
-export default Create
+export default Edit
 
 const Layout = styled.div`
   display: flex;

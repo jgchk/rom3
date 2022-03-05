@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Scene } from '@prisma/client'
 import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
@@ -14,6 +14,12 @@ export const SceneInput = z.object({
 })
 export type SceneInput = z.infer<typeof SceneInput>
 
+export type SceneOutput = Scene & {
+  type: 'scene'
+  alternateNames: string[]
+  influencedBy: Scene[]
+}
+
 export const addScene = (input: SceneInput) =>
   prisma.scene.create({
     data: {
@@ -24,6 +30,24 @@ export const addScene = (input: SceneInput) =>
       influencedBy: { connect: input.influencedBy.map((id) => ({ id })) },
     },
   })
+
+export const getScene = async (id: number): Promise<SceneOutput> => {
+  const scene = await prisma.scene.findUnique({
+    where: { id },
+    include: { alternateNames: true, influencedBy: true },
+  })
+  if (!scene) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: `No scene with id '${id}'`,
+    })
+  }
+  return {
+    ...scene,
+    type: 'scene',
+    alternateNames: scene.alternateNames.map((an) => an.name),
+  }
+}
 
 const scenesRouter = trpc
   .router()
@@ -39,16 +63,7 @@ const scenesRouter = trpc
   })
   .query('byId', {
     input: z.object({ id: z.number() }),
-    resolve: async ({ input }) => {
-      const scene = await prisma.scene.findUnique({ where: { id: input.id } })
-      if (!scene) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: `No scene with id '${input.id}'`,
-        })
-      }
-      return scene
-    },
+    resolve: ({ input }) => getScene(input.id),
   })
   .mutation('edit', {
     input: SceneInput.extend({

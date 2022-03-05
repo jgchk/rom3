@@ -161,3 +161,5 @@ export const makeInput = (
 
 export type GenreType = GenreInput['type']
 export const genreTypes: GenreType[] = ['scene', 'style', 'trend']
+export const isGenreType = (s: string): s is GenreType =>
+  (genreTypes as string[]).includes(s)

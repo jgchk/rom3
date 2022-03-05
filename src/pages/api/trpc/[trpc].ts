@@ -3,9 +3,24 @@ import * as trpc from '@trpc/server'
 import * as trpcNext from '@trpc/server/adapters/next'
 import { z } from 'zod'
 
-import scenesRouter, { addScene, SceneInput } from './scenes'
-import stylesRouter, { addStyle, StyleInput } from './styles'
-import trendsRouter, { addTrend, TrendInput } from './trends'
+import scenesRouter, {
+  addScene,
+  getScene,
+  SceneInput,
+  SceneOutput,
+} from './scenes'
+import stylesRouter, {
+  addStyle,
+  getStyle,
+  StyleInput,
+  StyleOutput,
+} from './styles'
+import trendsRouter, {
+  addTrend,
+  getTrend,
+  TrendInput,
+  TrendOutput,
+} from './trends'
 
 const prisma = new PrismaClient()
 
@@ -14,6 +29,8 @@ const GenreType = z.union([
   z.literal('style'),
   z.literal('trend'),
 ])
+
+type GenreOutput = SceneOutput | StyleOutput | TrendOutput
 
 const appRouter = trpc
   .router()
@@ -61,13 +78,25 @@ const appRouter = trpc
     ]),
     resolve: async ({ input }) => {
       switch (input.type) {
-        case 'scene': {
+        case 'scene':
           return addScene(input.data)
-        }
         case 'style':
           return addStyle(input.data)
         case 'trend':
           return addTrend(input.data)
+      }
+    },
+  })
+  .query('get', {
+    input: z.object({ type: GenreType, id: z.number() }),
+    resolve: async ({ input }): Promise<GenreOutput> => {
+      switch (input.type) {
+        case 'scene':
+          return { ...(await getScene(input.id)), type: 'scene' }
+        case 'style':
+          return { ...(await getStyle(input.id)), type: 'style' }
+        case 'trend':
+          return { ...(await getTrend(input.id)), type: 'trend' }
       }
     },
   })
