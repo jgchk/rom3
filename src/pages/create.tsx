@@ -7,8 +7,8 @@ import FormElement from '../components/FormElement'
 import SceneForm from '../components/SceneForm'
 import StyleForm from '../components/StyleForm'
 import TrendForm from '../components/TrendForm'
+import { capitalize } from '../utils/string'
 import { InferMutationInput } from '../utils/trpc'
-import { capitalize } from './utils/string'
 
 export type SceneObject = Scene & { type: 'scene' }
 export type StyleObject = Style & { type: 'style' }
