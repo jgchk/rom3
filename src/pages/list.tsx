@@ -1,6 +1,6 @@
 import { NextPage } from 'next'
 
-import trpc from '../services'
+import trpc from '../utils/trpc'
 
 const List: NextPage = () => {
   const { data, error } = trpc.useQuery([

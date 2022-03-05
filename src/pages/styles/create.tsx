@@ -6,7 +6,7 @@ import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import Multiselect from '../../components/Multiselect'
-import trpc from '../../services'
+import trpc from '../../utils/trpc'
 
 const CreateStyle: NextPage = () => {
   const [name, setName] = useState('')

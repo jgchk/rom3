@@ -1,14 +1,13 @@
-import styled from '@emotion/styled'
 import { Scene, Style, Trend } from '@prisma/client'
-import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import Multiselect from '../../components/Multiselect'
-import trpc from '../../utils/trpc'
+import trpc from '../utils/trpc'
+import FormElement from './FormElement'
+import Multiselect from './Multiselect'
 
-const CreateTrend: NextPage = () => {
+const TrendForm: FC = () => {
   const [name, setName] = useState('')
   const [shortDesc, setShortDesc] = useState('')
   const [longDesc, setLongDesc] = useState('')
@@ -60,56 +59,48 @@ const CreateTrend: NextPage = () => {
   ])
 
   return (
-    <Layout>
-      <Form
-        onSubmit={(e) => {
-          e.preventDefault()
-          handleCreate()
-        }}
-      >
-        <FormElement>
-          <label>Name *</label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </FormElement>
-        <FormElement>
-          <label>Alternate Names</label>
-          <input
-            value={alternateNamesStr}
-            onChange={(e) => setAlternateNamesStr(e.target.value)}
-          />
-        </FormElement>
-        <FormElement>
-          <label>Influences</label>
-          <InfluencedByDropdown
-            value={influencedByObjs}
-            onChange={(value) => setInfluencedByObjs(value)}
-          />
-        </FormElement>
-        <FormElement>
-          <label>Short Description *</label>
-          <textarea
-            value={shortDesc}
-            onChange={(e) => setShortDesc(e.target.value)}
-            style={{ width: '100%' }}
-            required
-          />
-        </FormElement>
-        <FormElement>
-          <label>Long Description *</label>
-          <textarea
-            value={longDesc}
-            onChange={(e) => setLongDesc(e.target.value)}
-            style={{ width: '100%', height: 300 }}
-            required
-          />
-        </FormElement>
-        <button type='submit'>Submit</button>
-      </Form>
-    </Layout>
+    <>
+      <FormElement>
+        <label>Name *</label>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </FormElement>
+      <FormElement>
+        <label>Alternate Names</label>
+        <input
+          value={alternateNamesStr}
+          onChange={(e) => setAlternateNamesStr(e.target.value)}
+        />
+      </FormElement>
+      <FormElement>
+        <label>Influences</label>
+        <InfluencedByDropdown
+          value={influencedByObjs}
+          onChange={(value) => setInfluencedByObjs(value)}
+        />
+      </FormElement>
+      <FormElement>
+        <label>Short Description *</label>
+        <textarea
+          value={shortDesc}
+          onChange={(e) => setShortDesc(e.target.value)}
+          style={{ width: '100%' }}
+          required
+        />
+      </FormElement>
+      <FormElement>
+        <label>Long Description *</label>
+        <textarea
+          value={longDesc}
+          onChange={(e) => setLongDesc(e.target.value)}
+          style={{ width: '100%', height: 300 }}
+          required
+        />
+      </FormElement>
+    </>
   )
 }
 
@@ -149,24 +140,4 @@ const InfluencedByDropdown: FC<{
   )
 }
 
-export default CreateTrend
-
-const Layout = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-`
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 500px;
-`
-
-const FormElement = styled.div`
-  label {
-    display: block;
-  }
-`
+export default TrendForm

@@ -5,8 +5,9 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import FormElement from '../../components/FormElement'
 import Multiselect from '../../components/Multiselect'
-import trpc from '../../services'
+import trpc from '../../utils/trpc'
 
 const CreateScene: NextPage = () => {
   const [name, setName] = useState('')
@@ -143,10 +144,4 @@ const Form = styled.form`
   flex-direction: column;
   gap: 4px;
   width: 500px;
-`
-
-const FormElement = styled.div`
-  label {
-    display: block;
-  }
 `

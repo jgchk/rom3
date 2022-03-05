@@ -53,7 +53,11 @@ const Multiselect = <T,>({
       const filteredItems = getFilteredItems(data)
       if (filteredItems.length === 0) return <div>No items</div>
       return filteredItems.map((item) => (
-        <MenuItem key={itemKey(item)} onClick={() => addSelectedItem(item)}>
+        <MenuItem
+          key={itemKey(item)}
+          type='button'
+          onClick={() => addSelectedItem(item)}
+        >
           {itemDisplay(item)}
         </MenuItem>
       ))
@@ -66,7 +70,10 @@ const Multiselect = <T,>({
             {selected.map((selectedItem) => (
               <SelectedItem key={itemKey(selectedItem)}>
                 {itemDisplay(selectedItem)}
-                <RemoveButton onClick={() => removeSelectedItem(selectedItem)}>
+                <RemoveButton
+                  type='button'
+                  onClick={() => removeSelectedItem(selectedItem)}
+                >
                   &#10005;
                 </RemoveButton>
               </SelectedItem>
