@@ -84,6 +84,7 @@ const CreateTrend: NextPage = () => {
         <FormElement>
           <label>Influences</label>
           <InfluencedByDropdown
+            value={influencedByObjs}
             onChange={(value) => setInfluencedByObjs(value)}
           />
         </FormElement>
@@ -123,8 +124,9 @@ type SelectItem =
     })
 
 const InfluencedByDropdown: FC<{
+  value: SelectItem[]
   onChange: (value: SelectItem[]) => void
-}> = ({ onChange }) => {
+}> = ({ value, onChange }) => {
   const { data, error, isLoading } = trpc.useQuery([
     'genres',
     { type: ['style', 'trend'] },
@@ -140,6 +142,7 @@ const InfluencedByDropdown: FC<{
       }
       itemDisplay={(item) => item.name}
       itemKey={(item) => item.id}
+      selected={value}
       onChange={(selected) => onChange(selected)}
     />
   )

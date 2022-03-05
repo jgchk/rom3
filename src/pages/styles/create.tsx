@@ -78,6 +78,7 @@ const CreateStyle: NextPage = () => {
         <FormElement>
           <label>Influences</label>
           <InfluencedByDropdown
+            value={influencedByObjs}
             onChange={(value) => setInfluencedByObjs(value)}
           />
         </FormElement>
@@ -106,8 +107,9 @@ const CreateStyle: NextPage = () => {
 }
 
 const InfluencedByDropdown: FC<{
+  value: Style[]
   onChange: (value: Style[]) => void
-}> = ({ onChange }) => {
+}> = ({ value, onChange }) => {
   const { data, error, isLoading } = trpc.useQuery(['styles.all'])
 
   return (
@@ -120,6 +122,7 @@ const InfluencedByDropdown: FC<{
       }
       itemDisplay={(item) => item.name}
       itemKey={(item) => item.id}
+      selected={value}
       onChange={(selected) => onChange(selected)}
     />
   )

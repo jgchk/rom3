@@ -78,6 +78,7 @@ const CreateScene: NextPage = () => {
         <FormElement>
           <label>Influences</label>
           <InfluencedByDropdown
+            value={influencedByObjs}
             onChange={(value) => setInfluencedByObjs(value)}
           />
         </FormElement>
@@ -105,9 +106,10 @@ const CreateScene: NextPage = () => {
   )
 }
 
-const InfluencedByDropdown: FC<{ onChange: (selected: Scene[]) => void }> = ({
-  onChange,
-}) => {
+const InfluencedByDropdown: FC<{
+  value: Scene[]
+  onChange: (selected: Scene[]) => void
+}> = ({ value, onChange }) => {
   const { data, error, isLoading } = trpc.useQuery(['scenes.all'])
 
   return (
@@ -120,6 +122,7 @@ const InfluencedByDropdown: FC<{ onChange: (selected: Scene[]) => void }> = ({
       }
       itemDisplay={(item) => item.name}
       itemKey={(item) => item.id}
+      selected={value}
       onChange={(selected) => onChange(selected)}
     />
   )
