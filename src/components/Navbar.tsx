@@ -3,7 +3,7 @@ import { FC } from 'react'
 
 const Navbar: FC = () => (
   <nav>
-    <Link href='/scenes'>
+    <Link href='/list'>
       <a>Genres</a>
     </Link>
     <Link href='/scenes/create'>

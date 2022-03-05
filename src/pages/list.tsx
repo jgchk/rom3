@@ -1,9 +1,12 @@
 import { NextPage } from 'next'
 
-import trpc from '../../services'
+import trpc from '../services'
 
-const Trends: NextPage = () => {
-  const { data, error } = trpc.useQuery(['trends.all'])
+const List: NextPage = () => {
+  const { data, error } = trpc.useQuery([
+    'genres',
+    { type: ['scene', 'style', 'trend'] },
+  ])
 
   if (data) {
     return (
@@ -11,14 +14,16 @@ const Trends: NextPage = () => {
         <thead>
           <tr>
             <th>Name</th>
+            <th>Type</th>
             <th>Description</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((trend) => (
-            <tr key={trend.id}>
-              <td>{trend.name}</td>
-              <td>{trend.shortDesc}</td>
+          {data.map((scene) => (
+            <tr key={scene.id}>
+              <td>{scene.name}</td>
+              <td>{scene.type}</td>
+              <td>{scene.shortDesc}</td>
             </tr>
           ))}
         </tbody>
@@ -38,4 +43,4 @@ const Trends: NextPage = () => {
   return <div>Loading...</div>
 }
 
-export default Trends
+export default List
