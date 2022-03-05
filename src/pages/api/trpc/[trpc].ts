@@ -3,9 +3,9 @@ import * as trpc from '@trpc/server'
 import * as trpcNext from '@trpc/server/adapters/next'
 import { z } from 'zod'
 
-import scenesRouter from './scenes'
-import stylesRouter from './styles'
-import trendsRouter from './trends'
+import scenesRouter, { addScene, SceneInput } from './scenes'
+import stylesRouter, { addStyle, StyleInput } from './styles'
+import trendsRouter, { addTrend, TrendInput } from './trends'
 
 const prisma = new PrismaClient()
 
@@ -51,6 +51,24 @@ const appRouter = trpc
         )
       )
       return results.flat()
+    },
+  })
+  .mutation('add', {
+    input: z.union([
+      z.object({ type: z.literal('scene'), data: SceneInput }),
+      z.object({ type: z.literal('style'), data: StyleInput }),
+      z.object({ type: z.literal('trend'), data: TrendInput }),
+    ]),
+    resolve: async ({ input }) => {
+      switch (input.type) {
+        case 'scene': {
+          return addScene(input.data)
+        }
+        case 'style':
+          return addStyle(input.data)
+        case 'trend':
+          return addTrend(input.data)
+      }
     },
   })
   .merge('scenes.', scenesRouter)

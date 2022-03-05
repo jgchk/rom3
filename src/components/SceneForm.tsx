@@ -15,7 +15,6 @@ const SceneForm: FC<{
       <input
         value={data.name}
         onChange={(e) => onChange((d) => ({ ...d, name: e.target.value }))}
-        required
       />
     </FormElement>
     <FormElement>

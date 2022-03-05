@@ -1,6 +1,7 @@
 import styled from '@emotion/styled'
 import { NextPage } from 'next'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import toast from 'react-hot-toast'
 
 import FormElement from '../components/FormElement'
 import SceneForm from '../components/SceneForm'
@@ -14,9 +15,84 @@ import {
   makeScene,
 } from '../utils/create'
 import { capitalize } from '../utils/string'
+import trpc, { InferMutationInput } from '../utils/trpc'
+
+const convertData = (data: GenreInput): InferMutationInput<'add'> => {
+  switch (data.type) {
+    case 'scene': {
+      return {
+        type: 'scene',
+        data: {
+          ...data,
+          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+          influencedBy: data.influencedBy.map((item) => item.id),
+        },
+      }
+    }
+    case 'style': {
+      return {
+        type: 'style',
+        data: {
+          ...data,
+          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+          influencedBy: data.influencedBy.map((item) => item.id),
+          parents: data.parents.map((item) => item.id),
+        },
+      }
+    }
+    case 'trend': {
+      return {
+        type: 'trend',
+        data: {
+          ...data,
+          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+          trendInfluencedBy: data.trendInfluencedBy.map((item) => item.id),
+          styleInfluencedBy: data.styleInfluencedBy.map((item) => item.id),
+          parentTrends: data.parentTrends.map((item) => item.id),
+          parentStyles: data.parentStyles.map((item) => item.id),
+        },
+      }
+    }
+  }
+}
 
 const Create: NextPage = () => {
   const [data, setData] = useState<GenreInput>(makeScene()[0])
+
+  const { mutate, isLoading: isSubmitting } = trpc.useMutation('add')
+  const utils = trpc.useContext()
+  const handleCreate = useCallback(
+    () =>
+      mutate(convertData(data), {
+        onError: (error) => {
+          toast.error(error.message)
+        },
+        onSuccess: async (res, { type }) => {
+          toast.success(`Created ${res.name}!`)
+
+          // TODO: invalidate based on return data
+          await utils.invalidateQueries('genres')
+          switch (type) {
+            case 'scene': {
+              await utils.invalidateQueries('scenes.all')
+              await utils.invalidateQueries('scenes.byId')
+              break
+            }
+            case 'style': {
+              await utils.invalidateQueries('styles.all')
+              await utils.invalidateQueries('styles.byId')
+              break
+            }
+            case 'trend': {
+              await utils.invalidateQueries('trends.all')
+              await utils.invalidateQueries('trends.byId')
+              break
+            }
+          }
+        },
+      }),
+    [data, mutate, utils]
+  )
 
   const renderForm = () => {
     switch (data.type) {
@@ -79,7 +155,13 @@ const Create: NextPage = () => {
           </select>
         </FormElement>
         {renderForm()}
-        <button type='submit'>Submit</button>
+        <button
+          type='submit'
+          disabled={isSubmitting}
+          onClick={() => handleCreate()}
+        >
+          {isSubmitting ? 'Loading...' : 'Submit'}
+        </button>
       </Form>
     </Layout>
   )
