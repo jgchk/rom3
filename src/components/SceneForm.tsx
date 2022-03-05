@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { SceneInput, SceneObject } from '../pages/create'
+import { SceneInput, SceneObject } from '../utils/create'
 import trpc from '../utils/trpc'
 import FormElement from './FormElement'
 import Multiselect from './Multiselect'

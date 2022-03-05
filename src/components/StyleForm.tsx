@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { StyleInput, StyleObject } from '../pages/create'
+import { StyleInput, StyleObject } from '../utils/create'
 import trpc from '../utils/trpc'
 import FormElement from './FormElement'
 import Multiselect from './Multiselect'

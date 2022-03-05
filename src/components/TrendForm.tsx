@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { StyleObject, TrendInput, TrendObject } from '../pages/create'
+import { StyleObject, TrendInput, TrendObject } from '../utils/create'
 import trpc, { InferQueryOutput } from '../utils/trpc'
 import FormElement from './FormElement'
 import Multiselect from './Multiselect'
