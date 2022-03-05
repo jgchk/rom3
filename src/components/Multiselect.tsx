@@ -17,7 +17,7 @@ type MultiselectProps<T> = {
 
 const Multiselect = <T,>({
   data,
-  error,
+  isLoading,
   filter,
   itemDisplay,
   itemKey,
@@ -48,8 +48,10 @@ const Multiselect = <T,>({
     [onChange, selected]
   )
 
-  if (data) {
+  if (data || isLoading) {
     const renderFilteredItems = () => {
+      if (!data) return <div>Loading...</div>
+
       const filteredItems = getFilteredItems(data)
       if (filteredItems.length === 0) return <div>No items</div>
       return filteredItems.map((item) => (
@@ -93,11 +95,7 @@ const Multiselect = <T,>({
     )
   }
 
-  if (error) {
-    return <div>Error</div>
-  }
-
-  return <div>Loading...</div>
+  return <div>Error</div>
 }
 
 export default Multiselect
