@@ -1,6 +1,12 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { StyleObject, TrendInput, TrendObject } from '../utils/create'
+import {
+  isStyle,
+  isTrend,
+  StyleObject,
+  TrendInput,
+  TrendObject,
+} from '../utils/create'
 import trpc, { InferQueryOutput } from '../utils/trpc'
 import FormElement from './FormElement'
 import Multiselect from './Multiselect'
@@ -32,8 +38,21 @@ const TrendForm: FC<{
       />
     </FormElement>
     <FormElement>
+      <label>Parents</label>
+      <StyleOrTrendMultiselect
+        value={[...data.parentStyles, ...data.parentTrends]}
+        onChange={(parents) =>
+          onChange((d) => ({
+            ...d,
+            parentStyles: parents.filter(isStyle),
+            parentTrends: parents.filter(isTrend),
+          }))
+        }
+      />
+    </FormElement>
+    <FormElement>
       <label>Influences</label>
-      <InfluencedByDropdown
+      <StyleOrTrendMultiselect
         value={[...data.styleInfluencedBy, ...data.trendInfluencedBy]}
         onChange={(influencedBy) => onChange((d) => ({ ...d, influencedBy }))}
       />
@@ -59,7 +78,7 @@ const TrendForm: FC<{
   </>
 )
 
-const InfluencedByDropdown: FC<{
+const StyleOrTrendMultiselect: FC<{
   value: (TrendObject | StyleObject)[]
   onChange: (value: (TrendObject | StyleObject)[]) => void
 }> = ({ value, onChange }) => {

@@ -10,6 +10,8 @@ const Trend = z.object({
   alternateNames: z.array(z.string()),
   trendInfluencedBy: z.array(z.number()),
   styleInfluencedBy: z.array(z.number()),
+  parentTrends: z.array(z.number()),
+  parentStyles: z.array(z.number()),
 })
 
 const prisma = new PrismaClient()
@@ -31,6 +33,10 @@ const trendsRouter = trpc
           styleInfluencedBy: {
             connect: input.styleInfluencedBy.map((id) => ({ id })),
           },
+          parentTrends: {
+            connect: input.parentTrends.map((id) => ({ id })),
+          },
+          parentStyles: { connect: input.parentStyles.map((id) => ({ id })) },
         },
       })
       return trend
@@ -73,6 +79,10 @@ const trendsRouter = trpc
           styleInfluencedBy: {
             connect: input.styleInfluencedBy.map((id) => ({ id })),
           },
+          parentTrends: {
+            connect: input.parentTrends.map((id) => ({ id })),
+          },
+          parentStyles: { connect: input.parentStyles.map((id) => ({ id })) },
         },
       })
       return trend

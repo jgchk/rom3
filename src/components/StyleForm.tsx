@@ -28,8 +28,15 @@ const StyleForm: FC<{
       />
     </FormElement>
     <FormElement>
+      <label>Parents</label>
+      <StyleMultiselect
+        value={data.parents}
+        onChange={(parents) => onChange((d) => ({ ...d, parents }))}
+      />
+    </FormElement>
+    <FormElement>
       <label>Influences</label>
-      <InfluencedByDropdown
+      <StyleMultiselect
         value={data.influencedBy}
         onChange={(influencedBy) => onChange((d) => ({ ...d, influencedBy }))}
       />
@@ -55,7 +62,7 @@ const StyleForm: FC<{
   </>
 )
 
-const InfluencedByDropdown: FC<{
+const StyleMultiselect: FC<{
   value: StyleObject[]
   onChange: (selected: StyleObject[]) => void
 }> = ({ value, onChange }) => {

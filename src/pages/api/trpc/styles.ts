@@ -9,6 +9,7 @@ const Style = z.object({
   longDesc: z.string().min(1),
   alternateNames: z.array(z.string()),
   influencedBy: z.array(z.number()),
+  parents: z.array(z.number()),
 })
 
 const prisma = new PrismaClient()
@@ -25,6 +26,7 @@ const stylesRouter = trpc
             create: input.alternateNames.map((name) => ({ name })),
           },
           influencedBy: { connect: input.influencedBy.map((id) => ({ id })) },
+          parents: { connect: input.parents.map((id) => ({ id })) },
         },
       })
       return style
@@ -62,6 +64,7 @@ const stylesRouter = trpc
             create: input.alternateNames.map((name) => ({ name })),
           },
           influencedBy: { connect: input.influencedBy.map((id) => ({ id })) },
+          parents: { connect: input.parents.map((id) => ({ id })) },
         },
       })
       return style
