@@ -1,4 +1,5 @@
 import { NextPage } from 'next'
+import Link from 'next/link'
 
 import trpc from '../utils/trpc'
 
@@ -16,14 +17,25 @@ const List: NextPage = () => {
             <th>Name</th>
             <th>Type</th>
             <th>Description</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          {data.map((scene) => (
-            <tr key={scene.id}>
-              <td>{scene.name}</td>
-              <td>{scene.type}</td>
-              <td>{scene.shortDesc}</td>
+          {data.map((genre) => (
+            <tr key={genre.id}>
+              <td>{genre.name}</td>
+              <td>{genre.type}</td>
+              <td>{genre.shortDesc}</td>
+              <td>
+                <Link
+                  href={{
+                    pathname: '/edit',
+                    query: { type: genre.type, id: genre.id },
+                  }}
+                >
+                  <a>Edit</a>
+                </Link>
+              </td>
             </tr>
           ))}
         </tbody>
