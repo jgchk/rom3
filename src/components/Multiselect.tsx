@@ -83,19 +83,21 @@ const Multiselect = <T,>({
     return (
       <Container ref={containerRef}>
         <InputContainer>
-          <SelectedItems>
-            {selected.map((selectedItem) => (
-              <SelectedItem key={itemKey(selectedItem)}>
-                {itemDisplay(selectedItem)}
-                <RemoveButton
-                  type='button'
-                  onClick={() => removeSelectedItem(selectedItem)}
-                >
-                  &#10005;
-                </RemoveButton>
-              </SelectedItem>
-            ))}
-          </SelectedItems>
+          {selected.length > 0 && (
+            <SelectedItems>
+              {selected.map((selectedItem) => (
+                <SelectedItem key={itemKey(selectedItem)}>
+                  {itemDisplay(selectedItem)}
+                  <RemoveButton
+                    type='button'
+                    onClick={() => removeSelectedItem(selectedItem)}
+                  >
+                    &#10005;
+                  </RemoveButton>
+                </SelectedItem>
+              ))}
+            </SelectedItems>
+          )}
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
