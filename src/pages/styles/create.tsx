@@ -1,8 +1,10 @@
 import styled from '@emotion/styled'
+import { Style } from '@prisma/client'
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
+import Multiselect from '../../components/Multiselect'
 import trpc from '../../services'
 
 const CreateStyle: NextPage = () => {
@@ -10,14 +12,14 @@ const CreateStyle: NextPage = () => {
   const [shortDesc, setShortDesc] = useState('')
   const [longDesc, setLongDesc] = useState('')
   const [alternateNamesStr, setAlternateNamesStr] = useState('')
-  const [influencedByObjs, setInfluencedByObjs] = useState<SelectItem[]>([])
+  const [influencedByObjs, setInfluencedByObjs] = useState<Style[]>([])
 
   const { mutate } = trpc.useMutation('styles.add')
   const utils = trpc.useContext()
   const router = useRouter()
   const handleCreate = useCallback(() => {
     const alternateNames = alternateNamesStr.split(',').map((s) => s.trim())
-    const influencedBy = influencedByObjs.map(({ value }) => value)
+    const influencedBy = influencedByObjs.map((style) => style.id)
     return mutate(
       {
         name,
@@ -76,7 +78,6 @@ const CreateStyle: NextPage = () => {
         <FormElement>
           <label>Influences</label>
           <InfluencedByDropdown
-            value={influencedByObjs}
             onChange={(value) => setInfluencedByObjs(value)}
           />
         </FormElement>
@@ -104,52 +105,23 @@ const CreateStyle: NextPage = () => {
   )
 }
 
-type SelectItem = { value: number; label: string }
-
 const InfluencedByDropdown: FC<{
-  value: SelectItem[]
-  onChange: (value: SelectItem[]) => void
-}> = ({ value, onChange }) => {
-  const { data, error } = trpc.useQuery(['styles.all'])
-
-  const handleRemoveItem = useCallback(
-    (itemValue: number) =>
-      onChange(value.filter((item) => item.value !== itemValue)),
-    [onChange, value]
-  )
-
-  const renderSelectOptions = useCallback(() => {
-    if (data) {
-      if (data.length === 0) {
-        return <option>No influences available</option>
-      }
-      return (
-        <>
-          {data.map((style) => (
-            <option key={style.id} value={style.id}>
-              {style.name}
-            </option>
-          ))}
-        </>
-      )
-    }
-
-    if (error) {
-      return <option>Error loading influences</option>
-    }
-
-    return <option>Loading...</option>
-  }, [data, error])
+  onChange: (value: Style[]) => void
+}> = ({ onChange }) => {
+  const { data, error, isLoading } = trpc.useQuery(['styles.all'])
 
   return (
-    <div>
-      {value.map((item) => (
-        <button key={item.value} onClick={() => handleRemoveItem(item.value)}>
-          {item.label}
-        </button>
-      ))}
-      <select>{renderSelectOptions()}</select>
-    </div>
+    <Multiselect
+      data={data}
+      error={error}
+      isLoading={isLoading}
+      filter={(item, query) =>
+        item.name.toLowerCase().startsWith(query.toLowerCase())
+      }
+      itemDisplay={(item) => item.name}
+      itemKey={(item) => item.id}
+      onChange={(selected) => onChange(selected)}
+    />
   )
 }
 

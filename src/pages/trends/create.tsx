@@ -1,8 +1,10 @@
 import styled from '@emotion/styled'
+import { Scene, Style, Trend } from '@prisma/client'
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
+import Multiselect from '../../components/Multiselect'
 import trpc from '../../services'
 
 const CreateTrend: NextPage = () => {
@@ -19,10 +21,10 @@ const CreateTrend: NextPage = () => {
     const alternateNames = alternateNamesStr.split(',').map((s) => s.trim())
     const styleInfluencedBy = influencedByObjs
       .filter((item) => item.type === 'style')
-      .map(({ value }) => value)
+      .map((style) => style.id)
     const trendInfluencedBy = influencedByObjs
       .filter((item) => item.type === 'trend')
-      .map(({ value }) => value)
+      .map((trend) => trend.id)
     return mutate(
       {
         name,
@@ -82,7 +84,6 @@ const CreateTrend: NextPage = () => {
         <FormElement>
           <label>Influences</label>
           <InfluencedByDropdown
-            value={influencedByObjs}
             onChange={(value) => setInfluencedByObjs(value)}
           />
         </FormElement>
@@ -110,55 +111,37 @@ const CreateTrend: NextPage = () => {
   )
 }
 
-type SelectItem = { value: number; label: string; type: 'style' | 'trend' }
+type SelectItem =
+  | (Scene & {
+      type: 'scene'
+    })
+  | (Style & {
+      type: 'style'
+    })
+  | (Trend & {
+      type: 'trend'
+    })
 
 const InfluencedByDropdown: FC<{
-  value: SelectItem[]
   onChange: (value: SelectItem[]) => void
-}> = ({ value, onChange }) => {
-  const { data, error } = trpc.useQuery([
+}> = ({ onChange }) => {
+  const { data, error, isLoading } = trpc.useQuery([
     'genres',
     { type: ['style', 'trend'] },
   ])
 
-  const handleRemoveItem = useCallback(
-    (itemValue: number) =>
-      onChange(value.filter((item) => item.value !== itemValue)),
-    [onChange, value]
-  )
-
-  const renderSelectOptions = useCallback(() => {
-    if (data) {
-      if (data.length === 0) {
-        return <option>No influences available</option>
-      }
-      return (
-        <>
-          {data.map((trend) => (
-            <option key={trend.id} value={trend.id}>
-              {trend.name}
-            </option>
-          ))}
-        </>
-      )
-    }
-
-    if (error) {
-      return <option>Error loading influences</option>
-    }
-
-    return <option>Loading...</option>
-  }, [data, error])
-
   return (
-    <div>
-      {value.map((item) => (
-        <button key={item.value} onClick={() => handleRemoveItem(item.value)}>
-          {item.label}
-        </button>
-      ))}
-      <select>{renderSelectOptions()}</select>
-    </div>
+    <Multiselect
+      data={data}
+      error={error}
+      isLoading={isLoading}
+      filter={(item, query) =>
+        item.name.toLowerCase().startsWith(query.toLowerCase())
+      }
+      itemDisplay={(item) => item.name}
+      itemKey={(item) => item.id}
+      onChange={(selected) => onChange(selected)}
+    />
   )
 }
 
