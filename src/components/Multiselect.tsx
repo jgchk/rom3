@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import { TRPCClientErrorLike } from '@trpc/client'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { AppRouter } from '../pages/api/trpc/[trpc]'
 
@@ -48,6 +48,21 @@ const Multiselect = <T,>({
     [onChange, selected]
   )
 
+  const containerRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const listener = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        e.target &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('click', listener)
+    return () => document.removeEventListener('click', listener)
+  }, [])
+
   if (data || isLoading) {
     const renderFilteredItems = () => {
       if (!data) return <div>Loading...</div>
@@ -66,7 +81,7 @@ const Multiselect = <T,>({
     }
 
     return (
-      <Container>
+      <Container ref={containerRef}>
         <InputContainer>
           <SelectedItems>
             {selected.map((selectedItem) => (
@@ -106,6 +121,7 @@ const Container = styled.div`
 
 const InputContainer = styled.div`
   display: flex;
+  gap: 2px;
   width: 100%;
   border: 1px solid black;
   border-radius: 2px;
@@ -113,6 +129,7 @@ const InputContainer = styled.div`
 
 const SelectedItems = styled.div`
   display: flex;
+  gap: 2px;
   padding: 2px;
 `
 
