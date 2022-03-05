@@ -24,5 +24,7 @@ module.exports = {
   },
   rules: {
     'unicorn/prevent-abbreviations': 'off',
+    'unicorn/filename-case': 'off',
+    'unicorn/no-null': 'off',
   },
 }
