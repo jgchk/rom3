@@ -5,18 +5,21 @@ import { z } from 'zod'
 
 import scenesRouter, {
   addScene,
+  editScene,
   getScene,
   SceneInput,
   SceneOutput,
 } from './scenes'
 import stylesRouter, {
   addStyle,
+  editStyle,
   getStyle,
   StyleInput,
   StyleOutput,
 } from './styles'
 import trendsRouter, {
   addTrend,
+  editTrend,
   getTrend,
   TrendInput,
   TrendOutput,
@@ -97,6 +100,23 @@ const appRouter = trpc
           return { ...(await getStyle(input.id)), type: 'style' }
         case 'trend':
           return { ...(await getTrend(input.id)), type: 'trend' }
+      }
+    },
+  })
+  .mutation('edit', {
+    input: z.union([
+      z.object({ type: z.literal('scene'), id: z.number(), data: SceneInput }),
+      z.object({ type: z.literal('style'), id: z.number(), data: StyleInput }),
+      z.object({ type: z.literal('trend'), id: z.number(), data: TrendInput }),
+    ]),
+    resolve: async ({ input }) => {
+      switch (input.type) {
+        case 'scene':
+          return editScene(input.id, input.data)
+        case 'style':
+          return editStyle(input.id, input.data)
+        case 'trend':
+          return editTrend(input.id, input.data)
       }
     },
   })

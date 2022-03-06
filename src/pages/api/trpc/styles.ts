@@ -52,6 +52,21 @@ export const getStyle = async (id: number): Promise<StyleOutput> => {
   }
 }
 
+export const editStyle = async (id: number, data: StyleInput) => {
+  const style = await prisma.style.update({
+    where: { id: id },
+    data: {
+      ...data,
+      alternateNames: {
+        create: data.alternateNames.map((name) => ({ name })),
+      },
+      influencedBy: { connect: data.influencedBy.map((id) => ({ id })) },
+      parents: { connect: data.parents.map((id) => ({ id })) },
+    },
+  })
+  return style
+}
+
 const stylesRouter = trpc
   .router()
   .mutation('add', {
@@ -69,23 +84,11 @@ const stylesRouter = trpc
     resolve: ({ input }) => getStyle(input.id),
   })
   .mutation('edit', {
-    input: StyleInput.extend({
+    input: z.object({
       id: z.number(),
+      data: StyleInput,
     }),
-    resolve: async ({ input }) => {
-      const style = await prisma.style.update({
-        where: { id: input.id },
-        data: {
-          ...input,
-          alternateNames: {
-            create: input.alternateNames.map((name) => ({ name })),
-          },
-          influencedBy: { connect: input.influencedBy.map((id) => ({ id })) },
-          parents: { connect: input.parents.map((id) => ({ id })) },
-        },
-      })
-      return style
-    },
+    resolve: ({ input }) => editStyle(input.id, input.data),
   })
   .mutation('delete', {
     input: z.object({ id: z.number() }),

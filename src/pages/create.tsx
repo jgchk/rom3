@@ -7,7 +7,7 @@ import FormElement from '../components/FormElement'
 import SceneForm from '../components/SceneForm'
 import StyleForm from '../components/StyleForm'
 import TrendForm from '../components/TrendForm'
-import { toApi } from '../utils/convert'
+import { toAddApi } from '../utils/convert'
 import {
   GenreInput,
   GenreType,
@@ -25,7 +25,7 @@ const Create: NextPage = () => {
   const utils = trpc.useContext()
   const handleCreate = useCallback(
     () =>
-      mutate(toApi(data), {
+      mutate(toAddApi(data), {
         onError: (error) => {
           toast.error(error.message)
         },

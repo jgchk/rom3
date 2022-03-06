@@ -70,6 +70,29 @@ export const getTrend = async (id: number): Promise<TrendOutput> => {
   }
 }
 
+export const editTrend = async (id: number, data: TrendInput) => {
+  const trend = await prisma.trend.update({
+    where: { id: id },
+    data: {
+      ...data,
+      alternateNames: {
+        create: data.alternateNames.map((name) => ({ name })),
+      },
+      trendInfluencedBy: {
+        connect: data.trendInfluencedBy.map((id) => ({ id })),
+      },
+      styleInfluencedBy: {
+        connect: data.styleInfluencedBy.map((id) => ({ id })),
+      },
+      parentTrends: {
+        connect: data.parentTrends.map((id) => ({ id })),
+      },
+      parentStyles: { connect: data.parentStyles.map((id) => ({ id })) },
+    },
+  })
+  return trend
+}
+
 const trendsRouter = trpc
   .router()
   .mutation('add', {
@@ -87,31 +110,11 @@ const trendsRouter = trpc
     resolve: ({ input }) => getTrend(input.id),
   })
   .mutation('edit', {
-    input: TrendInput.extend({
+    input: z.object({
       id: z.number(),
+      data: TrendInput,
     }),
-    resolve: async ({ input }) => {
-      const trend = await prisma.trend.update({
-        where: { id: input.id },
-        data: {
-          ...input,
-          alternateNames: {
-            create: input.alternateNames.map((name) => ({ name })),
-          },
-          trendInfluencedBy: {
-            connect: input.trendInfluencedBy.map((id) => ({ id })),
-          },
-          styleInfluencedBy: {
-            connect: input.styleInfluencedBy.map((id) => ({ id })),
-          },
-          parentTrends: {
-            connect: input.parentTrends.map((id) => ({ id })),
-          },
-          parentStyles: { connect: input.parentStyles.map((id) => ({ id })) },
-        },
-      })
-      return trend
-    },
+    resolve: ({ input }) => editTrend(input.id, input.data),
   })
   .mutation('delete', {
     input: z.object({ id: z.number() }),

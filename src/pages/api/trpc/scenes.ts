@@ -49,6 +49,21 @@ export const getScene = async (id: number): Promise<SceneOutput> => {
   }
 }
 
+export const editScene = async (id: number, data: SceneInput) => {
+  await prisma.sceneName.deleteMany({ where: { sceneId: id } })
+  const scene = await prisma.scene.update({
+    where: { id: id },
+    data: {
+      ...data,
+      alternateNames: {
+        create: data.alternateNames.map((name) => ({ name })),
+      },
+      influencedBy: { set: data.influencedBy.map((id) => ({ id })) },
+    },
+  })
+  return scene
+}
+
 const scenesRouter = trpc
   .router()
   .mutation('add', {
@@ -66,22 +81,11 @@ const scenesRouter = trpc
     resolve: ({ input }) => getScene(input.id),
   })
   .mutation('edit', {
-    input: SceneInput.extend({
+    input: z.object({
       id: z.number(),
+      data: SceneInput,
     }),
-    resolve: async ({ input }) => {
-      const scene = await prisma.scene.update({
-        where: { id: input.id },
-        data: {
-          ...input,
-          alternateNames: {
-            create: input.alternateNames.map((name) => ({ name })),
-          },
-          influencedBy: { connect: input.influencedBy.map((id) => ({ id })) },
-        },
-      })
-      return scene
-    },
+    resolve: ({ input }) => editScene(input.id, input.data),
   })
   .mutation('delete', {
     input: z.object({ id: z.number() }),

@@ -43,7 +43,7 @@ export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
   }
 }
 
-export const toApi = (data: GenreInput): InferMutationInput<'add'> => {
+export const toAddApi = (data: GenreInput): InferMutationInput<'add'> => {
   switch (data.type) {
     case 'scene': {
       return {
@@ -68,6 +68,51 @@ export const toApi = (data: GenreInput): InferMutationInput<'add'> => {
     }
     case 'trend': {
       return {
+        type: 'trend',
+        data: {
+          ...data,
+          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+          trendInfluencedBy: data.trendInfluencedBy.map((item) => item.id),
+          styleInfluencedBy: data.styleInfluencedBy.map((item) => item.id),
+          parentTrends: data.parentTrends.map((item) => item.id),
+          parentStyles: data.parentStyles.map((item) => item.id),
+        },
+      }
+    }
+  }
+}
+
+export const toEditApi = (
+  id: number,
+  data: GenreInput
+): InferMutationInput<'edit'> => {
+  switch (data.type) {
+    case 'scene': {
+      return {
+        id,
+        type: 'scene',
+        data: {
+          ...data,
+          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+          influencedBy: data.influencedBy.map((item) => item.id),
+        },
+      }
+    }
+    case 'style': {
+      return {
+        id,
+        type: 'style',
+        data: {
+          ...data,
+          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+          influencedBy: data.influencedBy.map((item) => item.id),
+          parents: data.parents.map((item) => item.id),
+        },
+      }
+    }
+    case 'trend': {
+      return {
+        id,
         type: 'trend',
         data: {
           ...data,

@@ -9,7 +9,7 @@ import SceneForm from '../components/SceneForm'
 import StyleForm from '../components/StyleForm'
 import TrendForm from '../components/TrendForm'
 import { getParam } from '../utils/api'
-import { fromApi, toApi } from '../utils/convert'
+import { fromApi, toEditApi } from '../utils/convert'
 import {
   GenreInput,
   GenreType,
@@ -45,7 +45,7 @@ const EditInner: FC<{ type: GenreType; id: number }> = ({ type, id }) => {
   const { data, error } = trpc.useQuery(['get', { type, id }])
 
   if (data) {
-    return <EditInnerInner data={data} />
+    return <EditInnerInner id={id} data={data} />
   }
 
   if (error) {
@@ -55,21 +55,22 @@ const EditInner: FC<{ type: GenreType; id: number }> = ({ type, id }) => {
   return <div>Loading...</div>
 }
 
-const EditInnerInner: FC<{ data: InferQueryOutput<'get'> }> = ({
+const EditInnerInner: FC<{ id: number; data: InferQueryOutput<'get'> }> = ({
+  id,
   data: originalData,
 }) => {
   const [data, setData] = useState<GenreInput>(fromApi(originalData))
 
-  const { mutate, isLoading: isSubmitting } = trpc.useMutation('add')
+  const { mutate, isLoading: isSubmitting } = trpc.useMutation('edit')
   const utils = trpc.useContext()
-  const handleCreate = useCallback(
+  const handleEdit = useCallback(
     () =>
-      mutate(toApi(data), {
+      mutate(toEditApi(id, data), {
         onError: (error) => {
           toast.error(error.message)
         },
         onSuccess: async (res, { type }) => {
-          toast.success(`Created ${res.name}!`)
+          toast.success(`Edited ${res.name}!`)
 
           // TODO: invalidate based on return data
           await utils.invalidateQueries('genres')
@@ -92,7 +93,7 @@ const EditInnerInner: FC<{ data: InferQueryOutput<'get'> }> = ({
           }
         },
       }),
-    [data, mutate, utils]
+    [data, id, mutate, utils]
   )
 
   const renderForm = () => {
@@ -159,7 +160,7 @@ const EditInnerInner: FC<{ data: InferQueryOutput<'get'> }> = ({
         <button
           type='submit'
           disabled={isSubmitting}
-          onClick={() => handleCreate()}
+          onClick={() => handleEdit()}
         >
           {isSubmitting ? 'Loading...' : 'Submit'}
         </button>
