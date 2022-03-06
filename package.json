@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "db": "pscale connect romulus initial-setup --port 3309",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src && tsc && stylelint src",
