@@ -94,8 +94,20 @@ export const editScene = async (
 }
 
 export const deleteScene = async (id: number): Promise<number> => {
-  await prisma.sceneName.deleteMany({ where: { sceneId: id } })
-  await prisma.scene.delete({ where: { id } })
+  const deleteNames = prisma.sceneName.deleteMany({ where: { sceneId: id } })
+  const deleteInfluencesScenes = prisma.sceneInfluence.deleteMany({
+    where: { influencerId: id },
+  })
+  const deletedInfluencedByScenes = prisma.sceneInfluence.deleteMany({
+    where: { influencedId: id },
+  })
+  const deleteScene = prisma.scene.delete({ where: { id } })
+  await prisma.$transaction([
+    deleteNames,
+    deleteInfluencesScenes,
+    deletedInfluencedByScenes,
+    deleteScene,
+  ])
   return id
 }
 

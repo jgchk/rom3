@@ -29,9 +29,9 @@ model SceneName {
 }
 
 model SceneInfluence {
-  influencer   Scene @relation("SceneInfluencer", fields: [influencerId], references: [id], onUpdate: NoAction)
+  influencer   Scene @relation("SceneInfluencer", fields: [influencerId], references: [id])
   influencerId Int
-  influenced   Scene @relation("SceneInfluenced", fields: [influencedId], references: [id], onUpdate: NoAction)
+  influenced   Scene @relation("SceneInfluenced", fields: [influencedId], references: [id])
   influencedId Int
 
   @@id([influencerId, influencedId])
@@ -60,18 +60,18 @@ model StyleName {
 }
 
 model StyleParent {
-  parent   Style @relation("StyleParent", fields: [parentId], references: [id], onUpdate: NoAction)
+  parent   Style @relation("StyleParent", fields: [parentId], references: [id])
   parentId Int
-  child    Style @relation("StyleChild", fields: [childId], references: [id], onUpdate: NoAction)
+  child    Style @relation("StyleChild", fields: [childId], references: [id])
   childId  Int
 
   @@id([parentId, childId])
 }
 
 model StyleInfluence {
-  influencer   Style @relation("StyleInfluencer", fields: [influencerId], references: [id], onUpdate: NoAction)
+  influencer   Style @relation("StyleInfluencer", fields: [influencerId], references: [id])
   influencerId Int
-  influenced   Style @relation("StyleInfluenced", fields: [influencedId], references: [id], onUpdate: NoAction)
+  influenced   Style @relation("StyleInfluenced", fields: [influencedId], references: [id])
   influencedId Int
 
   @@id([influencerId, influencedId])
@@ -100,36 +100,36 @@ model TrendName {
 }
 
 model TrendTrendParent {
-  parent   Trend @relation("TrendTrendParent", fields: [parentId], references: [id], onUpdate: NoAction)
+  parent   Trend @relation("TrendTrendParent", fields: [parentId], references: [id])
   parentId Int
-  child    Trend @relation("TrendTrendChild", fields: [childId], references: [id], onUpdate: NoAction)
+  child    Trend @relation("TrendTrendChild", fields: [childId], references: [id])
   childId  Int
 
   @@id([parentId, childId])
 }
 
 model TrendStyleParent {
-  parent   Style @relation("TrendStyleParent", fields: [parentId], references: [id], onUpdate: NoAction)
+  parent   Style @relation("TrendStyleParent", fields: [parentId], references: [id])
   parentId Int
-  child    Trend @relation("TrendStyleChild", fields: [childId], references: [id], onUpdate: NoAction)
+  child    Trend @relation("TrendStyleChild", fields: [childId], references: [id])
   childId  Int
 
   @@id([parentId, childId])
 }
 
 model TrendTrendInfluence {
-  influencer   Trend @relation("TrendTrendInfluencer", fields: [influencerId], references: [id], onUpdate: NoAction)
+  influencer   Trend @relation("TrendTrendInfluencer", fields: [influencerId], references: [id])
   influencerId Int
-  influenced   Trend @relation("TrendTrendInfluenced", fields: [influencedId], references: [id], onUpdate: NoAction)
+  influenced   Trend @relation("TrendTrendInfluenced", fields: [influencedId], references: [id])
   influencedId Int
 
   @@id([influencerId, influencedId])
 }
 
 model TrendStyleInfluence {
-  influencer   Style @relation("TrendStyleInfluencer", fields: [influencerId], references: [id], onUpdate: NoAction)
+  influencer   Style @relation("TrendStyleInfluencer", fields: [influencerId], references: [id])
   influencerId Int
-  influenced   Trend @relation("TrendStyleInfluenced", fields: [influencedId], references: [id], onUpdate: NoAction)
+  influenced   Trend @relation("TrendStyleInfluenced", fields: [influencedId], references: [id])
   influencedId Int
 
   @@id([influencerId, influencedId])

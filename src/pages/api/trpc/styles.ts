@@ -114,8 +114,36 @@ export const editStyle = async (
 }
 
 export const deleteStyle = async (id: number): Promise<number> => {
-  await prisma.styleName.deleteMany({ where: { styleId: id } })
-  await prisma.style.delete({ where: { id } })
+  const deleteNames = prisma.styleName.deleteMany({ where: { styleId: id } })
+  const deleteStyleParents = prisma.styleParent.deleteMany({
+    where: { childId: id },
+  })
+  const deleteStyleChildren = prisma.styleParent.deleteMany({
+    where: { parentId: id },
+  })
+  const deleteTrendChildren = prisma.trendStyleParent.deleteMany({
+    where: { parentId: id },
+  })
+  const deleteInfluencesStyles = prisma.styleInfluence.deleteMany({
+    where: { influencerId: id },
+  })
+  const deleteInfluencesTrends = prisma.trendStyleInfluence.deleteMany({
+    where: { influencerId: id },
+  })
+  const deleteInfluencedByStyles = prisma.styleInfluence.deleteMany({
+    where: { influencedId: id },
+  })
+  const deleteStyle = prisma.style.delete({ where: { id } })
+  await prisma.$transaction([
+    deleteNames,
+    deleteStyleParents,
+    deleteStyleChildren,
+    deleteTrendChildren,
+    deleteInfluencesStyles,
+    deleteInfluencedByStyles,
+    deleteInfluencesTrends,
+    deleteStyle,
+  ])
   return id
 }
 
