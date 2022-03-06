@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "db": "pscale connect romulus initial-setup --port 3309",
+    "db": "pscale connect romulus dev --port 3309",
     "db:shadow": "pscale connect romulus shadow --port 3310",
     "build": "next build",
     "start": "next start",
