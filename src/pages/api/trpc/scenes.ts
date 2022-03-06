@@ -78,6 +78,12 @@ export const editScene = async (
   return toOutput(scene)
 }
 
+export const deleteScene = async (id: number): Promise<number> => {
+  await prisma.sceneName.deleteMany({ where: { sceneId: id } })
+  await prisma.scene.delete({ where: { id } })
+  return id
+}
+
 const scenesRouter = trpc
   .router()
   .mutation('add', {
@@ -103,10 +109,7 @@ const scenesRouter = trpc
   })
   .mutation('delete', {
     input: z.object({ id: z.number() }),
-    resolve: async ({ input }) => {
-      await prisma.scene.delete({ where: { id: input.id } })
-      return input.id
-    },
+    resolve: ({ input }) => deleteScene(input.id),
   })
 
 export default scenesRouter

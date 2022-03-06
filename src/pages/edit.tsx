@@ -69,25 +69,25 @@ const EditInnerInner: FC<{ id: number; data: InferQueryOutput<'get'> }> = ({
         onError: (error) => {
           toast.error(error.message)
         },
-        onSuccess: async (res, { type }) => {
+        onSuccess: async (res) => {
           toast.success(`Edited ${res.name}!`)
 
-          // TODO: invalidate based on return data
           await utils.invalidateQueries('genres')
-          switch (type) {
+          utils.setQueryData(['get', { type: res.type, id: res.id }], res)
+          switch (res.type) {
             case 'scene': {
               await utils.invalidateQueries('scenes.all')
-              await utils.invalidateQueries('scenes.byId')
+              utils.setQueryData(['scenes.byId', { id: res.id }], res)
               break
             }
             case 'style': {
               await utils.invalidateQueries('styles.all')
-              await utils.invalidateQueries('styles.byId')
+              utils.setQueryData(['styles.byId', { id: res.id }], res)
               break
             }
             case 'trend': {
               await utils.invalidateQueries('trends.all')
-              await utils.invalidateQueries('trends.byId')
+              utils.setQueryData(['trends.byId', { id: res.id }], res)
               break
             }
           }

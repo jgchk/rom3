@@ -122,6 +122,12 @@ export const editTrend = async (
   return toOutput(trend)
 }
 
+export const deleteTrend = async (id: number): Promise<number> => {
+  await prisma.trendName.deleteMany({ where: { trendId: id } })
+  await prisma.trend.delete({ where: { id } })
+  return id
+}
+
 const trendsRouter = trpc
   .router()
   .mutation('add', {
@@ -147,10 +153,7 @@ const trendsRouter = trpc
   })
   .mutation('delete', {
     input: z.object({ id: z.number() }),
-    resolve: async ({ input }) => {
-      await prisma.trend.delete({ where: { id: input.id } })
-      return input.id
-    },
+    resolve: ({ input }) => deleteTrend(input.id),
   })
 
 export default trendsRouter

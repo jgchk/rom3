@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import scenesRouter, {
   addScene,
+  deleteScene,
   editScene,
   getScene,
   SceneInput,
@@ -12,6 +13,7 @@ import scenesRouter, {
 } from './scenes'
 import stylesRouter, {
   addStyle,
+  deleteStyle,
   editStyle,
   getStyle,
   StyleInput,
@@ -19,6 +21,7 @@ import stylesRouter, {
 } from './styles'
 import trendsRouter, {
   addTrend,
+  deleteTrend,
   editTrend,
   getTrend,
   TrendInput,
@@ -117,6 +120,19 @@ const appRouter = trpc
           return editStyle(input.id, input.data)
         case 'trend':
           return editTrend(input.id, input.data)
+      }
+    },
+  })
+  .mutation('delete', {
+    input: z.object({ type: GenreType, id: z.number() }),
+    resolve: async ({ input }) => {
+      switch (input.type) {
+        case 'scene':
+          return deleteScene(input.id)
+        case 'style':
+          return deleteStyle(input.id)
+        case 'trend':
+          return deleteTrend(input.id)
       }
     },
   })

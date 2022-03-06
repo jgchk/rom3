@@ -82,6 +82,12 @@ export const editStyle = async (
   return toOutput(style)
 }
 
+export const deleteStyle = async (id: number): Promise<number> => {
+  await prisma.styleName.deleteMany({ where: { styleId: id } })
+  await prisma.style.delete({ where: { id } })
+  return id
+}
+
 const stylesRouter = trpc
   .router()
   .mutation('add', {
@@ -107,10 +113,7 @@ const stylesRouter = trpc
   })
   .mutation('delete', {
     input: z.object({ id: z.number() }),
-    resolve: async ({ input }) => {
-      await prisma.style.delete({ where: { id: input.id } })
-      return input.id
-    },
+    resolve: ({ input }) => deleteStyle(input.id),
   })
 
 export default stylesRouter
