@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "db": "pscale connect romulus initial-setup --port 3309",
+    "db:shadow": "pscale connect romulus shadow --port 3310",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src && tsc && stylelint src",
