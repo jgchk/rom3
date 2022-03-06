@@ -165,7 +165,7 @@ const EditInnerInner: FC<{ id: number; data: InferQueryOutput<'get'> }> = ({
           disabled={isSubmitting}
           onClick={() => handleEdit()}
         >
-          {isSubmitting ? 'Loading...' : 'Submit'}
+          {isSubmitting ? 'Updating...' : 'Update'}
         </button>
       </Form>
     </Layout>

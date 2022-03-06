@@ -1,5 +1,6 @@
 import styled from '@emotion/styled'
 import { NextPage } from 'next'
+import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -23,6 +24,7 @@ const Create: NextPage = () => {
 
   const { mutate, isLoading: isSubmitting } = trpc.useMutation('add')
   const utils = trpc.useContext()
+  const router = useRouter()
   const handleCreate = useCallback(
     () =>
       mutate(toAddApi(data), {
@@ -31,6 +33,10 @@ const Create: NextPage = () => {
         },
         onSuccess: async (res) => {
           toast.success(`Created ${res.name}!`)
+          await router.push({
+            pathname: '/edit',
+            query: { type: res.type, id: res.id },
+          })
 
           await utils.invalidateQueries('genres')
           utils.setQueryData(['get', { type: res.type, id: res.id }], res)
@@ -53,7 +59,7 @@ const Create: NextPage = () => {
           }
         },
       }),
-    [data, mutate, utils]
+    [data, mutate, router, utils]
   )
 
   const renderForm = () => {
@@ -122,7 +128,7 @@ const Create: NextPage = () => {
           disabled={isSubmitting}
           onClick={() => handleCreate()}
         >
-          {isSubmitting ? 'Loading...' : 'Submit'}
+          {isSubmitting ? 'Submitting...' : 'Update'}
         </button>
       </Form>
     </Layout>
