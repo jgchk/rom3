@@ -1,4 +1,4 @@
-import { PrismaClient, Style, Trend } from '@prisma/client'
+import { PrismaClient, Style, Trend, TrendName } from '@prisma/client'
 import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
@@ -26,8 +26,22 @@ export type TrendOutput = Trend & {
   parentStyles: Style[]
 }
 
-export const addTrend = (input: TrendInput) =>
-  prisma.trend.create({
+const toOutput = (
+  trend: Trend & {
+    alternateNames: TrendName[]
+    trendInfluencedBy: Trend[]
+    styleInfluencedBy: Trend[]
+    parentTrends: Trend[]
+    parentStyles: Trend[]
+  }
+): TrendOutput => ({
+  ...trend,
+  type: 'trend',
+  alternateNames: trend.alternateNames.map((an) => an.name),
+})
+
+export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
+  const trend = await prisma.trend.create({
     data: {
       ...input,
       alternateNames: {
@@ -44,7 +58,16 @@ export const addTrend = (input: TrendInput) =>
       },
       parentStyles: { connect: input.parentStyles.map((id) => ({ id })) },
     },
+    include: {
+      alternateNames: true,
+      trendInfluencedBy: true,
+      styleInfluencedBy: true,
+      parentTrends: true,
+      parentStyles: true,
+    },
   })
+  return toOutput(trend)
+}
 
 export const getTrend = async (id: number): Promise<TrendOutput> => {
   const trend = await prisma.trend.findUnique({
@@ -63,14 +86,13 @@ export const getTrend = async (id: number): Promise<TrendOutput> => {
       message: `No trend with id '${id}'`,
     })
   }
-  return {
-    ...trend,
-    type: 'trend',
-    alternateNames: trend.alternateNames.map((an) => an.name),
-  }
+  return toOutput(trend)
 }
 
-export const editTrend = async (id: number, data: TrendInput) => {
+export const editTrend = async (
+  id: number,
+  data: TrendInput
+): Promise<TrendOutput> => {
   const trend = await prisma.trend.update({
     where: { id: id },
     data: {
@@ -89,8 +111,15 @@ export const editTrend = async (id: number, data: TrendInput) => {
       },
       parentStyles: { connect: data.parentStyles.map((id) => ({ id })) },
     },
+    include: {
+      alternateNames: true,
+      trendInfluencedBy: true,
+      styleInfluencedBy: true,
+      parentTrends: true,
+      parentStyles: true,
+    },
   })
-  return trend
+  return toOutput(trend)
 }
 
 const trendsRouter = trpc

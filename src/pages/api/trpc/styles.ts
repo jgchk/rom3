@@ -1,4 +1,4 @@
-import { PrismaClient, Style } from '@prisma/client'
+import { PrismaClient, Style, StyleName } from '@prisma/client'
 import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
@@ -22,8 +22,20 @@ export type StyleOutput = Style & {
   parents: Style[]
 }
 
-export const addStyle = (input: StyleInput) =>
-  prisma.style.create({
+const toOutput = (
+  style: Style & {
+    alternateNames: StyleName[]
+    parents: Style[]
+    influencedBy: Style[]
+  }
+): StyleOutput => ({
+  ...style,
+  type: 'style',
+  alternateNames: style.alternateNames.map((an) => an.name),
+})
+
+export const addStyle = async (input: StyleInput): Promise<StyleOutput> => {
+  const style = await prisma.style.create({
     data: {
       ...input,
       alternateNames: {
@@ -32,7 +44,10 @@ export const addStyle = (input: StyleInput) =>
       influencedBy: { connect: input.influencedBy.map((id) => ({ id })) },
       parents: { connect: input.parents.map((id) => ({ id })) },
     },
+    include: { alternateNames: true, influencedBy: true, parents: true },
   })
+  return toOutput(style)
+}
 
 export const getStyle = async (id: number): Promise<StyleOutput> => {
   const style = await prisma.style.findUnique({
@@ -45,14 +60,13 @@ export const getStyle = async (id: number): Promise<StyleOutput> => {
       message: `No style with id '${id}'`,
     })
   }
-  return {
-    ...style,
-    type: 'style',
-    alternateNames: style.alternateNames.map((an) => an.name),
-  }
+  return toOutput(style)
 }
 
-export const editStyle = async (id: number, data: StyleInput) => {
+export const editStyle = async (
+  id: number,
+  data: StyleInput
+): Promise<StyleOutput> => {
   const style = await prisma.style.update({
     where: { id: id },
     data: {
@@ -63,8 +77,9 @@ export const editStyle = async (id: number, data: StyleInput) => {
       influencedBy: { connect: data.influencedBy.map((id) => ({ id })) },
       parents: { connect: data.parents.map((id) => ({ id })) },
     },
+    include: { alternateNames: true, influencedBy: true, parents: true },
   })
-  return style
+  return toOutput(style)
 }
 
 const stylesRouter = trpc

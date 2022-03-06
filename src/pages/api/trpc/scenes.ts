@@ -1,4 +1,4 @@
-import { PrismaClient, Scene } from '@prisma/client'
+import { PrismaClient, Scene, SceneName } from '@prisma/client'
 import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
@@ -20,8 +20,19 @@ export type SceneOutput = Scene & {
   influencedBy: Scene[]
 }
 
-export const addScene = (input: SceneInput) =>
-  prisma.scene.create({
+const toOutput = (
+  scene: Scene & {
+    alternateNames: SceneName[]
+    influencedBy: Scene[]
+  }
+): SceneOutput => ({
+  ...scene,
+  type: 'scene',
+  alternateNames: scene.alternateNames.map((an) => an.name),
+})
+
+export const addScene = async (input: SceneInput): Promise<SceneOutput> => {
+  const scene = await prisma.scene.create({
     data: {
       ...input,
       alternateNames: {
@@ -29,7 +40,10 @@ export const addScene = (input: SceneInput) =>
       },
       influencedBy: { connect: input.influencedBy.map((id) => ({ id })) },
     },
+    include: { alternateNames: true, influencedBy: true },
   })
+  return toOutput(scene)
+}
 
 export const getScene = async (id: number): Promise<SceneOutput> => {
   const scene = await prisma.scene.findUnique({
@@ -42,14 +56,13 @@ export const getScene = async (id: number): Promise<SceneOutput> => {
       message: `No scene with id '${id}'`,
     })
   }
-  return {
-    ...scene,
-    type: 'scene',
-    alternateNames: scene.alternateNames.map((an) => an.name),
-  }
+  return toOutput(scene)
 }
 
-export const editScene = async (id: number, data: SceneInput) => {
+export const editScene = async (
+  id: number,
+  data: SceneInput
+): Promise<SceneOutput> => {
   await prisma.sceneName.deleteMany({ where: { sceneId: id } })
   const scene = await prisma.scene.update({
     where: { id: id },
@@ -60,8 +73,9 @@ export const editScene = async (id: number, data: SceneInput) => {
       },
       influencedBy: { set: data.influencedBy.map((id) => ({ id })) },
     },
+    include: { alternateNames: true, influencedBy: true },
   })
-  return scene
+  return toOutput(scene)
 }
 
 const scenesRouter = trpc
