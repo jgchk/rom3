@@ -14,13 +14,13 @@ datasource db {
 }
 
 model Scene {
-  id             Int         @id @default(autoincrement())
-  name           String
-  alternateNames SceneName[]
-  shortDesc      String
-  longDesc       String
-  influences     Scene[]     @relation("SceneInfluences", references: [id])
-  influencedBy   Scene[]     @relation("SceneInfluences", references: [id])
+  id                 Int              @id @default(autoincrement())
+  name               String
+  alternateNames     SceneName[]
+  shortDesc          String
+  longDesc           String
+  influencesScenes   SceneInfluence[] @relation("SceneInfluencer")
+  influencedByScenes SceneInfluence[] @relation("SceneInfluenced")
 }
 
 model SceneName {
@@ -31,16 +31,27 @@ model SceneName {
   @@id([sceneId, name])
 }
 
+model SceneInfluence {
+  influencer   Scene @relation("SceneInfluencer", fields: [influencerId], references: [id], onUpdate: NoAction)
+  influencerId Int
+  influenced   Scene @relation("SceneInfluenced", fields: [influencedId], references: [id], onUpdate: NoAction)
+  influencedId Int
+
+  @@id([influencerId, influencedId])
+}
+
 model Style {
-  id             Int         @id @default(autoincrement())
-  name           String
-  alternateNames StyleName[]
-  shortDesc      String
-  longDesc       String
-  parents        Style[]     @relation("StyleParents", references: [id])
-  children       Style[]     @relation("StyleParents", references: [id])
-  influences     Style[]     @relation("StyleInfluences", references: [id])
-  influencedBy   Style[]     @relation("StyleInfluences", references: [id])
+  id                 Int                   @id @default(autoincrement())
+  name               String
+  alternateNames     StyleName[]
+  shortDesc          String
+  longDesc           String
+  parentStyles       StyleParent[]         @relation("StyleChild")
+  childStyles        StyleParent[]         @relation("StyleParent")
+  childTrends        TrendStyleParent[]    @relation("TrendStyleParent")
+  influencedByStyles StyleInfluence[]      @relation("StyleInfluenced")
+  influencesStyles   StyleInfluence[]      @relation("StyleInfluencer")
+  influencesTrends   TrendStyleInfluence[] @relation("TrendStyleInfluencer")
 }
 
 model StyleName {
@@ -51,20 +62,36 @@ model StyleName {
   @@id([styleId, name])
 }
 
+model StyleParent {
+  parent   Style @relation("StyleParent", fields: [parentId], references: [id], onUpdate: NoAction)
+  parentId Int
+  child    Style @relation("StyleChild", fields: [childId], references: [id], onUpdate: NoAction)
+  childId  Int
+
+  @@id([parentId, childId])
+}
+
+model StyleInfluence {
+  influencer   Style @relation("StyleInfluencer", fields: [influencerId], references: [id], onUpdate: NoAction)
+  influencerId Int
+  influenced   Style @relation("StyleInfluenced", fields: [influencedId], references: [id], onUpdate: NoAction)
+  influencedId Int
+
+  @@id([influencerId, influencedId])
+}
+
 model Trend {
-  id                Int         @id @default(autoincrement())
-  name              String
-  alternateNames    TrendName[]
-  shortDesc         String
-  longDesc          String
-  parentTrends      Trend[]     @relation("TrendTrendParents", references: [id])
-  childTrends       Trend[]     @relation("TrendTrendParents", references: [id])
-  parentStyles      Trend[]     @relation("TrendStyleParents", references: [id])
-  childStyles       Trend[]     @relation("TrendStyleParents", references: [id])
-  trendInfluences   Trend[]     @relation("TrendTrendInfluences", references: [id])
-  trendInfluencedBy Trend[]     @relation("TrendTrendInfluences", references: [id])
-  styleInfluences   Trend[]     @relation("TrendStyleInfluences", references: [id])
-  styleInfluencedBy Trend[]     @relation("TrendStyleInfluences", references: [id])
+  id                 Int                   @id @default(autoincrement())
+  name               String
+  alternateNames     TrendName[]
+  shortDesc          String
+  longDesc           String
+  parentTrends       TrendTrendParent[]    @relation("TrendTrendChild")
+  parentStyles       TrendStyleParent[]    @relation("TrendStyleChild")
+  childTrends        TrendTrendParent[]    @relation("TrendTrendParent")
+  influencedByTrends TrendTrendInfluence[] @relation("TrendTrendInfluenced")
+  influencedByStyles TrendStyleInfluence[] @relation("TrendStyleInfluenced")
+  influencesTrends   TrendTrendInfluence[] @relation("TrendTrendInfluencer")
 }
 
 model TrendName {
@@ -73,4 +100,40 @@ model TrendName {
   name    String
 
   @@id([trendId, name])
+}
+
+model TrendTrendParent {
+  parent   Trend @relation("TrendTrendParent", fields: [parentId], references: [id], onUpdate: NoAction)
+  parentId Int
+  child    Trend @relation("TrendTrendChild", fields: [childId], references: [id], onUpdate: NoAction)
+  childId  Int
+
+  @@id([parentId, childId])
+}
+
+model TrendStyleParent {
+  parent   Style @relation("TrendStyleParent", fields: [parentId], references: [id], onUpdate: NoAction)
+  parentId Int
+  child    Trend @relation("TrendStyleChild", fields: [childId], references: [id], onUpdate: NoAction)
+  childId  Int
+
+  @@id([parentId, childId])
+}
+
+model TrendTrendInfluence {
+  influencer   Trend @relation("TrendTrendInfluencer", fields: [influencerId], references: [id], onUpdate: NoAction)
+  influencerId Int
+  influenced   Trend @relation("TrendTrendInfluenced", fields: [influencedId], references: [id], onUpdate: NoAction)
+  influencedId Int
+
+  @@id([influencerId, influencedId])
+}
+
+model TrendStyleInfluence {
+  influencer   Style @relation("TrendStyleInfluencer", fields: [influencerId], references: [id], onUpdate: NoAction)
+  influencerId Int
+  influenced   Trend @relation("TrendStyleInfluenced", fields: [influencedId], references: [id], onUpdate: NoAction)
+  influencedId Int
+
+  @@id([influencerId, influencedId])
 }

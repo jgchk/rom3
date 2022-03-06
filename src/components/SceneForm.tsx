@@ -29,8 +29,10 @@ const SceneForm: FC<{
     <FormElement>
       <label>Influences</label>
       <InfluencedByDropdown
-        value={data.influencedBy}
-        onChange={(influencedBy) => onChange((d) => ({ ...d, influencedBy }))}
+        value={data.influencedByScenes}
+        onChange={(influencedByScenes) =>
+          onChange((d) => ({ ...d, influencedByScenes }))
+        }
       />
     </FormElement>
     <FormElement>

@@ -1,4 +1,4 @@
-import { PrismaClient, Scene, SceneName } from '@prisma/client'
+import { PrismaClient, Scene, SceneInfluence, SceneName } from '@prisma/client'
 import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
@@ -10,25 +10,26 @@ export const SceneInput = z.object({
   shortDesc: z.string().min(1),
   longDesc: z.string().min(1),
   alternateNames: z.array(z.string()),
-  influencedBy: z.array(z.number()),
+  influencedByScenes: z.array(z.number()),
 })
 export type SceneInput = z.infer<typeof SceneInput>
 
 export type SceneOutput = Scene & {
   type: 'scene'
   alternateNames: string[]
-  influencedBy: Scene[]
+  influencedByScenes: Scene[]
 }
 
 const toOutput = (
   scene: Scene & {
     alternateNames: SceneName[]
-    influencedBy: Scene[]
+    influencedByScenes: (SceneInfluence & { influencer: Scene })[]
   }
 ): SceneOutput => ({
   ...scene,
   type: 'scene',
   alternateNames: scene.alternateNames.map((an) => an.name),
+  influencedByScenes: scene.influencedByScenes.map((inf) => inf.influencer),
 })
 
 export const addScene = async (input: SceneInput): Promise<SceneOutput> => {
@@ -38,9 +39,14 @@ export const addScene = async (input: SceneInput): Promise<SceneOutput> => {
       alternateNames: {
         create: input.alternateNames.map((name) => ({ name })),
       },
-      influencedBy: { connect: input.influencedBy.map((id) => ({ id })) },
+      influencedByScenes: {
+        create: input.influencedByScenes.map((id) => ({ influencerId: id })),
+      },
     },
-    include: { alternateNames: true, influencedBy: true },
+    include: {
+      alternateNames: true,
+      influencedByScenes: { include: { influencer: true } },
+    },
   })
   return toOutput(scene)
 }
@@ -48,7 +54,10 @@ export const addScene = async (input: SceneInput): Promise<SceneOutput> => {
 export const getScene = async (id: number): Promise<SceneOutput> => {
   const scene = await prisma.scene.findUnique({
     where: { id },
-    include: { alternateNames: true, influencedBy: true },
+    include: {
+      alternateNames: true,
+      influencedByScenes: { include: { influencer: true } },
+    },
   })
   if (!scene) {
     throw new TRPCError({
@@ -64,6 +73,7 @@ export const editScene = async (
   data: SceneInput
 ): Promise<SceneOutput> => {
   await prisma.sceneName.deleteMany({ where: { sceneId: id } })
+  await prisma.sceneInfluence.deleteMany({ where: { influencedId: id } })
   const scene = await prisma.scene.update({
     where: { id: id },
     data: {
@@ -71,9 +81,14 @@ export const editScene = async (
       alternateNames: {
         create: data.alternateNames.map((name) => ({ name })),
       },
-      influencedBy: { set: data.influencedBy.map((id) => ({ id })) },
+      influencedByScenes: {
+        create: data.influencedByScenes.map((id) => ({ influencerId: id })),
+      },
     },
-    include: { alternateNames: true, influencedBy: true },
+    include: {
+      alternateNames: true,
+      influencedByScenes: { include: { influencer: true } },
+    },
   })
   return toOutput(scene)
 }

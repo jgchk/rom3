@@ -30,15 +30,17 @@ const StyleForm: FC<{
     <FormElement>
       <label>Parents</label>
       <StyleMultiselect
-        value={data.parents}
-        onChange={(parents) => onChange((d) => ({ ...d, parents }))}
+        value={data.parentStyles}
+        onChange={(parentStyles) => onChange((d) => ({ ...d, parentStyles }))}
       />
     </FormElement>
     <FormElement>
       <label>Influences</label>
       <StyleMultiselect
-        value={data.influencedBy}
-        onChange={(influencedBy) => onChange((d) => ({ ...d, influencedBy }))}
+        value={data.influencedByStyles}
+        onChange={(influencedByStyles) =>
+          onChange((d) => ({ ...d, influencedByStyles }))
+        }
       />
     </FormElement>
     <FormElement>

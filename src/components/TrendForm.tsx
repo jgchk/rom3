@@ -40,12 +40,12 @@ const TrendForm: FC<{
     <FormElement>
       <label>Parents</label>
       <StyleOrTrendMultiselect
-        value={[...data.parentStyles, ...data.parentTrends]}
+        value={[...data.parentTrends, ...data.parentStyles]}
         onChange={(parents) =>
           onChange((d) => ({
             ...d,
-            parentStyles: parents.filter(isStyle),
             parentTrends: parents.filter(isTrend),
+            parentStyles: parents.filter(isStyle),
           }))
         }
       />
@@ -53,8 +53,14 @@ const TrendForm: FC<{
     <FormElement>
       <label>Influences</label>
       <StyleOrTrendMultiselect
-        value={[...data.styleInfluencedBy, ...data.trendInfluencedBy]}
-        onChange={(influencedBy) => onChange((d) => ({ ...d, influencedBy }))}
+        value={[...data.influencedByTrends, ...data.influencedByStyles]}
+        onChange={(influencedBy) =>
+          onChange((d) => ({
+            ...d,
+            influencedByTrends: influencedBy.filter(isTrend),
+            influencedByStyles: influencedBy.filter(isStyle),
+          }))
+        }
       />
     </FormElement>
     <FormElement>

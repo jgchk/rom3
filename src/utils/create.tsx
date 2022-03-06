@@ -13,35 +13,35 @@ export const isTrend = (o: GenreObject): o is TrendObject => o.type === 'trend'
 
 export type SceneInput = Omit<
   InferMutationInput<'scenes.add'>,
-  'alternateNames' | 'influencedBy'
+  'alternateNames' | 'influencedByScenes'
 > & {
   type: 'scene'
   alternateNames: string
-  influencedBy: SceneObject[]
+  influencedByScenes: SceneObject[]
 }
 export type StyleInput = Omit<
   InferMutationInput<'styles.add'>,
-  'alternateNames' | 'influencedBy' | 'parents'
+  'alternateNames' | 'parentStyles' | 'influencedByStyles'
 > & {
   type: 'style'
   alternateNames: string
-  influencedBy: StyleObject[]
-  parents: StyleObject[]
+  parentStyles: StyleObject[]
+  influencedByStyles: StyleObject[]
 }
 export type TrendInput = Omit<
   InferMutationInput<'trends.add'>,
   | 'alternateNames'
-  | 'trendInfluencedBy'
-  | 'styleInfluencedBy'
   | 'parentTrends'
   | 'parentStyles'
+  | 'influencedByTrends'
+  | 'influencedByStyles'
 > & {
   type: 'trend'
   alternateNames: string
-  trendInfluencedBy: TrendObject[]
-  styleInfluencedBy: StyleObject[]
   parentTrends: TrendObject[]
   parentStyles: StyleObject[]
+  influencedByTrends: TrendObject[]
+  influencedByStyles: StyleObject[]
 }
 export type GenreInput = SceneInput | StyleInput | TrendInput
 
@@ -49,10 +49,11 @@ const getInfluencedBy = (oldData?: GenreInput): GenreObject[] => {
   if (!oldData) return []
   switch (oldData.type) {
     case 'scene':
+      return oldData.influencedByScenes
     case 'style':
-      return oldData.influencedBy
+      return oldData.influencedByStyles
     case 'trend':
-      return [...oldData.styleInfluencedBy, ...oldData.trendInfluencedBy]
+      return [...oldData.influencedByTrends, ...oldData.influencedByStyles]
   }
 }
 
@@ -62,20 +63,21 @@ const getParents = (oldData?: GenreInput): GenreObject[] => {
     case 'scene':
       return []
     case 'style':
-      return oldData.parents
+      return oldData.parentStyles
     case 'trend':
       return [...oldData.parentTrends, ...oldData.parentStyles]
   }
 }
 
 export const makeScene = (oldData?: GenreInput): [SceneInput, boolean] => {
-  const oldInfluencedBy = getInfluencedBy(oldData)
-  const influencedBy = oldInfluencedBy.filter(isScene)
-
   const oldParents = getParents(oldData)
 
+  const oldInfluencedBy = getInfluencedBy(oldData)
+  const influencedByScenes = oldInfluencedBy.filter(isScene)
+
   const lostData =
-    influencedBy.length !== oldInfluencedBy.length || oldParents.length > 0
+    influencedByScenes.length !== oldInfluencedBy.length ||
+    oldParents.length > 0
 
   return [
     {
@@ -84,22 +86,22 @@ export const makeScene = (oldData?: GenreInput): [SceneInput, boolean] => {
       alternateNames: oldData?.alternateNames ?? '',
       shortDesc: oldData?.shortDesc ?? '',
       longDesc: oldData?.longDesc ?? '',
-      influencedBy,
+      influencedByScenes,
     },
     lostData,
   ]
 }
 
 export const makeStyle = (oldData?: GenreInput): [StyleInput, boolean] => {
-  const oldInfluencedBy = getInfluencedBy(oldData)
-  const influencedBy = oldInfluencedBy.filter(isStyle)
-
   const oldParents = getParents(oldData)
-  const parents = oldParents.filter(isStyle)
+  const parentStyles = oldParents.filter(isStyle)
+
+  const oldInfluencedBy = getInfluencedBy(oldData)
+  const influencedByStyles = oldInfluencedBy.filter(isStyle)
 
   const lostData =
-    influencedBy.length !== oldInfluencedBy.length ||
-    parents.length !== oldParents.length
+    influencedByStyles.length !== oldInfluencedBy.length ||
+    parentStyles.length !== oldParents.length
 
   return [
     {
@@ -108,24 +110,24 @@ export const makeStyle = (oldData?: GenreInput): [StyleInput, boolean] => {
       alternateNames: oldData?.alternateNames ?? '',
       shortDesc: oldData?.shortDesc ?? '',
       longDesc: oldData?.longDesc ?? '',
-      influencedBy,
-      parents,
+      parentStyles,
+      influencedByStyles,
     },
     lostData,
   ]
 }
 
 export const makeTrend = (oldData?: GenreInput): [TrendInput, boolean] => {
-  const oldInfluencedBy = getInfluencedBy(oldData)
-  const trendInfluencedBy = oldInfluencedBy.filter(isTrend)
-  const styleInfluencedBy = oldInfluencedBy.filter(isStyle)
-
   const oldParents = getParents(oldData)
   const parentTrends = oldParents.filter(isTrend)
   const parentStyles = oldParents.filter(isStyle)
 
+  const oldInfluencedBy = getInfluencedBy(oldData)
+  const influencedByTrends = oldInfluencedBy.filter(isTrend)
+  const influencedByStyles = oldInfluencedBy.filter(isStyle)
+
   const lostData =
-    trendInfluencedBy.length + styleInfluencedBy.length !==
+    influencedByTrends.length + influencedByStyles.length !==
       oldInfluencedBy.length ||
     parentTrends.length + parentStyles.length !== oldParents.length
 
@@ -136,10 +138,10 @@ export const makeTrend = (oldData?: GenreInput): [TrendInput, boolean] => {
       alternateNames: oldData?.alternateNames ?? '',
       shortDesc: oldData?.shortDesc ?? '',
       longDesc: oldData?.longDesc ?? '',
-      trendInfluencedBy,
-      styleInfluencedBy,
       parentTrends,
       parentStyles,
+      influencedByTrends,
+      influencedByStyles,
     },
     lostData,
   ]
