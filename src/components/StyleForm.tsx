@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction } from 'react'
+import { Dispatch, FC, SetStateAction, useMemo } from 'react'
 
 import { StyleInput, StyleObject } from '../utils/create'
 import trpc from '../utils/trpc'
@@ -6,9 +6,10 @@ import FormElement from './FormElement'
 import Multiselect from './Multiselect'
 
 const StyleForm: FC<{
+  selfId?: number
   data: StyleInput
   onChange: Dispatch<SetStateAction<StyleInput>>
-}> = ({ data, onChange }) => (
+}> = ({ selfId, data, onChange }) => (
   <>
     <FormElement>
       <label>Name *</label>
@@ -30,6 +31,7 @@ const StyleForm: FC<{
     <FormElement>
       <label>Parents</label>
       <StyleMultiselect
+        selfId={selfId}
         value={data.parentStyles}
         onChange={(parentStyles) => onChange((d) => ({ ...d, parentStyles }))}
       />
@@ -37,6 +39,7 @@ const StyleForm: FC<{
     <FormElement>
       <label>Influences</label>
       <StyleMultiselect
+        selfId={selfId}
         value={data.influencedByStyles}
         onChange={(influencedByStyles) =>
           onChange((d) => ({ ...d, influencedByStyles }))
@@ -65,14 +68,21 @@ const StyleForm: FC<{
 )
 
 const StyleMultiselect: FC<{
+  selfId?: number
   value: StyleObject[]
   onChange: (selected: StyleObject[]) => void
-}> = ({ value, onChange }) => {
+}> = ({ selfId, value, onChange }) => {
   const { data, error, isLoading } = trpc.useQuery(['styles.all'])
+
+  const dataWithoutSelf = useMemo(
+    () =>
+      selfId === undefined ? data : data?.filter((item) => item.id !== selfId),
+    [data, selfId]
+  )
 
   return (
     <Multiselect
-      data={data}
+      data={dataWithoutSelf}
       error={error}
       isLoading={isLoading}
       filter={(item, query) =>

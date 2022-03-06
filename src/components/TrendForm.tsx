@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction } from 'react'
+import { Dispatch, FC, SetStateAction, useMemo } from 'react'
 
 import {
   isStyle,
@@ -16,9 +16,10 @@ const isStyleOrTrend = (o: Output): o is StyleObject | TrendObject =>
   o.type === 'style' || o.type === 'trend'
 
 const TrendForm: FC<{
+  selfId?: number
   data: TrendInput
   onChange: Dispatch<SetStateAction<TrendInput>>
-}> = ({ data, onChange }) => (
+}> = ({ selfId, data, onChange }) => (
   <>
     <FormElement>
       <label>Name *</label>
@@ -40,6 +41,7 @@ const TrendForm: FC<{
     <FormElement>
       <label>Parents</label>
       <StyleOrTrendMultiselect
+        selfId={selfId}
         value={[...data.parentTrends, ...data.parentStyles]}
         onChange={(parents) =>
           onChange((d) => ({
@@ -53,6 +55,7 @@ const TrendForm: FC<{
     <FormElement>
       <label>Influences</label>
       <StyleOrTrendMultiselect
+        selfId={selfId}
         value={[...data.influencedByTrends, ...data.influencedByStyles]}
         onChange={(influencedBy) =>
           onChange((d) => ({
@@ -85,17 +88,28 @@ const TrendForm: FC<{
 )
 
 const StyleOrTrendMultiselect: FC<{
+  selfId?: number
   value: (TrendObject | StyleObject)[]
   onChange: (value: (TrendObject | StyleObject)[]) => void
-}> = ({ value, onChange }) => {
+}> = ({ selfId, value, onChange }) => {
   const { data, error, isLoading } = trpc.useQuery([
     'genres',
     { type: ['style', 'trend'] },
   ])
 
+  const dataWithoutSelf = useMemo(
+    () =>
+      selfId === undefined
+        ? data
+        : data?.filter(
+            (item) => !(item.type === 'trend' && item.id === selfId)
+          ),
+    [data, selfId]
+  )
+
   return (
     <Multiselect
-      data={data}
+      data={dataWithoutSelf}
       error={error}
       isLoading={isLoading}
       filter={(item, query) =>

@@ -101,6 +101,7 @@ const EditInnerInner: FC<{ id: number; data: InferQueryOutput<'get'> }> = ({
       case 'scene':
         return (
           <SceneForm
+            selfId={id}
             data={data}
             onChange={(val) => {
               const updatedData = typeof val === 'function' ? val(data) : val
@@ -111,6 +112,7 @@ const EditInnerInner: FC<{ id: number; data: InferQueryOutput<'get'> }> = ({
       case 'style':
         return (
           <StyleForm
+            selfId={id}
             data={data}
             onChange={(val) => {
               const updatedData = typeof val === 'function' ? val(data) : val
@@ -121,6 +123,7 @@ const EditInnerInner: FC<{ id: number; data: InferQueryOutput<'get'> }> = ({
       case 'trend':
         return (
           <TrendForm
+            selfId={id}
             data={data}
             onChange={(val) => {
               const updatedData = typeof val === 'function' ? val(data) : val

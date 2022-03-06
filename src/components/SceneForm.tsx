@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction } from 'react'
+import { Dispatch, FC, SetStateAction, useMemo } from 'react'
 
 import { SceneInput, SceneObject } from '../utils/create'
 import trpc from '../utils/trpc'
@@ -6,9 +6,10 @@ import FormElement from './FormElement'
 import Multiselect from './Multiselect'
 
 const SceneForm: FC<{
+  selfId?: number
   data: SceneInput
   onChange: Dispatch<SetStateAction<SceneInput>>
-}> = ({ data, onChange }) => (
+}> = ({ selfId, data, onChange }) => (
   <>
     <FormElement>
       <label>Name *</label>
@@ -29,6 +30,7 @@ const SceneForm: FC<{
     <FormElement>
       <label>Influences</label>
       <InfluencedByDropdown
+        selfId={selfId}
         value={data.influencedByScenes}
         onChange={(influencedByScenes) =>
           onChange((d) => ({ ...d, influencedByScenes }))
@@ -57,14 +59,21 @@ const SceneForm: FC<{
 )
 
 const InfluencedByDropdown: FC<{
+  selfId?: number
   value: SceneObject[]
   onChange: (selected: SceneObject[]) => void
-}> = ({ value, onChange }) => {
+}> = ({ selfId, value, onChange }) => {
   const { data, error, isLoading } = trpc.useQuery(['scenes.all'])
+
+  const dataWithoutSelf = useMemo(
+    () =>
+      selfId === undefined ? data : data?.filter((item) => item.id !== selfId),
+    [data, selfId]
+  )
 
   return (
     <Multiselect
-      data={data}
+      data={dataWithoutSelf}
       error={error}
       isLoading={isLoading}
       filter={(item, query) =>
