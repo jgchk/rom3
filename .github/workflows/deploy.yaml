@@ -1,0 +1,30 @@
+name: deploy
+on: push
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    env:
+      DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: yarn install
+      - run: yarn prisma migrate deploy
+  deploy-prod:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: yarn install
+      - run: yarn prisma migrate deploy
