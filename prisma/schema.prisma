@@ -18,6 +18,7 @@ model Scene {
   longDesc           String           @db.Text
   influencesScenes   SceneInfluence[] @relation("SceneInfluencer")
   influencedByScenes SceneInfluence[] @relation("SceneInfluenced")
+  locations          SceneLocation[]
 }
 
 model SceneName {
@@ -37,6 +38,15 @@ model SceneInfluence {
   @@id([influencerId, influencedId])
 }
 
+model SceneLocation {
+  scene      Scene    @relation(fields: [sceneId], references: [id])
+  sceneId    Int
+  location   Location @relation(fields: [locationId], references: [id])
+  locationId Int
+
+  @@id([sceneId, locationId])
+}
+
 model Style {
   id                 Int                   @id @default(autoincrement())
   name               String
@@ -49,6 +59,7 @@ model Style {
   influencedByStyles StyleInfluence[]      @relation("StyleInfluenced")
   influencesStyles   StyleInfluence[]      @relation("StyleInfluencer")
   influencesTrends   TrendStyleInfluence[] @relation("TrendStyleInfluencer")
+  locations          StyleLocation[]
 }
 
 model StyleName {
@@ -77,6 +88,15 @@ model StyleInfluence {
   @@id([influencerId, influencedId])
 }
 
+model StyleLocation {
+  style      Style    @relation(fields: [styleId], references: [id])
+  styleId    Int
+  location   Location @relation(fields: [locationId], references: [id])
+  locationId Int
+
+  @@id([styleId, locationId])
+}
+
 model Trend {
   id                 Int                   @id @default(autoincrement())
   name               String
@@ -89,6 +109,7 @@ model Trend {
   influencedByTrends TrendTrendInfluence[] @relation("TrendTrendInfluenced")
   influencedByStyles TrendStyleInfluence[] @relation("TrendStyleInfluenced")
   influencesTrends   TrendTrendInfluence[] @relation("TrendTrendInfluencer")
+  locations          TrendLocation[]
 }
 
 model TrendName {
@@ -133,4 +154,26 @@ model TrendStyleInfluence {
   influencedId Int
 
   @@id([influencerId, influencedId])
+}
+
+model TrendLocation {
+  trend      Trend    @relation(fields: [trendId], references: [id])
+  trendId    Int
+  location   Location @relation(fields: [locationId], references: [id])
+  locationId Int
+
+  @@id([trendId, locationId])
+}
+
+model Location {
+  id      Int    @id @default(autoincrement())
+  city    String
+  region  String
+  country String
+
+  scenes SceneLocation[]
+  styles StyleLocation[]
+  trends TrendLocation[]
+
+  @@unique([city, region, country])
 }
