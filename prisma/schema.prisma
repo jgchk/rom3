@@ -14,8 +14,8 @@ model Scene {
   id                 Int              @id @default(autoincrement())
   name               String
   alternateNames     SceneName[]
-  shortDesc          String
-  longDesc           String
+  shortDesc          String           @db.VarChar(255)
+  longDesc           String           @db.Text
   influencesScenes   SceneInfluence[] @relation("SceneInfluencer")
   influencedByScenes SceneInfluence[] @relation("SceneInfluenced")
 }
@@ -41,8 +41,8 @@ model Style {
   id                 Int                   @id @default(autoincrement())
   name               String
   alternateNames     StyleName[]
-  shortDesc          String
-  longDesc           String
+  shortDesc          String                @db.VarChar(255)
+  longDesc           String                @db.Text
   parentStyles       StyleParent[]         @relation("StyleChild")
   childStyles        StyleParent[]         @relation("StyleParent")
   childTrends        TrendStyleParent[]    @relation("TrendStyleParent")
@@ -81,8 +81,8 @@ model Trend {
   id                 Int                   @id @default(autoincrement())
   name               String
   alternateNames     TrendName[]
-  shortDesc          String
-  longDesc           String
+  shortDesc          String                @db.VarChar(255)
+  longDesc           String                @db.Text
   parentTrends       TrendTrendParent[]    @relation("TrendTrendChild")
   parentStyles       TrendStyleParent[]    @relation("TrendStyleChild")
   childTrends        TrendTrendParent[]    @relation("TrendTrendParent")
