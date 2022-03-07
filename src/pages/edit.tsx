@@ -45,7 +45,7 @@ const EditInner: FC<{ type: GenreType; id: number }> = ({ type, id }) => {
   const { data, error } = trpc.useQuery(['get', { type, id }])
 
   if (data) {
-    return <EditInnerInner id={id} data={data} />
+    return <EditInnerInner type={type} id={id} data={data} />
   }
 
   if (error) {
@@ -55,17 +55,18 @@ const EditInner: FC<{ type: GenreType; id: number }> = ({ type, id }) => {
   return <div>Loading...</div>
 }
 
-const EditInnerInner: FC<{ id: number; data: InferQueryOutput<'get'> }> = ({
-  id,
-  data: originalData,
-}) => {
+const EditInnerInner: FC<{
+  type: GenreType
+  id: number
+  data: InferQueryOutput<'get'>
+}> = ({ type: originalType, id, data: originalData }) => {
   const [data, setData] = useState<GenreInput>(fromApi(originalData))
 
   const { mutate, isLoading: isSubmitting } = trpc.useMutation('edit')
   const utils = trpc.useContext()
   const handleEdit = useCallback(
     () =>
-      mutate(toEditApi(id, data), {
+      mutate(toEditApi(originalType, id, data), {
         onError: (error) => {
           toast.error(error.message)
         },
@@ -93,7 +94,7 @@ const EditInnerInner: FC<{ id: number; data: InferQueryOutput<'get'> }> = ({
           }
         },
       }),
-    [data, id, mutate, utils]
+    [data, id, mutate, originalType, utils]
   )
 
   const renderForm = () => {

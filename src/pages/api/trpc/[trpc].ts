@@ -107,19 +107,60 @@ const appRouter = trpc
     },
   })
   .mutation('edit', {
-    input: z.union([
-      z.object({ type: z.literal('scene'), id: z.number(), data: SceneInput }),
-      z.object({ type: z.literal('style'), id: z.number(), data: StyleInput }),
-      z.object({ type: z.literal('trend'), id: z.number(), data: TrendInput }),
-    ]),
+    input: z.object({
+      type: GenreType,
+      id: z.number(),
+      data: z.union([
+        z.object({
+          type: z.literal('scene'),
+          data: SceneInput,
+        }),
+        z.object({
+          type: z.literal('style'),
+          data: StyleInput,
+        }),
+        z.object({
+          type: z.literal('trend'),
+          data: TrendInput,
+        }),
+      ]),
+    }),
     resolve: async ({ input }) => {
-      switch (input.type) {
-        case 'scene':
-          return editScene(input.id, input.data)
-        case 'style':
-          return editStyle(input.id, input.data)
-        case 'trend':
-          return editTrend(input.id, input.data)
+      if (input.type !== input.data.type) {
+        // switching types
+        // TODO: need to handle relations where we're the parent and try to preserve them. warn the user if connections may be wiped
+        switch (input.type) {
+          case 'scene': {
+            await deleteScene(input.id)
+            break
+          }
+          case 'style': {
+            await deleteStyle(input.id)
+            break
+          }
+          case 'trend': {
+            await deleteTrend(input.id)
+            break
+          }
+        }
+        switch (input.data.type) {
+          case 'scene':
+            return addScene(input.data.data)
+          case 'style':
+            return addStyle(input.data.data)
+          case 'trend':
+            return addTrend(input.data.data)
+        }
+      } else {
+        // keeping same type
+        switch (input.data.type) {
+          case 'scene':
+            return editScene(input.id, input.data.data)
+          case 'style':
+            return editStyle(input.id, input.data.data)
+          case 'trend':
+            return editTrend(input.id, input.data.data)
+        }
       }
     },
   })

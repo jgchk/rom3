@@ -1,4 +1,4 @@
-import { GenreInput } from './create'
+import { GenreInput, GenreType } from './create'
 import { InferMutationInput, InferQueryOutput } from './trpc'
 
 export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
@@ -83,6 +83,7 @@ export const toAddApi = (data: GenreInput): InferMutationInput<'add'> => {
 }
 
 export const toEditApi = (
+  type: GenreType,
   id: number,
   data: GenreInput
 ): InferMutationInput<'edit'> => {
@@ -90,37 +91,46 @@ export const toEditApi = (
     case 'scene': {
       return {
         id,
-        type: 'scene',
+        type,
         data: {
-          ...data,
-          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
-          influencedByScenes: data.influencedByScenes.map((item) => item.id),
+          type: data.type,
+          data: {
+            ...data,
+            alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+            influencedByScenes: data.influencedByScenes.map((item) => item.id),
+          },
         },
       }
     }
     case 'style': {
       return {
         id,
-        type: 'style',
+        type,
         data: {
-          ...data,
-          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
-          parentStyles: data.parentStyles.map((item) => item.id),
-          influencedByStyles: data.influencedByStyles.map((item) => item.id),
+          type: data.type,
+          data: {
+            ...data,
+            alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+            parentStyles: data.parentStyles.map((item) => item.id),
+            influencedByStyles: data.influencedByStyles.map((item) => item.id),
+          },
         },
       }
     }
     case 'trend': {
       return {
         id,
-        type: 'trend',
+        type,
         data: {
-          ...data,
-          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
-          parentTrends: data.parentTrends.map((item) => item.id),
-          parentStyles: data.parentStyles.map((item) => item.id),
-          influencedByTrends: data.influencedByTrends.map((item) => item.id),
-          influencedByStyles: data.influencedByStyles.map((item) => item.id),
+          type: data.type,
+          data: {
+            ...data,
+            alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+            parentTrends: data.parentTrends.map((item) => item.id),
+            parentStyles: data.parentStyles.map((item) => item.id),
+            influencedByTrends: data.influencedByTrends.map((item) => item.id),
+            influencedByStyles: data.influencedByStyles.map((item) => item.id),
+          },
         },
       }
     }
