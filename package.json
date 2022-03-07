@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "db": "pscale connect romulus dev --port 3309",
-    "db:shadow": "pscale connect romulus shadow --port 3310",
+    "db": "docker-compose -f docker.yml up",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src && tsc && stylelint src",
