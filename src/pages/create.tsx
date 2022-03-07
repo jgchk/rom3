@@ -128,7 +128,7 @@ const Create: NextPage = () => {
           disabled={isSubmitting}
           onClick={() => handleCreate()}
         >
-          {isSubmitting ? 'Submitting...' : 'Update'}
+          {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>
       </Form>
     </Layout>
