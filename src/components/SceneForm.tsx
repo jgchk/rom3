@@ -39,6 +39,13 @@ const SceneForm: FC<{
       />
     </FormElement>
     <FormElement>
+      <label>Locations</label>
+      <LocationInput
+        value={data.locations}
+        onChange={(locations) => onChange((d) => ({ ...d, locations }))}
+      />
+    </FormElement>
+    <FormElement>
       <label>Short Description *</label>
       <textarea
         value={data.shortDesc}
@@ -54,13 +61,6 @@ const SceneForm: FC<{
         onChange={(e) => onChange((d) => ({ ...d, longDesc: e.target.value }))}
         style={{ width: '100%', height: 300 }}
         required
-      />
-    </FormElement>
-    <FormElement>
-      <label>Locations</label>
-      <LocationInput
-        value={data.locations}
-        onChange={(locations) => onChange((d) => ({ ...d, locations }))}
       />
     </FormElement>
   </>
