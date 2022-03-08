@@ -9,6 +9,7 @@ import {
 } from '../utils/create'
 import trpc, { InferQueryOutput } from '../utils/trpc'
 import FormElement from './FormElement'
+import LocationInput from './LocationInput'
 import Multiselect from './Multiselect'
 
 type Output = InferQueryOutput<'genres'>[number]
@@ -64,6 +65,13 @@ const TrendForm: FC<{
             influencedByStyles: influencedBy.filter(isStyle),
           }))
         }
+      />
+    </FormElement>
+    <FormElement>
+      <label>Locations</label>
+      <LocationInput
+        value={data.locations}
+        onChange={(locations) => onChange((d) => ({ ...d, locations }))}
       />
     </FormElement>
     <FormElement>

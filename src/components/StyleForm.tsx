@@ -3,6 +3,7 @@ import { Dispatch, FC, SetStateAction, useMemo } from 'react'
 import { StyleInput, StyleObject } from '../utils/create'
 import trpc from '../utils/trpc'
 import FormElement from './FormElement'
+import LocationInput from './LocationInput'
 import Multiselect from './Multiselect'
 
 const StyleForm: FC<{
@@ -44,6 +45,13 @@ const StyleForm: FC<{
         onChange={(influencedByStyles) =>
           onChange((d) => ({ ...d, influencedByStyles }))
         }
+      />
+    </FormElement>
+    <FormElement>
+      <label>Locations</label>
+      <LocationInput
+        value={data.locations}
+        onChange={(locations) => onChange((d) => ({ ...d, locations }))}
       />
     </FormElement>
     <FormElement>
