@@ -5,6 +5,7 @@ import trpc from '../utils/trpc'
 import FormElement from './FormElement'
 import LocationInput from './LocationInput'
 import Multiselect from './Multiselect'
+import SmallLabel from './SmallLabel'
 
 const SceneForm: FC<{
   selfId?: number
@@ -21,6 +22,7 @@ const SceneForm: FC<{
     </FormElement>
     <FormElement>
       <label>Alternate Names</label>
+      <SmallLabel>comma-separated list</SmallLabel>
       <input
         value={data.alternateNames}
         onChange={(e) =>
@@ -47,6 +49,7 @@ const SceneForm: FC<{
     </FormElement>
     <FormElement>
       <label>Cultures</label>
+      <SmallLabel>comma-separated list</SmallLabel>
       <input
         value={data.cultures}
         onChange={(e) => onChange((d) => ({ ...d, cultures: e.target.value }))}
