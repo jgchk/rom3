@@ -19,6 +19,7 @@ model Scene {
   influencesScenes   SceneInfluence[] @relation("SceneInfluencer")
   influencedByScenes SceneInfluence[] @relation("SceneInfluenced")
   locations          SceneLocation[]
+  cultures           SceneCulture[]
 }
 
 model SceneName {
@@ -47,6 +48,15 @@ model SceneLocation {
   @@id([sceneId, locationId])
 }
 
+model SceneCulture {
+  scene     Scene   @relation(fields: [sceneId], references: [id])
+  sceneId   Int
+  culture   Culture @relation(fields: [cultureId], references: [id])
+  cultureId Int
+
+  @@id([sceneId, cultureId])
+}
+
 model Style {
   id                 Int                   @id @default(autoincrement())
   name               String
@@ -60,6 +70,7 @@ model Style {
   influencesStyles   StyleInfluence[]      @relation("StyleInfluencer")
   influencesTrends   TrendStyleInfluence[] @relation("TrendStyleInfluencer")
   locations          StyleLocation[]
+  cultures           StyleCulture[]
 }
 
 model StyleName {
@@ -97,6 +108,15 @@ model StyleLocation {
   @@id([styleId, locationId])
 }
 
+model StyleCulture {
+  style     Style   @relation(fields: [styleId], references: [id])
+  styleId   Int
+  culture   Culture @relation(fields: [cultureId], references: [id])
+  cultureId Int
+
+  @@id([styleId, cultureId])
+}
+
 model Trend {
   id                 Int                   @id @default(autoincrement())
   name               String
@@ -110,6 +130,7 @@ model Trend {
   influencedByStyles TrendStyleInfluence[] @relation("TrendStyleInfluenced")
   influencesTrends   TrendTrendInfluence[] @relation("TrendTrendInfluencer")
   locations          TrendLocation[]
+  cultures           TrendCulture[]
 }
 
 model TrendName {
@@ -165,6 +186,15 @@ model TrendLocation {
   @@id([trendId, locationId])
 }
 
+model TrendCulture {
+  trend     Trend   @relation(fields: [trendId], references: [id])
+  trendId   Int
+  culture   Culture @relation(fields: [cultureId], references: [id])
+  cultureId Int
+
+  @@id([trendId, cultureId])
+}
+
 model Location {
   id      Int    @id @default(autoincrement())
   city    String
@@ -176,4 +206,15 @@ model Location {
   trends TrendLocation[]
 
   @@unique([city, region, country])
+}
+
+model Culture {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  scenes SceneCulture[]
+  styles StyleCulture[]
+  trends TrendCulture[]
+
+  @@unique([name])
 }
