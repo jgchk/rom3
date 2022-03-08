@@ -55,6 +55,71 @@ const SceneForm: FC<{
         required
       />
     </FormElement>
+    <FormElement>
+      <label>Locations</label>
+      {data.locations.map((location, i) => (
+        <div key={i}>
+          <input
+            placeholder='City'
+            value={location.city}
+            onChange={(e) =>
+              onChange((d) => ({
+                ...d,
+                locations: d.locations.map((loc, j) =>
+                  j === i ? { ...loc, city: e.target.value } : loc
+                ),
+              }))
+            }
+          />
+          <input
+            placeholder='Region'
+            value={location.region}
+            onChange={(e) =>
+              onChange((d) => ({
+                ...d,
+                locations: d.locations.map((loc, j) =>
+                  j === i ? { ...loc, region: e.target.value } : loc
+                ),
+              }))
+            }
+          />
+          <input
+            placeholder='Country'
+            value={location.country}
+            onChange={(e) =>
+              onChange((d) => ({
+                ...d,
+                locations: d.locations.map((loc, j) =>
+                  j === i ? { ...loc, country: e.target.value } : loc
+                ),
+              }))
+            }
+          />
+          <button
+            type='button'
+            onClick={() =>
+              onChange((d) => ({
+                ...d,
+                locations: d.locations.filter((_, j) => j !== i),
+              }))
+            }
+          >
+            -
+          </button>
+        </div>
+      ))}
+      <button
+        type='button'
+        onClick={() =>
+          onChange((d) => ({
+            ...d,
+            locations: [...d.locations, { city: '', region: '', country: '' }],
+          }))
+        }
+      >
+        +
+      </button>
+    </FormElement>
   </>
 )
 
