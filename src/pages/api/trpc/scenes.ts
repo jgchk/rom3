@@ -109,6 +109,7 @@ export const editScene = async (
 ): Promise<SceneOutput> => {
   await prisma.sceneName.deleteMany({ where: { sceneId: id } })
   await prisma.sceneInfluence.deleteMany({ where: { influencedId: id } })
+  await prisma.sceneLocation.deleteMany({ where: { sceneId: id } })
   const scene = await prisma.scene.update({
     where: { id: id },
     data: {

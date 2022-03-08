@@ -143,6 +143,7 @@ export const editTrend = async (
   await prisma.trendStyleParent.deleteMany({ where: { childId: id } })
   await prisma.trendTrendInfluence.deleteMany({ where: { influencedId: id } })
   await prisma.trendStyleInfluence.deleteMany({ where: { influencedId: id } })
+  await prisma.trendLocation.deleteMany({ where: { trendId: id } })
   const trend = await prisma.trend.update({
     where: { id: id },
     data: {

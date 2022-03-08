@@ -120,6 +120,7 @@ export const editStyle = async (
   await prisma.styleName.deleteMany({ where: { styleId: id } })
   await prisma.styleParent.deleteMany({ where: { childId: id } })
   await prisma.styleInfluence.deleteMany({ where: { influencedId: id } })
+  await prisma.styleLocation.deleteMany({ where: { styleId: id } })
   const style = await prisma.style.update({
     where: { id: id },
     data: {
