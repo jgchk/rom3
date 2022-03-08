@@ -55,6 +55,13 @@ const StyleForm: FC<{
       />
     </FormElement>
     <FormElement>
+      <label>Cultures</label>
+      <input
+        value={data.cultures}
+        onChange={(e) => onChange((d) => ({ ...d, cultures: e.target.value }))}
+      />
+    </FormElement>
+    <FormElement>
       <label>Short Description *</label>
       <textarea
         value={data.shortDesc}

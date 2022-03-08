@@ -11,7 +11,7 @@ export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
           ...inf,
           type: 'scene',
         })),
-        cultures: data.cultures.join(', '),
+        cultures: data.cultures.map((c) => c.name).join(', '),
       }
     }
     case 'style': {
@@ -23,7 +23,7 @@ export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
           ...inf,
           type: 'style',
         })),
-        cultures: data.cultures.join(', '),
+        cultures: data.cultures.map((c) => c.name).join(', '),
       }
     }
     case 'trend': {
@@ -40,7 +40,7 @@ export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
           ...inf,
           type: 'style',
         })),
-        cultures: data.cultures.join(', '),
+        cultures: data.cultures.map((c) => c.name).join(', '),
       }
     }
   }
