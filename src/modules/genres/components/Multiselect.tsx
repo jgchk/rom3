@@ -2,7 +2,7 @@ import styled from '@emotion/styled'
 import { TRPCClientErrorLike } from '@trpc/client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import type { AppRouter } from '../pages/api/trpc/[trpc]'
+import type { AppRouter } from '../../../pages/api/trpc/[trpc]'
 
 type MultiselectProps<T> = {
   data: T[] | undefined

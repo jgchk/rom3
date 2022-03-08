@@ -1,11 +1,11 @@
-import '../styles/globals.css'
+import '../common/styles/globals.css'
 
 import styled from '@emotion/styled'
 import { withTRPC } from '@trpc/next'
 import type { AppProps } from 'next/app'
 import { Toaster } from 'react-hot-toast'
 
-import Navbar from '../components/Navbar'
+import Navbar from '../common/components/Navbar'
 import { AppRouter } from './api/trpc/[trpc]'
 
 const MyApp = ({ Component, pageProps }: AppProps) => (

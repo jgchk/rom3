@@ -4,21 +4,21 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import FormElement from '../components/FormElement'
-import SceneForm from '../components/SceneForm'
-import StyleForm from '../components/StyleForm'
-import TrendForm from '../components/TrendForm'
-import { getParam } from '../utils/api'
-import { fromApi, toEditApi } from '../utils/convert'
+import { capitalize } from '../common/utils/string'
+import trpc, { InferQueryOutput } from '../common/utils/trpc'
+import FormElement from '../modules/genres/components/FormElement'
+import SceneForm from '../modules/genres/components/SceneForm'
+import StyleForm from '../modules/genres/components/StyleForm'
+import TrendForm from '../modules/genres/components/TrendForm'
+import { getParam } from '../modules/genres/utils/api'
+import { fromApi, toEditApi } from '../modules/genres/utils/convert'
 import {
   GenreInput,
   GenreType,
   genreTypes,
   isGenreType,
   makeInput,
-} from '../utils/create'
-import { capitalize } from '../utils/string'
-import trpc, { InferQueryOutput } from '../utils/trpc'
+} from '../modules/genres/utils/create'
 
 const Edit: NextPage = () => {
   const router = useRouter()

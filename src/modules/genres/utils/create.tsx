@@ -1,6 +1,6 @@
 import { Scene, Style, Trend } from '@prisma/client'
 
-import { InferMutationInput } from './trpc'
+import { InferMutationInput } from '../../../common/utils/trpc'
 
 export type SceneObject = Scene & { type: 'scene' }
 export type StyleObject = Style & { type: 'style' }

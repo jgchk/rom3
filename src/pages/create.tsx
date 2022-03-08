@@ -4,20 +4,20 @@ import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import FormElement from '../components/FormElement'
-import SceneForm from '../components/SceneForm'
-import StyleForm from '../components/StyleForm'
-import TrendForm from '../components/TrendForm'
-import { toAddApi } from '../utils/convert'
+import { capitalize } from '../common/utils/string'
+import trpc from '../common/utils/trpc'
+import FormElement from '../modules/genres/components/FormElement'
+import SceneForm from '../modules/genres/components/SceneForm'
+import StyleForm from '../modules/genres/components/StyleForm'
+import TrendForm from '../modules/genres/components/TrendForm'
+import { toAddApi } from '../modules/genres/utils/convert'
 import {
   GenreInput,
   GenreType,
   genreTypes,
   makeInput,
   makeScene,
-} from '../utils/create'
-import { capitalize } from '../utils/string'
-import trpc from '../utils/trpc'
+} from '../modules/genres/utils/create'
 
 const Create: NextPage = () => {
   const [data, setData] = useState<GenreInput>(makeScene()[0])

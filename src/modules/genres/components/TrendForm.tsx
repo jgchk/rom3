@@ -1,16 +1,26 @@
 import { Dispatch, FC, SetStateAction, useMemo } from 'react'
 
-import { SceneInput, SceneObject } from '../utils/create'
-import trpc from '../utils/trpc'
+import trpc, { InferQueryOutput } from '../../../common/utils/trpc'
+import {
+  isStyle,
+  isTrend,
+  StyleObject,
+  TrendInput,
+  TrendObject,
+} from '../utils/create'
 import FormElement from './FormElement'
 import LocationInput from './LocationInput'
 import Multiselect from './Multiselect'
 import SmallLabel from './SmallLabel'
 
-const SceneForm: FC<{
+type Output = InferQueryOutput<'genres'>[number]
+const isStyleOrTrend = (o: Output): o is StyleObject | TrendObject =>
+  o.type === 'style' || o.type === 'trend'
+
+const TrendForm: FC<{
   selfId?: number
-  data: SceneInput
-  onChange: Dispatch<SetStateAction<SceneInput>>
+  data: TrendInput
+  onChange: Dispatch<SetStateAction<TrendInput>>
 }> = ({ selfId, data, onChange }) => (
   <>
     <FormElement>
@@ -18,6 +28,7 @@ const SceneForm: FC<{
       <input
         value={data.name}
         onChange={(e) => onChange((d) => ({ ...d, name: e.target.value }))}
+        required
       />
     </FormElement>
     <FormElement>
@@ -31,12 +42,30 @@ const SceneForm: FC<{
       />
     </FormElement>
     <FormElement>
-      <label>Influences</label>
-      <InfluencedByDropdown
+      <label>Parents</label>
+      <StyleOrTrendMultiselect
         selfId={selfId}
-        value={data.influencedByScenes}
-        onChange={(influencedByScenes) =>
-          onChange((d) => ({ ...d, influencedByScenes }))
+        value={[...data.parentTrends, ...data.parentStyles]}
+        onChange={(parents) =>
+          onChange((d) => ({
+            ...d,
+            parentTrends: parents.filter(isTrend),
+            parentStyles: parents.filter(isStyle),
+          }))
+        }
+      />
+    </FormElement>
+    <FormElement>
+      <label>Influences</label>
+      <StyleOrTrendMultiselect
+        selfId={selfId}
+        value={[...data.influencedByTrends, ...data.influencedByStyles]}
+        onChange={(influencedBy) =>
+          onChange((d) => ({
+            ...d,
+            influencedByTrends: influencedBy.filter(isTrend),
+            influencedByStyles: influencedBy.filter(isStyle),
+          }))
         }
       />
     </FormElement>
@@ -76,16 +105,23 @@ const SceneForm: FC<{
   </>
 )
 
-const InfluencedByDropdown: FC<{
+const StyleOrTrendMultiselect: FC<{
   selfId?: number
-  value: SceneObject[]
-  onChange: (selected: SceneObject[]) => void
+  value: (TrendObject | StyleObject)[]
+  onChange: (value: (TrendObject | StyleObject)[]) => void
 }> = ({ selfId, value, onChange }) => {
-  const { data, error, isLoading } = trpc.useQuery(['scenes.all'])
+  const { data, error, isLoading } = trpc.useQuery([
+    'genres',
+    { type: ['style', 'trend'] },
+  ])
 
   const dataWithoutSelf = useMemo(
     () =>
-      selfId === undefined ? data : data?.filter((item) => item.id !== selfId),
+      selfId === undefined
+        ? data
+        : data?.filter(
+            (item) => !(item.type === 'trend' && item.id === selfId)
+          ),
     [data, selfId]
   )
 
@@ -100,11 +136,9 @@ const InfluencedByDropdown: FC<{
       itemDisplay={(item) => item.name}
       itemKey={(item) => item.id}
       selected={value}
-      onChange={(selected) =>
-        onChange(selected.map((s) => ({ ...s, type: 'scene' })))
-      }
+      onChange={(selected) => onChange(selected.filter(isStyleOrTrend))}
     />
   )
 }
 
-export default SceneForm
+export default TrendForm

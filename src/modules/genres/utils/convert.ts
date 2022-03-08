@@ -1,7 +1,10 @@
-import { unique, uniqueBy } from './array'
+import { unique, uniqueBy } from '../../../common/utils/array'
+import {
+  InferMutationInput,
+  InferQueryOutput,
+} from '../../../common/utils/trpc'
 import { GenreInput, GenreType } from './create'
 import { hashLocation, locationNotEmpty } from './location'
-import { InferMutationInput, InferQueryOutput } from './trpc'
 
 export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
   switch (data.type) {

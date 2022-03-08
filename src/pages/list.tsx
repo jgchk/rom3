@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { useCallback } from 'react'
 import toast from 'react-hot-toast'
 
-import { GenreType } from '../utils/create'
-import trpc from '../utils/trpc'
+import trpc from '../common/utils/trpc'
+import { GenreType } from '../modules/genres/utils/create'
 
 const List: NextPage = () => {
   const { data, error } = trpc.useQuery([
