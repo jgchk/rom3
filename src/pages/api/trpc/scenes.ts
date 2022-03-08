@@ -1,4 +1,11 @@
-import { PrismaClient, Scene, SceneInfluence, SceneName } from '@prisma/client'
+import {
+  Location,
+  PrismaClient,
+  Scene,
+  SceneInfluence,
+  SceneLocation,
+  SceneName,
+} from '@prisma/client'
 import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
@@ -11,6 +18,9 @@ export const SceneInput = z.object({
   longDesc: z.string().min(1),
   alternateNames: z.array(z.string()),
   influencedByScenes: z.array(z.number()),
+  locations: z.array(
+    z.object({ city: z.string(), region: z.string(), country: z.string() })
+  ),
 })
 export type SceneInput = z.infer<typeof SceneInput>
 
@@ -18,18 +28,21 @@ export type SceneOutput = Scene & {
   type: 'scene'
   alternateNames: string[]
   influencedByScenes: Scene[]
+  locations: Location[]
 }
 
 const toOutput = (
   scene: Scene & {
     alternateNames: SceneName[]
     influencedByScenes: (SceneInfluence & { influencer: Scene })[]
+    locations: (SceneLocation & { location: Location })[]
   }
 ): SceneOutput => ({
   ...scene,
   type: 'scene',
   alternateNames: scene.alternateNames.map((an) => an.name),
   influencedByScenes: scene.influencedByScenes.map((inf) => inf.influencer),
+  locations: scene.locations.map((loc) => loc.location),
 })
 
 export const addScene = async (input: SceneInput): Promise<SceneOutput> => {
@@ -42,10 +55,31 @@ export const addScene = async (input: SceneInput): Promise<SceneOutput> => {
       influencedByScenes: {
         create: input.influencedByScenes.map((id) => ({ influencerId: id })),
       },
+      locations: {
+        create: input.locations.map((loc) => ({
+          location: {
+            connectOrCreate: {
+              where: {
+                city_region_country: {
+                  city: loc.city,
+                  region: loc.region,
+                  country: loc.country,
+                },
+              },
+              create: {
+                city: loc.city,
+                region: loc.region,
+                country: loc.country,
+              },
+            },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
       influencedByScenes: { include: { influencer: true } },
+      locations: { include: { location: true } },
     },
   })
   return toOutput(scene)
@@ -57,6 +91,7 @@ export const getScene = async (id: number): Promise<SceneOutput> => {
     include: {
       alternateNames: true,
       influencedByScenes: { include: { influencer: true } },
+      locations: { include: { location: true } },
     },
   })
   if (!scene) {
@@ -84,10 +119,31 @@ export const editScene = async (
       influencedByScenes: {
         create: data.influencedByScenes.map((id) => ({ influencerId: id })),
       },
+      locations: {
+        create: data.locations.map((loc) => ({
+          location: {
+            connectOrCreate: {
+              where: {
+                city_region_country: {
+                  city: loc.city,
+                  region: loc.region,
+                  country: loc.country,
+                },
+              },
+              create: {
+                city: loc.city,
+                region: loc.region,
+                country: loc.country,
+              },
+            },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
       influencedByScenes: { include: { influencer: true } },
+      locations: { include: { location: true } },
     },
   })
   return toOutput(scene)
@@ -101,11 +157,15 @@ export const deleteScene = async (id: number): Promise<number> => {
   const deletedInfluencedByScenes = prisma.sceneInfluence.deleteMany({
     where: { influencedId: id },
   })
+  const deleteLocations = prisma.sceneLocation.deleteMany({
+    where: { sceneId: id },
+  })
   const deleteScene = prisma.scene.delete({ where: { id } })
   await prisma.$transaction([
     deleteNames,
     deleteInfluencesScenes,
     deletedInfluencedByScenes,
+    deleteLocations,
     deleteScene,
   ])
   return id

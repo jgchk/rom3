@@ -1,7 +1,9 @@
 import {
+  Location,
   PrismaClient,
   Style,
   StyleInfluence,
+  StyleLocation,
   StyleName,
   StyleParent,
 } from '@prisma/client'
@@ -18,6 +20,9 @@ export const StyleInput = z.object({
   alternateNames: z.array(z.string()),
   parentStyles: z.array(z.number()),
   influencedByStyles: z.array(z.number()),
+  locations: z.array(
+    z.object({ city: z.string(), region: z.string(), country: z.string() })
+  ),
 })
 export type StyleInput = z.infer<typeof StyleInput>
 
@@ -26,6 +31,7 @@ export type StyleOutput = Style & {
   alternateNames: string[]
   parentStyles: Style[]
   influencedByStyles: Style[]
+  locations: Location[]
 }
 
 const toOutput = (
@@ -33,6 +39,7 @@ const toOutput = (
     alternateNames: StyleName[]
     parentStyles: (StyleParent & { parent: Style })[]
     influencedByStyles: (StyleInfluence & { influencer: Style })[]
+    locations: (StyleLocation & { location: Location })[]
   }
 ): StyleOutput => ({
   ...style,
@@ -40,6 +47,7 @@ const toOutput = (
   alternateNames: style.alternateNames.map((an) => an.name),
   parentStyles: style.parentStyles.map((p) => p.parent),
   influencedByStyles: style.influencedByStyles.map((inf) => inf.influencer),
+  locations: style.locations.map((loc) => loc.location),
 })
 
 export const addStyle = async (input: StyleInput): Promise<StyleOutput> => {
@@ -55,11 +63,32 @@ export const addStyle = async (input: StyleInput): Promise<StyleOutput> => {
       influencedByStyles: {
         create: input.influencedByStyles.map((id) => ({ influencerId: id })),
       },
+      locations: {
+        create: input.locations.map((loc) => ({
+          location: {
+            connectOrCreate: {
+              where: {
+                city_region_country: {
+                  city: loc.city,
+                  region: loc.region,
+                  country: loc.country,
+                },
+              },
+              create: {
+                city: loc.city,
+                region: loc.region,
+                country: loc.country,
+              },
+            },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
       parentStyles: { include: { parent: true } },
       influencedByStyles: { include: { influencer: true } },
+      locations: { include: { location: true } },
     },
   })
   return toOutput(style)
@@ -72,6 +101,7 @@ export const getStyle = async (id: number): Promise<StyleOutput> => {
       alternateNames: true,
       parentStyles: { include: { parent: true } },
       influencedByStyles: { include: { influencer: true } },
+      locations: { include: { location: true } },
     },
   })
   if (!style) {
@@ -103,11 +133,32 @@ export const editStyle = async (
       influencedByStyles: {
         create: data.influencedByStyles.map((id) => ({ influencerId: id })),
       },
+      locations: {
+        create: data.locations.map((loc) => ({
+          location: {
+            connectOrCreate: {
+              where: {
+                city_region_country: {
+                  city: loc.city,
+                  region: loc.region,
+                  country: loc.country,
+                },
+              },
+              create: {
+                city: loc.city,
+                region: loc.region,
+                country: loc.country,
+              },
+            },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
       parentStyles: { include: { parent: true } },
       influencedByStyles: { include: { influencer: true } },
+      locations: { include: { location: true } },
     },
   })
   return toOutput(style)
@@ -133,6 +184,9 @@ export const deleteStyle = async (id: number): Promise<number> => {
   const deleteInfluencedByStyles = prisma.styleInfluence.deleteMany({
     where: { influencedId: id },
   })
+  const deleteLocations = prisma.styleLocation.deleteMany({
+    where: { styleId: id },
+  })
   const deleteStyle = prisma.style.delete({ where: { id } })
   await prisma.$transaction([
     deleteNames,
@@ -142,6 +196,7 @@ export const deleteStyle = async (id: number): Promise<number> => {
     deleteInfluencesStyles,
     deleteInfluencedByStyles,
     deleteInfluencesTrends,
+    deleteLocations,
     deleteStyle,
   ])
   return id

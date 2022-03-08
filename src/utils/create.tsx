@@ -87,6 +87,7 @@ export const makeScene = (oldData?: GenreInput): [SceneInput, boolean] => {
       shortDesc: oldData?.shortDesc ?? '',
       longDesc: oldData?.longDesc ?? '',
       influencedByScenes,
+      locations: oldData?.locations ?? [],
     },
     lostData,
   ]
@@ -112,6 +113,7 @@ export const makeStyle = (oldData?: GenreInput): [StyleInput, boolean] => {
       longDesc: oldData?.longDesc ?? '',
       parentStyles,
       influencedByStyles,
+      locations: oldData?.locations ?? [],
     },
     lostData,
   ]
@@ -142,6 +144,7 @@ export const makeTrend = (oldData?: GenreInput): [TrendInput, boolean] => {
       parentStyles,
       influencedByTrends,
       influencedByStyles,
+      locations: oldData?.locations ?? [],
     },
     lostData,
   ]

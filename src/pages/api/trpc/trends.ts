@@ -1,7 +1,9 @@
 import {
+  Location,
   PrismaClient,
   Style,
   Trend,
+  TrendLocation,
   TrendName,
   TrendStyleInfluence,
   TrendStyleParent,
@@ -23,6 +25,9 @@ export const TrendInput = z.object({
   parentStyles: z.array(z.number()),
   influencedByTrends: z.array(z.number()),
   influencedByStyles: z.array(z.number()),
+  locations: z.array(
+    z.object({ city: z.string(), region: z.string(), country: z.string() })
+  ),
 })
 export type TrendInput = z.infer<typeof TrendInput>
 
@@ -33,6 +38,7 @@ export type TrendOutput = Trend & {
   parentStyles: Style[]
   influencedByTrends: Trend[]
   influencedByStyles: Style[]
+  locations: Location[]
 }
 
 const toOutput = (
@@ -42,6 +48,7 @@ const toOutput = (
     parentStyles: (TrendStyleParent & { parent: Style })[]
     influencedByTrends: (TrendTrendInfluence & { influencer: Trend })[]
     influencedByStyles: (TrendStyleInfluence & { influencer: Style })[]
+    locations: (TrendLocation & { location: Location })[]
   }
 ): TrendOutput => ({
   ...trend,
@@ -51,6 +58,7 @@ const toOutput = (
   parentStyles: trend.parentStyles.map((p) => p.parent),
   influencedByTrends: trend.influencedByTrends.map((inf) => inf.influencer),
   influencedByStyles: trend.influencedByStyles.map((inf) => inf.influencer),
+  locations: trend.locations.map((loc) => loc.location),
 })
 
 export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
@@ -72,6 +80,26 @@ export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
       influencedByStyles: {
         create: input.influencedByStyles.map((id) => ({ influencerId: id })),
       },
+      locations: {
+        create: input.locations.map((loc) => ({
+          location: {
+            connectOrCreate: {
+              where: {
+                city_region_country: {
+                  city: loc.city,
+                  region: loc.region,
+                  country: loc.country,
+                },
+              },
+              create: {
+                city: loc.city,
+                region: loc.region,
+                country: loc.country,
+              },
+            },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
@@ -79,6 +107,7 @@ export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
       parentStyles: { include: { parent: true } },
       influencedByTrends: { include: { influencer: true } },
       influencedByStyles: { include: { influencer: true } },
+      locations: { include: { location: true } },
     },
   })
   return toOutput(trend)
@@ -93,6 +122,7 @@ export const getTrend = async (id: number): Promise<TrendOutput> => {
       parentStyles: { include: { parent: true } },
       influencedByTrends: { include: { influencer: true } },
       influencedByStyles: { include: { influencer: true } },
+      locations: { include: { location: true } },
     },
   })
   if (!trend) {
@@ -132,6 +162,26 @@ export const editTrend = async (
       influencedByStyles: {
         create: data.influencedByStyles.map((id) => ({ influencerId: id })),
       },
+      locations: {
+        create: data.locations.map((loc) => ({
+          location: {
+            connectOrCreate: {
+              where: {
+                city_region_country: {
+                  city: loc.city,
+                  region: loc.region,
+                  country: loc.country,
+                },
+              },
+              create: {
+                city: loc.city,
+                region: loc.region,
+                country: loc.country,
+              },
+            },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
@@ -139,6 +189,7 @@ export const editTrend = async (
       parentStyles: { include: { parent: true } },
       influencedByTrends: { include: { influencer: true } },
       influencedByStyles: { include: { influencer: true } },
+      locations: { include: { location: true } },
     },
   })
   return toOutput(trend)
@@ -164,6 +215,9 @@ export const deleteTrend = async (id: number): Promise<number> => {
   const deleteInfluencedByStyles = prisma.trendStyleInfluence.deleteMany({
     where: { influencedId: id },
   })
+  const deleteLocations = prisma.trendLocation.deleteMany({
+    where: { trendId: id },
+  })
   const deleteTrend = prisma.trend.delete({ where: { id } })
   await prisma.$transaction([
     deleteNames,
@@ -173,6 +227,7 @@ export const deleteTrend = async (id: number): Promise<number> => {
     deleteInfluencesTrends,
     deleteInfluencedByTrends,
     deleteInfluencedByStyles,
+    deleteLocations,
     deleteTrend,
   ])
   return id
