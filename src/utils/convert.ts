@@ -11,6 +11,7 @@ export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
           ...inf,
           type: 'scene',
         })),
+        cultures: data.cultures.join(', '),
       }
     }
     case 'style': {
@@ -22,6 +23,7 @@ export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
           ...inf,
           type: 'style',
         })),
+        cultures: data.cultures.join(', '),
       }
     }
     case 'trend': {
@@ -38,6 +40,7 @@ export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
           ...inf,
           type: 'style',
         })),
+        cultures: data.cultures.join(', '),
       }
     }
   }
@@ -52,6 +55,7 @@ export const toAddApi = (data: GenreInput): InferMutationInput<'add'> => {
           ...data,
           alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
           influencedByScenes: data.influencedByScenes.map((item) => item.id),
+          cultures: data.cultures.split(',').map((s) => s.trim()),
         },
       }
     }
@@ -63,6 +67,7 @@ export const toAddApi = (data: GenreInput): InferMutationInput<'add'> => {
           alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
           parentStyles: data.parentStyles.map((item) => item.id),
           influencedByStyles: data.influencedByStyles.map((item) => item.id),
+          cultures: data.cultures.split(',').map((s) => s.trim()),
         },
       }
     }
@@ -76,6 +81,7 @@ export const toAddApi = (data: GenreInput): InferMutationInput<'add'> => {
           parentStyles: data.parentStyles.map((item) => item.id),
           influencedByTrends: data.influencedByTrends.map((item) => item.id),
           influencedByStyles: data.influencedByStyles.map((item) => item.id),
+          cultures: data.cultures.split(',').map((s) => s.trim()),
         },
       }
     }
@@ -98,6 +104,7 @@ export const toEditApi = (
             ...data,
             alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
             influencedByScenes: data.influencedByScenes.map((item) => item.id),
+            cultures: data.cultures.split(',').map((s) => s.trim()),
           },
         },
       }
@@ -113,6 +120,7 @@ export const toEditApi = (
             alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
             parentStyles: data.parentStyles.map((item) => item.id),
             influencedByStyles: data.influencedByStyles.map((item) => item.id),
+            cultures: data.cultures.split(',').map((s) => s.trim()),
           },
         },
       }
@@ -130,6 +138,7 @@ export const toEditApi = (
             parentStyles: data.parentStyles.map((item) => item.id),
             influencedByTrends: data.influencedByTrends.map((item) => item.id),
             influencedByStyles: data.influencedByStyles.map((item) => item.id),
+            cultures: data.cultures.split(',').map((s) => s.trim()),
           },
         },
       }

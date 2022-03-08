@@ -1,8 +1,10 @@
 import {
+  Culture,
   Location,
   PrismaClient,
   Style,
   Trend,
+  TrendCulture,
   TrendLocation,
   TrendName,
   TrendStyleInfluence,
@@ -28,6 +30,7 @@ export const TrendInput = z.object({
   locations: z.array(
     z.object({ city: z.string(), region: z.string(), country: z.string() })
   ),
+  cultures: z.array(z.string()),
 })
 export type TrendInput = z.infer<typeof TrendInput>
 
@@ -39,6 +42,7 @@ export type TrendOutput = Trend & {
   influencedByTrends: Trend[]
   influencedByStyles: Style[]
   locations: Location[]
+  cultures: Culture[]
 }
 
 const toOutput = (
@@ -49,6 +53,7 @@ const toOutput = (
     influencedByTrends: (TrendTrendInfluence & { influencer: Trend })[]
     influencedByStyles: (TrendStyleInfluence & { influencer: Style })[]
     locations: (TrendLocation & { location: Location })[]
+    cultures: (TrendCulture & { culture: Culture })[]
   }
 ): TrendOutput => ({
   ...trend,
@@ -59,6 +64,7 @@ const toOutput = (
   influencedByTrends: trend.influencedByTrends.map((inf) => inf.influencer),
   influencedByStyles: trend.influencedByStyles.map((inf) => inf.influencer),
   locations: trend.locations.map((loc) => loc.location),
+  cultures: trend.cultures.map((c) => c.culture),
 })
 
 export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
@@ -100,6 +106,13 @@ export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
           },
         })),
       },
+      cultures: {
+        create: input.cultures.map((c) => ({
+          culture: {
+            connectOrCreate: { where: { name: c }, create: { name: c } },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
@@ -108,6 +121,7 @@ export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
       influencedByTrends: { include: { influencer: true } },
       influencedByStyles: { include: { influencer: true } },
       locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
     },
   })
   return toOutput(trend)
@@ -123,6 +137,7 @@ export const getTrend = async (id: number): Promise<TrendOutput> => {
       influencedByTrends: { include: { influencer: true } },
       influencedByStyles: { include: { influencer: true } },
       locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
     },
   })
   if (!trend) {
@@ -183,6 +198,13 @@ export const editTrend = async (
           },
         })),
       },
+      cultures: {
+        create: data.cultures.map((c) => ({
+          culture: {
+            connectOrCreate: { where: { name: c }, create: { name: c } },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
@@ -191,6 +213,7 @@ export const editTrend = async (
       influencedByTrends: { include: { influencer: true } },
       influencedByStyles: { include: { influencer: true } },
       locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
     },
   })
   return toOutput(trend)

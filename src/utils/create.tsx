@@ -13,20 +13,22 @@ export const isTrend = (o: GenreObject): o is TrendObject => o.type === 'trend'
 
 export type SceneInput = Omit<
   InferMutationInput<'scenes.add'>,
-  'alternateNames' | 'influencedByScenes'
+  'alternateNames' | 'influencedByScenes' | 'cultures'
 > & {
   type: 'scene'
   alternateNames: string
   influencedByScenes: SceneObject[]
+  cultures: string
 }
 export type StyleInput = Omit<
   InferMutationInput<'styles.add'>,
-  'alternateNames' | 'parentStyles' | 'influencedByStyles'
+  'alternateNames' | 'parentStyles' | 'influencedByStyles' | 'cultures'
 > & {
   type: 'style'
   alternateNames: string
   parentStyles: StyleObject[]
   influencedByStyles: StyleObject[]
+  cultures: string
 }
 export type TrendInput = Omit<
   InferMutationInput<'trends.add'>,
@@ -35,6 +37,7 @@ export type TrendInput = Omit<
   | 'parentStyles'
   | 'influencedByTrends'
   | 'influencedByStyles'
+  | 'cultures'
 > & {
   type: 'trend'
   alternateNames: string
@@ -42,6 +45,7 @@ export type TrendInput = Omit<
   parentStyles: StyleObject[]
   influencedByTrends: TrendObject[]
   influencedByStyles: StyleObject[]
+  cultures: string
 }
 export type GenreInput = SceneInput | StyleInput | TrendInput
 
@@ -97,6 +101,7 @@ export const makeScene = (oldData?: GenreInput): [SceneInput, boolean] => {
       longDesc: oldData?.longDesc ?? '',
       influencedByScenes,
       locations: oldData?.locations ?? [makeLocation()],
+      cultures: oldData?.cultures ?? '',
     },
     lostData,
   ]
@@ -123,6 +128,7 @@ export const makeStyle = (oldData?: GenreInput): [StyleInput, boolean] => {
       parentStyles,
       influencedByStyles,
       locations: oldData?.locations ?? [makeLocation()],
+      cultures: oldData?.cultures ?? '',
     },
     lostData,
   ]
@@ -154,6 +160,7 @@ export const makeTrend = (oldData?: GenreInput): [TrendInput, boolean] => {
       influencedByTrends,
       influencedByStyles,
       locations: oldData?.locations ?? [makeLocation()],
+      cultures: oldData?.cultures ?? '',
     },
     lostData,
   ]

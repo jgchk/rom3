@@ -1,7 +1,9 @@
 import {
+  Culture,
   Location,
   PrismaClient,
   Scene,
+  SceneCulture,
   SceneInfluence,
   SceneLocation,
   SceneName,
@@ -21,6 +23,7 @@ export const SceneInput = z.object({
   locations: z.array(
     z.object({ city: z.string(), region: z.string(), country: z.string() })
   ),
+  cultures: z.array(z.string()),
 })
 export type SceneInput = z.infer<typeof SceneInput>
 
@@ -29,6 +32,7 @@ export type SceneOutput = Scene & {
   alternateNames: string[]
   influencedByScenes: Scene[]
   locations: Location[]
+  cultures: Culture[]
 }
 
 const toOutput = (
@@ -36,6 +40,7 @@ const toOutput = (
     alternateNames: SceneName[]
     influencedByScenes: (SceneInfluence & { influencer: Scene })[]
     locations: (SceneLocation & { location: Location })[]
+    cultures: (SceneCulture & { culture: Culture })[]
   }
 ): SceneOutput => ({
   ...scene,
@@ -43,6 +48,7 @@ const toOutput = (
   alternateNames: scene.alternateNames.map((an) => an.name),
   influencedByScenes: scene.influencedByScenes.map((inf) => inf.influencer),
   locations: scene.locations.map((loc) => loc.location),
+  cultures: scene.cultures.map((c) => c.culture),
 })
 
 export const addScene = async (input: SceneInput): Promise<SceneOutput> => {
@@ -75,11 +81,19 @@ export const addScene = async (input: SceneInput): Promise<SceneOutput> => {
           },
         })),
       },
+      cultures: {
+        create: input.cultures.map((c) => ({
+          culture: {
+            connectOrCreate: { where: { name: c }, create: { name: c } },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
       influencedByScenes: { include: { influencer: true } },
       locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
     },
   })
   return toOutput(scene)
@@ -92,6 +106,7 @@ export const getScene = async (id: number): Promise<SceneOutput> => {
       alternateNames: true,
       influencedByScenes: { include: { influencer: true } },
       locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
     },
   })
   if (!scene) {
@@ -110,6 +125,7 @@ export const editScene = async (
   await prisma.sceneName.deleteMany({ where: { sceneId: id } })
   await prisma.sceneInfluence.deleteMany({ where: { influencedId: id } })
   await prisma.sceneLocation.deleteMany({ where: { sceneId: id } })
+  await prisma.sceneCulture.deleteMany({ where: { sceneId: id } })
   const scene = await prisma.scene.update({
     where: { id: id },
     data: {
@@ -140,11 +156,19 @@ export const editScene = async (
           },
         })),
       },
+      cultures: {
+        create: data.cultures.map((c) => ({
+          culture: {
+            connectOrCreate: { where: { name: c }, create: { name: c } },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
       influencedByScenes: { include: { influencer: true } },
       locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
     },
   })
   return toOutput(scene)

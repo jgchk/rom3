@@ -1,7 +1,9 @@
 import {
+  Culture,
   Location,
   PrismaClient,
   Style,
+  StyleCulture,
   StyleInfluence,
   StyleLocation,
   StyleName,
@@ -23,6 +25,7 @@ export const StyleInput = z.object({
   locations: z.array(
     z.object({ city: z.string(), region: z.string(), country: z.string() })
   ),
+  cultures: z.array(z.string()),
 })
 export type StyleInput = z.infer<typeof StyleInput>
 
@@ -32,6 +35,7 @@ export type StyleOutput = Style & {
   parentStyles: Style[]
   influencedByStyles: Style[]
   locations: Location[]
+  cultures: Culture[]
 }
 
 const toOutput = (
@@ -40,6 +44,7 @@ const toOutput = (
     parentStyles: (StyleParent & { parent: Style })[]
     influencedByStyles: (StyleInfluence & { influencer: Style })[]
     locations: (StyleLocation & { location: Location })[]
+    cultures: (StyleCulture & { culture: Culture })[]
   }
 ): StyleOutput => ({
   ...style,
@@ -48,6 +53,7 @@ const toOutput = (
   parentStyles: style.parentStyles.map((p) => p.parent),
   influencedByStyles: style.influencedByStyles.map((inf) => inf.influencer),
   locations: style.locations.map((loc) => loc.location),
+  cultures: style.cultures.map((c) => c.culture),
 })
 
 export const addStyle = async (input: StyleInput): Promise<StyleOutput> => {
@@ -83,12 +89,20 @@ export const addStyle = async (input: StyleInput): Promise<StyleOutput> => {
           },
         })),
       },
+      cultures: {
+        create: input.cultures.map((c) => ({
+          culture: {
+            connectOrCreate: { where: { name: c }, create: { name: c } },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
       parentStyles: { include: { parent: true } },
       influencedByStyles: { include: { influencer: true } },
       locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
     },
   })
   return toOutput(style)
@@ -102,6 +116,7 @@ export const getStyle = async (id: number): Promise<StyleOutput> => {
       parentStyles: { include: { parent: true } },
       influencedByStyles: { include: { influencer: true } },
       locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
     },
   })
   if (!style) {
@@ -154,12 +169,20 @@ export const editStyle = async (
           },
         })),
       },
+      cultures: {
+        create: data.cultures.map((c) => ({
+          culture: {
+            connectOrCreate: { where: { name: c }, create: { name: c } },
+          },
+        })),
+      },
     },
     include: {
       alternateNames: true,
       parentStyles: { include: { parent: true } },
       influencedByStyles: { include: { influencer: true } },
       locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
     },
   })
   return toOutput(style)
