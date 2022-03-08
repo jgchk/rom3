@@ -1,3 +1,4 @@
+import styled from '@emotion/styled'
 import { FC } from 'react'
 
 type LocationInput = { city: string; region: string; country: string }
@@ -8,7 +9,7 @@ const LocationInput: FC<{
 }> = ({ value, onChange }) => (
   <div>
     {value.map((location, i) => (
-      <div key={i}>
+      <Container key={i}>
         <input
           placeholder='City'
           value={location.city}
@@ -48,17 +49,31 @@ const LocationInput: FC<{
         >
           -
         </button>
-      </div>
+        <button
+          type='button'
+          onClick={() => {
+            onChange([
+              ...value.slice(0, i + 1),
+              { city: '', region: '', country: '' },
+              ...value.slice(i + 1),
+            ])
+          }}
+        >
+          +
+        </button>
+      </Container>
     ))}
-    <button
-      type='button'
-      onClick={() =>
-        onChange([...value, { city: '', region: '', country: '' }])
-      }
-    >
-      +
-    </button>
   </div>
 )
 
 export default LocationInput
+
+const Container = styled.div`
+  display: flex;
+  gap: 2px;
+
+  input {
+    flex: 1;
+    min-width: 0;
+  }
+`
