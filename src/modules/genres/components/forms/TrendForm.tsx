@@ -1,17 +1,17 @@
 import { Dispatch, FC, SetStateAction, useMemo } from 'react'
 
-import trpc, { InferQueryOutput } from '../../../common/utils/trpc'
+import trpc, { InferQueryOutput } from '../../../../common/utils/trpc'
 import {
   isStyle,
   isTrend,
   StyleObject,
   TrendInput,
   TrendObject,
-} from '../utils/create'
-import FormElement from './FormElement'
-import LocationInput from './LocationInput'
-import Multiselect from './Multiselect'
-import SmallLabel from './SmallLabel'
+} from '../../utils/create'
+import FormElement from '../FormElement'
+import LocationInput from '../LocationInput'
+import Multiselect from '../Multiselect'
+import SmallLabel from '../SmallLabel'
 
 type Output = InferQueryOutput<'genres'>[number]
 const isStyleOrTrend = (o: Output): o is StyleObject | TrendObject =>

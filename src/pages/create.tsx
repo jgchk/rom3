@@ -7,9 +7,9 @@ import toast from 'react-hot-toast'
 import { capitalize } from '../common/utils/string'
 import trpc from '../common/utils/trpc'
 import FormElement from '../modules/genres/components/FormElement'
-import SceneForm from '../modules/genres/components/SceneForm'
-import StyleForm from '../modules/genres/components/StyleForm'
-import TrendForm from '../modules/genres/components/TrendForm'
+import SceneForm from '../modules/genres/components/forms/SceneForm'
+import StyleForm from '../modules/genres/components/forms/StyleForm'
+import TrendForm from '../modules/genres/components/forms/TrendForm'
 import { toAddApi } from '../modules/genres/utils/convert'
 import {
   GenreInput,

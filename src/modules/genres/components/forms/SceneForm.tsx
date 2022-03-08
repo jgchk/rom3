@@ -1,16 +1,16 @@
 import { Dispatch, FC, SetStateAction, useMemo } from 'react'
 
-import trpc from '../../../common/utils/trpc'
-import { StyleInput, StyleObject } from '../utils/create'
-import FormElement from './FormElement'
-import LocationInput from './LocationInput'
-import Multiselect from './Multiselect'
-import SmallLabel from './SmallLabel'
+import trpc from '../../../../common/utils/trpc'
+import { SceneInput, SceneObject } from '../../utils/create'
+import FormElement from '../FormElement'
+import LocationInput from '../LocationInput'
+import Multiselect from '../Multiselect'
+import SmallLabel from '../SmallLabel'
 
-const StyleForm: FC<{
+const SceneForm: FC<{
   selfId?: number
-  data: StyleInput
-  onChange: Dispatch<SetStateAction<StyleInput>>
+  data: SceneInput
+  onChange: Dispatch<SetStateAction<SceneInput>>
 }> = ({ selfId, data, onChange }) => (
   <>
     <FormElement>
@@ -18,7 +18,6 @@ const StyleForm: FC<{
       <input
         value={data.name}
         onChange={(e) => onChange((d) => ({ ...d, name: e.target.value }))}
-        required
       />
     </FormElement>
     <FormElement>
@@ -32,20 +31,12 @@ const StyleForm: FC<{
       />
     </FormElement>
     <FormElement>
-      <label>Parents</label>
-      <StyleMultiselect
-        selfId={selfId}
-        value={data.parentStyles}
-        onChange={(parentStyles) => onChange((d) => ({ ...d, parentStyles }))}
-      />
-    </FormElement>
-    <FormElement>
       <label>Influences</label>
-      <StyleMultiselect
+      <InfluencedByDropdown
         selfId={selfId}
-        value={data.influencedByStyles}
-        onChange={(influencedByStyles) =>
-          onChange((d) => ({ ...d, influencedByStyles }))
+        value={data.influencedByScenes}
+        onChange={(influencedByScenes) =>
+          onChange((d) => ({ ...d, influencedByScenes }))
         }
       />
     </FormElement>
@@ -85,12 +76,12 @@ const StyleForm: FC<{
   </>
 )
 
-const StyleMultiselect: FC<{
+const InfluencedByDropdown: FC<{
   selfId?: number
-  value: StyleObject[]
-  onChange: (selected: StyleObject[]) => void
+  value: SceneObject[]
+  onChange: (selected: SceneObject[]) => void
 }> = ({ selfId, value, onChange }) => {
-  const { data, error, isLoading } = trpc.useQuery(['styles.all'])
+  const { data, error, isLoading } = trpc.useQuery(['scenes.all'])
 
   const dataWithoutSelf = useMemo(
     () =>
@@ -110,10 +101,10 @@ const StyleMultiselect: FC<{
       itemKey={(item) => item.id}
       selected={value}
       onChange={(selected) =>
-        onChange(selected.map((s) => ({ ...s, type: 'style' })))
+        onChange(selected.map((s) => ({ ...s, type: 'scene' })))
       }
     />
   )
 }
 
-export default StyleForm
+export default SceneForm
