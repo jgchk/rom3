@@ -1,4 +1,6 @@
+import { unique, uniqueBy } from './array'
 import { GenreInput, GenreType } from './create'
+import { hashLocation, locationNotEmpty } from './location'
 import { InferMutationInput, InferQueryOutput } from './trpc'
 
 export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
@@ -53,9 +55,23 @@ export const toAddApi = (data: GenreInput): InferMutationInput<'add'> => {
         type: 'scene',
         data: {
           ...data,
-          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+          alternateNames: unique(
+            data.alternateNames
+              .split(',')
+              .map((s) => s.trim())
+              .filter((s) => s.length > 0)
+          ),
           influencedByScenes: data.influencedByScenes.map((item) => item.id),
-          cultures: data.cultures.split(',').map((s) => s.trim()),
+          locations: uniqueBy(
+            data.locations.filter(locationNotEmpty),
+            hashLocation
+          ),
+          cultures: unique(
+            data.cultures
+              .split(',')
+              .map((s) => s.trim())
+              .filter((s) => s.length > 0)
+          ),
         },
       }
     }
@@ -64,10 +80,24 @@ export const toAddApi = (data: GenreInput): InferMutationInput<'add'> => {
         type: 'style',
         data: {
           ...data,
-          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+          alternateNames: unique(
+            data.alternateNames
+              .split(',')
+              .map((s) => s.trim())
+              .filter((s) => s.length > 0)
+          ),
           parentStyles: data.parentStyles.map((item) => item.id),
           influencedByStyles: data.influencedByStyles.map((item) => item.id),
-          cultures: data.cultures.split(',').map((s) => s.trim()),
+          locations: uniqueBy(
+            data.locations.filter(locationNotEmpty),
+            hashLocation
+          ),
+          cultures: unique(
+            data.cultures
+              .split(',')
+              .map((s) => s.trim())
+              .filter((s) => s.length > 0)
+          ),
         },
       }
     }
@@ -76,12 +106,26 @@ export const toAddApi = (data: GenreInput): InferMutationInput<'add'> => {
         type: 'trend',
         data: {
           ...data,
-          alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+          alternateNames: unique(
+            data.alternateNames
+              .split(',')
+              .map((s) => s.trim())
+              .filter((s) => s.length > 0)
+          ),
           parentTrends: data.parentTrends.map((item) => item.id),
           parentStyles: data.parentStyles.map((item) => item.id),
           influencedByTrends: data.influencedByTrends.map((item) => item.id),
           influencedByStyles: data.influencedByStyles.map((item) => item.id),
-          cultures: data.cultures.split(',').map((s) => s.trim()),
+          locations: uniqueBy(
+            data.locations.filter(locationNotEmpty),
+            hashLocation
+          ),
+          cultures: unique(
+            data.cultures
+              .split(',')
+              .map((s) => s.trim())
+              .filter((s) => s.length > 0)
+          ),
         },
       }
     }
@@ -102,9 +146,23 @@ export const toEditApi = (
           type: data.type,
           data: {
             ...data,
-            alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+            alternateNames: unique(
+              data.alternateNames
+                .split(',')
+                .map((s) => s.trim())
+                .filter((s) => s.length > 0)
+            ),
             influencedByScenes: data.influencedByScenes.map((item) => item.id),
-            cultures: data.cultures.split(',').map((s) => s.trim()),
+            locations: uniqueBy(
+              data.locations.filter(locationNotEmpty),
+              hashLocation
+            ),
+            cultures: unique(
+              data.cultures
+                .split(',')
+                .map((s) => s.trim())
+                .filter((s) => s.length > 0)
+            ),
           },
         },
       }
@@ -117,10 +175,24 @@ export const toEditApi = (
           type: data.type,
           data: {
             ...data,
-            alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+            alternateNames: unique(
+              data.alternateNames
+                .split(',')
+                .map((s) => s.trim())
+                .filter((s) => s.length > 0)
+            ),
             parentStyles: data.parentStyles.map((item) => item.id),
             influencedByStyles: data.influencedByStyles.map((item) => item.id),
-            cultures: data.cultures.split(',').map((s) => s.trim()),
+            locations: uniqueBy(
+              data.locations.filter(locationNotEmpty),
+              hashLocation
+            ),
+            cultures: unique(
+              data.cultures
+                .split(',')
+                .map((s) => s.trim())
+                .filter((s) => s.length > 0)
+            ),
           },
         },
       }
@@ -133,12 +205,26 @@ export const toEditApi = (
           type: data.type,
           data: {
             ...data,
-            alternateNames: data.alternateNames.split(',').map((s) => s.trim()),
+            alternateNames: unique(
+              data.alternateNames
+                .split(',')
+                .map((s) => s.trim())
+                .filter((s) => s.length > 0)
+            ),
             parentTrends: data.parentTrends.map((item) => item.id),
             parentStyles: data.parentStyles.map((item) => item.id),
             influencedByTrends: data.influencedByTrends.map((item) => item.id),
             influencedByStyles: data.influencedByStyles.map((item) => item.id),
-            cultures: data.cultures.split(',').map((s) => s.trim()),
+            locations: uniqueBy(
+              data.locations.filter(locationNotEmpty),
+              hashLocation
+            ),
+            cultures: unique(
+              data.cultures
+                .split(',')
+                .map((s) => s.trim())
+                .filter((s) => s.length > 0)
+            ),
           },
         },
       }
