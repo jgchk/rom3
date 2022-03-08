@@ -1,11 +1,14 @@
 import styled from '@emotion/styled'
 import { FC } from 'react'
 
-type LocationInput = { city: string; region: string; country: string }
+import {
+  LocationInput as LocationInputType,
+  makeLocation,
+} from '../utils/create'
 
 const LocationInput: FC<{
-  value: LocationInput[]
-  onChange: (data: LocationInput[]) => void
+  value: LocationInputType[]
+  onChange: (data: LocationInputType[]) => void
 }> = ({ value, onChange }) => (
   <div>
     {value.map((location, i) => (
@@ -45,7 +48,11 @@ const LocationInput: FC<{
         />
         <button
           type='button'
-          onClick={() => onChange(value.filter((_, j) => j !== i))}
+          onClick={() => {
+            let val = value.filter((_, j) => j !== i)
+            if (val.length === 0) val = [makeLocation()]
+            onChange(val)
+          }}
         >
           -
         </button>
@@ -54,7 +61,7 @@ const LocationInput: FC<{
           onClick={() => {
             onChange([
               ...value.slice(0, i + 1),
-              { city: '', region: '', country: '' },
+              makeLocation(),
               ...value.slice(i + 1),
             ])
           }}

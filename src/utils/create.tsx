@@ -45,6 +45,9 @@ export type TrendInput = Omit<
 }
 export type GenreInput = SceneInput | StyleInput | TrendInput
 
+export type LocationInput =
+  InferMutationInput<'add'>['data']['locations'][number]
+
 const getInfluencedBy = (oldData?: GenreInput): GenreObject[] => {
   if (!oldData) return []
   switch (oldData.type) {
@@ -69,6 +72,12 @@ const getParents = (oldData?: GenreInput): GenreObject[] => {
   }
 }
 
+export const makeLocation = (): LocationInput => ({
+  city: '',
+  region: '',
+  country: '',
+})
+
 export const makeScene = (oldData?: GenreInput): [SceneInput, boolean] => {
   const oldParents = getParents(oldData)
 
@@ -87,7 +96,7 @@ export const makeScene = (oldData?: GenreInput): [SceneInput, boolean] => {
       shortDesc: oldData?.shortDesc ?? '',
       longDesc: oldData?.longDesc ?? '',
       influencedByScenes,
-      locations: oldData?.locations ?? [],
+      locations: oldData?.locations ?? [makeLocation()],
     },
     lostData,
   ]
@@ -113,7 +122,7 @@ export const makeStyle = (oldData?: GenreInput): [StyleInput, boolean] => {
       longDesc: oldData?.longDesc ?? '',
       parentStyles,
       influencedByStyles,
-      locations: oldData?.locations ?? [],
+      locations: oldData?.locations ?? [makeLocation()],
     },
     lostData,
   ]
@@ -144,7 +153,7 @@ export const makeTrend = (oldData?: GenreInput): [TrendInput, boolean] => {
       parentStyles,
       influencedByTrends,
       influencedByStyles,
-      locations: oldData?.locations ?? [],
+      locations: oldData?.locations ?? [makeLocation()],
     },
     lostData,
   ]
