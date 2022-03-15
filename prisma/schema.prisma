@@ -10,6 +10,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Meta {
+  id             Int               @id @default(autoincrement())
+  name           String
+  alternateNames MetaName[]
+  shortDesc      String            @db.VarChar(255)
+  longDesc       String            @db.Text
+  parentMetas    MetaParent[]      @relation("MetaChild")
+  childMetas     MetaParent[]      @relation("MetaParent")
+  childStyles    StyleMetaParent[] @relation("StyleMetaParent")
+  childTrends    TrendMetaParent[] @relation("TrendMetaParent")
+}
+
+model MetaName {
+  meta   Meta   @relation(fields: [metaId], references: [id])
+  metaId Int
+  name   String
+
+  @@id([metaId, name])
+}
+
+model MetaParent {
+  parent   Meta @relation("MetaParent", fields: [parentId], references: [id])
+  parentId Int
+  child    Meta @relation("MetaChild", fields: [childId], references: [id])
+  childId  Int
+
+  @@id([parentId, childId])
+}
+
 model Scene {
   id                 Int              @id @default(autoincrement())
   name               String
@@ -63,9 +92,10 @@ model Style {
   alternateNames     StyleName[]
   shortDesc          String                @db.VarChar(255)
   longDesc           String                @db.Text
-  parentStyles       StyleParent[]         @relation("StyleChild")
-  childStyles        StyleParent[]         @relation("StyleParent")
+  parentStyles       StyleStyleParent[]    @relation("StyleStyleChild")
+  childStyles        StyleStyleParent[]    @relation("StyleStyleParent")
   childTrends        TrendStyleParent[]    @relation("TrendStyleParent")
+  parentMetas        StyleMetaParent[]     @relation("StyleMetaChild")
   influencedByStyles StyleInfluence[]      @relation("StyleInfluenced")
   influencesStyles   StyleInfluence[]      @relation("StyleInfluencer")
   influencesTrends   TrendStyleInfluence[] @relation("TrendStyleInfluencer")
@@ -81,10 +111,19 @@ model StyleName {
   @@id([styleId, name])
 }
 
-model StyleParent {
-  parent   Style @relation("StyleParent", fields: [parentId], references: [id])
+model StyleStyleParent {
+  parent   Style @relation("StyleStyleParent", fields: [parentId], references: [id])
   parentId Int
-  child    Style @relation("StyleChild", fields: [childId], references: [id])
+  child    Style @relation("StyleStyleChild", fields: [childId], references: [id])
+  childId  Int
+
+  @@id([parentId, childId])
+}
+
+model StyleMetaParent {
+  parent   Meta  @relation("StyleMetaParent", fields: [parentId], references: [id])
+  parentId Int
+  child    Style @relation("StyleMetaChild", fields: [childId], references: [id])
   childId  Int
 
   @@id([parentId, childId])
@@ -125,6 +164,7 @@ model Trend {
   longDesc           String                @db.Text
   parentTrends       TrendTrendParent[]    @relation("TrendTrendChild")
   parentStyles       TrendStyleParent[]    @relation("TrendStyleChild")
+  parentMetas        TrendMetaParent[]     @relation("TrendMetaChild")
   childTrends        TrendTrendParent[]    @relation("TrendTrendParent")
   influencedByTrends TrendTrendInfluence[] @relation("TrendTrendInfluenced")
   influencedByStyles TrendStyleInfluence[] @relation("TrendStyleInfluenced")
@@ -154,6 +194,15 @@ model TrendStyleParent {
   parent   Style @relation("TrendStyleParent", fields: [parentId], references: [id])
   parentId Int
   child    Trend @relation("TrendStyleChild", fields: [childId], references: [id])
+  childId  Int
+
+  @@id([parentId, childId])
+}
+
+model TrendMetaParent {
+  parent   Meta  @relation("TrendMetaParent", fields: [parentId], references: [id])
+  parentId Int
+  child    Trend @relation("TrendMetaChild", fields: [childId], references: [id])
   childId  Int
 
   @@id([parentId, childId])
