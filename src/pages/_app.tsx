@@ -6,6 +6,7 @@ import type { AppProps } from 'next/app'
 import { Toaster } from 'react-hot-toast'
 
 import Navbar from '../common/components/Navbar'
+import { isBrowser } from '../common/utils/ssr'
 import { AppRouter } from './api/trpc/[trpc]'
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
@@ -19,7 +20,17 @@ const MyApp = ({ Component, pageProps }: AppProps) => (
 )
 
 export default withTRPC<AppRouter>({
-  config: () => ({ url: '/api/trpc' }),
+  config: () => {
+    if (isBrowser) {
+      return { url: '/api/trpc' }
+    }
+
+    const url = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}/api/trpc`
+      : 'http://localhost:3000/api/trpc'
+
+    return { url }
+  },
   ssr: true,
 })(MyApp)
 
