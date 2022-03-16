@@ -1,6 +1,6 @@
 import { createContext, FC, useContext, useMemo } from 'react'
 
-import { GenreName } from '../genres/utils/types'
+import { GenreName } from '../utils/types'
 
 type EditContextValue = { type: GenreName; id: number }
 

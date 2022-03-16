@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { useEditContext } from '../../contexts/EditContext'
+import { useEditContext } from '../contexts/EditContext'
 import { useGenresQuery } from '../services'
 import {
   getGenreKey,

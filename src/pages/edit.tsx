@@ -6,9 +6,9 @@ import toast from 'react-hot-toast'
 
 import { getFirstOrValue } from '../common/utils/array'
 import { capitalize } from '../common/utils/string'
-import { EditContextProvider } from '../modules/contexts/EditContext'
 import FormElement from '../modules/genres/components/FormElement'
 import GenreForm from '../modules/genres/components/forms/GenreForm'
+import { EditContextProvider } from '../modules/genres/contexts/EditContext'
 import { useEditGenreMutation, useGenreQuery } from '../modules/genres/services'
 import { fromApi, toEditApi } from '../modules/genres/utils/convert'
 import {
