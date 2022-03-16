@@ -1,28 +1,10 @@
-import { Dispatch, FC, SetStateAction, useMemo } from 'react'
+import { Dispatch, FC, SetStateAction } from 'react'
 
-import trpc, { InferQueryOutput } from '../../../../common/utils/trpc'
-import {
-  isStyle,
-  isTrend,
-  MetaObject,
-  StyleObject,
-  TrendInput,
-  TrendObject,
-} from '../../utils/create'
+import { isMeta, isStyle, isTrend, TrendInput } from '../../utils/create'
 import FormElement from '../FormElement'
+import GenreMultiselect from '../GenreMultiselect'
 import LocationInput from '../LocationInput'
-import Multiselect from '../Multiselect'
 import SmallLabel from '../SmallLabel'
-
-type Output = InferQueryOutput<'genres'>[number]
-
-type TrendParent = StyleObject | TrendObject | MetaObject
-const isTrendParent = (o: Output): o is TrendParent =>
-  o.type === 'style' || o.type === 'trend' || o.type === 'meta'
-
-type TrendInfluence = StyleObject | TrendObject
-const isTrendInfluence = (o: Output): o is TrendInfluence =>
-  o.type === 'style' || o.type === 'trend'
 
 const TrendForm: FC<{
   selfId?: number
@@ -50,21 +32,27 @@ const TrendForm: FC<{
     </FormElement>
     <FormElement>
       <label>Parents</label>
-      <TrendParentMultiselect
+      <GenreMultiselect
         selfId={selfId}
-        value={[...data.parentTrends, ...data.parentStyles]}
+        value={[
+          ...data.parentTrends,
+          ...data.parentStyles,
+          ...data.parentMetas,
+        ]}
         onChange={(parents) =>
           onChange((d) => ({
             ...d,
             parentTrends: parents.filter(isTrend),
             parentStyles: parents.filter(isStyle),
+            parentMetas: parents.filter(isMeta),
           }))
         }
+        types={['trend', 'style', 'meta']}
       />
     </FormElement>
     <FormElement>
       <label>Influences</label>
-      <TrendInfluenceMultiselect
+      <GenreMultiselect
         selfId={selfId}
         value={[...data.influencedByTrends, ...data.influencedByStyles]}
         onChange={(influencedBy) =>
@@ -74,6 +62,7 @@ const TrendForm: FC<{
             influencedByStyles: influencedBy.filter(isStyle),
           }))
         }
+        types={['trend', 'style']}
       />
     </FormElement>
     <FormElement>
@@ -111,78 +100,5 @@ const TrendForm: FC<{
     </FormElement>
   </>
 )
-
-// TODO: find a higher-level abstraction to combine Parent & Influence multiselects into one component
-const TrendParentMultiselect: FC<{
-  selfId?: number
-  value: TrendParent[]
-  onChange: (value: TrendParent[]) => void
-}> = ({ selfId, value, onChange }) => {
-  const { data, error, isLoading } = trpc.useQuery([
-    'genres',
-    { type: ['style', 'trend', 'meta'] },
-  ])
-
-  const dataWithoutSelf = useMemo(
-    () =>
-      selfId === undefined
-        ? data
-        : data?.filter(
-            (item) => !(item.type === 'trend' && item.id === selfId)
-          ),
-    [data, selfId]
-  )
-
-  return (
-    <Multiselect
-      data={dataWithoutSelf}
-      error={error}
-      isLoading={isLoading}
-      filter={(item, query) =>
-        item.name.toLowerCase().startsWith(query.toLowerCase())
-      }
-      itemDisplay={(item) => item.name}
-      itemKey={(item) => item.id}
-      selected={value}
-      onChange={(selected) => onChange(selected.filter(isTrendParent))}
-    />
-  )
-}
-
-const TrendInfluenceMultiselect: FC<{
-  selfId?: number
-  value: TrendInfluence[]
-  onChange: (value: TrendInfluence[]) => void
-}> = ({ selfId, value, onChange }) => {
-  const { data, error, isLoading } = trpc.useQuery([
-    'genres',
-    { type: ['style', 'trend'] },
-  ])
-
-  const dataWithoutSelf = useMemo(
-    () =>
-      selfId === undefined
-        ? data
-        : data?.filter(
-            (item) => !(item.type === 'trend' && item.id === selfId)
-          ),
-    [data, selfId]
-  )
-
-  return (
-    <Multiselect
-      data={dataWithoutSelf}
-      error={error}
-      isLoading={isLoading}
-      filter={(item, query) =>
-        item.name.toLowerCase().startsWith(query.toLowerCase())
-      }
-      itemDisplay={(item) => item.name}
-      itemKey={(item) => item.id}
-      selected={value}
-      onChange={(selected) => onChange(selected.filter(isTrendInfluence))}
-    />
-  )
-}
 
 export default TrendForm

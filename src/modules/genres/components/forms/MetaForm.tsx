@@ -1,9 +1,8 @@
-import { Dispatch, FC, SetStateAction, useMemo } from 'react'
+import { Dispatch, FC, SetStateAction } from 'react'
 
-import trpc from '../../../../common/utils/trpc'
-import { MetaInput, MetaObject } from '../../utils/create'
+import { MetaInput } from '../../utils/create'
 import FormElement from '../FormElement'
-import Multiselect from '../Multiselect'
+import GenreMultiselect from '../GenreMultiselect'
 import SmallLabel from '../SmallLabel'
 
 const MetaForm: FC<{
@@ -32,12 +31,11 @@ const MetaForm: FC<{
     </FormElement>
     <FormElement>
       <label>Parents</label>
-      <MetaMultiselect
+      <GenreMultiselect
         selfId={selfId}
         value={data.parentMetas}
-        onChange={(parents) =>
-          onChange((d) => ({ ...d, parentMetas: parents }))
-        }
+        onChange={(parentMetas) => onChange((d) => ({ ...d, parentMetas }))}
+        types={['meta']}
       />
     </FormElement>
     <FormElement>
@@ -60,36 +58,5 @@ const MetaForm: FC<{
     </FormElement>
   </>
 )
-
-const MetaMultiselect: FC<{
-  selfId?: number
-  value: MetaObject[]
-  onChange: (selected: MetaObject[]) => void
-}> = ({ selfId, value, onChange }) => {
-  const { data, error, isLoading } = trpc.useQuery(['metas.all'])
-
-  const dataWithoutSelf = useMemo(
-    () =>
-      selfId === undefined ? data : data?.filter((item) => item.id !== selfId),
-    [data, selfId]
-  )
-
-  return (
-    <Multiselect
-      data={dataWithoutSelf}
-      error={error}
-      isLoading={isLoading}
-      filter={(item, query) =>
-        item.name.toLowerCase().startsWith(query.toLowerCase())
-      }
-      itemDisplay={(item) => item.name}
-      itemKey={(item) => item.id}
-      selected={value}
-      onChange={(selected) =>
-        onChange(selected.map((s) => ({ ...s, type: 'meta' })))
-      }
-    />
-  )
-}
 
 export default MetaForm

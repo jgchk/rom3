@@ -1,12 +1,13 @@
-import { Meta, Scene, Style, Trend } from '@prisma/client'
+import {
+  InferMutationInput,
+  InferQueryOutput,
+} from '../../../common/utils/trpc'
 
-import { InferMutationInput } from '../../../common/utils/trpc'
-
-export type MetaObject = Meta & { type: 'meta' }
-export type SceneObject = Scene & { type: 'scene' }
-export type StyleObject = Style & { type: 'style' }
-export type TrendObject = Trend & { type: 'trend' }
-export type GenreObject = MetaObject | SceneObject | StyleObject | TrendObject
+export type MetaObject = InferQueryOutput<'metas.byId'>
+export type SceneObject = InferQueryOutput<'scenes.byId'>
+export type StyleObject = InferQueryOutput<'styles.byId'>
+export type TrendObject = InferQueryOutput<'trends.byId'>
+export type GenreObject = InferQueryOutput<'genres'>[number]
 
 export const isMeta = (o: GenreObject): o is MetaObject => o.type === 'meta'
 export const isScene = (o: GenreObject): o is SceneObject => o.type === 'scene'
