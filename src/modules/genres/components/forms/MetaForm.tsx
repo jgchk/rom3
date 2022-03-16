@@ -2,14 +2,13 @@ import { Dispatch, FC, SetStateAction } from 'react'
 
 import { MetaUiState } from '../../utils/types/metas'
 import FormElement from '../FormElement'
-import GenreMultiselect, { GenreMultiselectProps } from '../GenreMultiselect'
+import GenreMultiselect from '../GenreMultiselect'
 import SmallLabel from '../SmallLabel'
 
 const MetaForm: FC<{
-  self?: GenreMultiselectProps['self']
   data: MetaUiState
   onChange: Dispatch<SetStateAction<MetaUiState>>
-}> = ({ self, data, onChange }) => (
+}> = ({ data, onChange }) => (
   <>
     <FormElement>
       <label>Name *</label>
@@ -32,7 +31,6 @@ const MetaForm: FC<{
     <FormElement>
       <label>Parents</label>
       <GenreMultiselect
-        self={self}
         value={data.parentMetas}
         onChange={(parentMetas) => onChange((d) => ({ ...d, parentMetas }))}
         types={['meta']}

@@ -2,15 +2,14 @@ import { Dispatch, FC, SetStateAction } from 'react'
 
 import { SceneUiState } from '../../utils/types/scenes'
 import FormElement from '../FormElement'
-import GenreMultiselect, { GenreMultiselectProps } from '../GenreMultiselect'
+import GenreMultiselect from '../GenreMultiselect'
 import LocationInput from '../LocationInput'
 import SmallLabel from '../SmallLabel'
 
 const SceneForm: FC<{
-  self?: GenreMultiselectProps['self']
   data: SceneUiState
   onChange: Dispatch<SetStateAction<SceneUiState>>
-}> = ({ self, data, onChange }) => (
+}> = ({ data, onChange }) => (
   <>
     <FormElement>
       <label>Name *</label>
@@ -32,7 +31,6 @@ const SceneForm: FC<{
     <FormElement>
       <label>Influences</label>
       <GenreMultiselect
-        self={self}
         value={data.influencedByScenes}
         onChange={(influencedByScenes) =>
           onChange((d) => ({ ...d, influencedByScenes }))

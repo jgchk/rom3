@@ -3,15 +3,14 @@ import { Dispatch, FC, SetStateAction } from 'react'
 import { isSimpleMetaOutput } from '../../utils/types/metas'
 import { isSimpleStyleOutput, StyleUiState } from '../../utils/types/styles'
 import FormElement from '../FormElement'
-import GenreMultiselect, { GenreMultiselectProps } from '../GenreMultiselect'
+import GenreMultiselect from '../GenreMultiselect'
 import LocationInput from '../LocationInput'
 import SmallLabel from '../SmallLabel'
 
 const StyleForm: FC<{
-  self?: GenreMultiselectProps['self']
   data: StyleUiState
   onChange: Dispatch<SetStateAction<StyleUiState>>
-}> = ({ self, data, onChange }) => (
+}> = ({ data, onChange }) => (
   <>
     <FormElement>
       <label>Name *</label>
@@ -34,7 +33,6 @@ const StyleForm: FC<{
     <FormElement>
       <label>Parents</label>
       <GenreMultiselect
-        self={self}
         value={data.parentStyles}
         onChange={(parents) =>
           onChange((d) => ({
@@ -49,7 +47,6 @@ const StyleForm: FC<{
     <FormElement>
       <label>Influences</label>
       <GenreMultiselect
-        self={self}
         value={data.influencedByStyles}
         onChange={(influencedByStyles) =>
           onChange((d) => ({ ...d, influencedByStyles }))

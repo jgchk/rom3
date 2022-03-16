@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 
 import { getFirstOrValue } from '../common/utils/array'
 import { capitalize } from '../common/utils/string'
+import { EditContextProvider } from '../modules/contexts/EditContext'
 import FormElement from '../modules/genres/components/FormElement'
 import GenreForm from '../modules/genres/components/forms/GenreForm'
 import { useEditGenreMutation, useGenreQuery } from '../modules/genres/services'
@@ -78,45 +79,43 @@ const EditInnerInner: FC<{
   )
 
   return (
-    <Layout>
-      <Form>
-        <FormElement>
-          <label>Type</label>
-          {/* TODO: create primitive for typesafe <select> */}
-          <select
-            value={data.type}
-            onChange={(e) => {
-              const objectType = e.target.value as GenreName
-              const [newData, dataLost] = makeUiState(objectType, data)
-              const shouldRun = dataLost
-                ? confirm(
-                    'Some data may be lost in the conversion. Are you sure you want to continue?'
-                  )
-                : true
-              if (shouldRun) setData(newData)
-            }}
+    <EditContextProvider type={originalType} id={id}>
+      <Layout>
+        <Form>
+          <FormElement>
+            <label>Type</label>
+            {/* TODO: create primitive for typesafe <select> */}
+            <select
+              value={data.type}
+              onChange={(e) => {
+                const objectType = e.target.value as GenreName
+                const [newData, dataLost] = makeUiState(objectType, data)
+                const shouldRun = dataLost
+                  ? confirm(
+                      'Some data may be lost in the conversion. Are you sure you want to continue?'
+                    )
+                  : true
+                if (shouldRun) setData(newData)
+              }}
+            >
+              {genreNames.map((objectType) => (
+                <option key={objectType} value={objectType}>
+                  {capitalize(objectType)}
+                </option>
+              ))}
+            </select>
+          </FormElement>
+          <GenreForm data={data} onChange={setData} />
+          <button
+            type='submit'
+            disabled={isSubmitting}
+            onClick={() => handleEdit()}
           >
-            {genreNames.map((objectType) => (
-              <option key={objectType} value={objectType}>
-                {capitalize(objectType)}
-              </option>
-            ))}
-          </select>
-        </FormElement>
-        <GenreForm
-          self={{ type: originalType, id }}
-          data={data}
-          onChange={setData}
-        />
-        <button
-          type='submit'
-          disabled={isSubmitting}
-          onClick={() => handleEdit()}
-        >
-          {isSubmitting ? 'Updating...' : 'Update'}
-        </button>
-      </Form>
-    </Layout>
+            {isSubmitting ? 'Updating...' : 'Update'}
+          </button>
+        </Form>
+      </Layout>
+    </EditContextProvider>
   )
 }
 
