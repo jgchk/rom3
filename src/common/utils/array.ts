@@ -12,3 +12,6 @@ export const uniqueBy = <T, I>(arr: T[], fn: (item: T) => I): T[] => {
   }
   return output
 }
+
+export const getFirstOrValue = <T>(arrayOrValue: T | T[]): T =>
+  Array.isArray(arrayOrValue) ? arrayOrValue[0] : arrayOrValue

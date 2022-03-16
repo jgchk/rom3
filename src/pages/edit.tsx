@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import { getFirstOrValue } from '../common/utils/array'
 import { capitalize } from '../common/utils/string'
 import FormElement from '../modules/genres/components/FormElement'
 import MetaForm from '../modules/genres/components/forms/MetaForm'
@@ -11,7 +12,6 @@ import SceneForm from '../modules/genres/components/forms/SceneForm'
 import StyleForm from '../modules/genres/components/forms/StyleForm'
 import TrendForm from '../modules/genres/components/forms/TrendForm'
 import { useEditGenreMutation, useGenreQuery } from '../modules/genres/services'
-import { getParam } from '../modules/genres/utils/api'
 import { fromApi, toEditApi } from '../modules/genres/utils/convert'
 import {
   GenreName,
@@ -24,12 +24,14 @@ import {
 
 const Edit: NextPage = () => {
   const router = useRouter()
+
   const type = useMemo(() => {
-    const type_ = getParam(router.query.type)
+    const type_ = getFirstOrValue(router.query.type)
     if (type_ && isGenreName(type_)) return type_
   }, [router.query.type])
+
   const id = useMemo(() => {
-    const idStr = getParam(router.query.id)
+    const idStr = getFirstOrValue(router.query.id)
     if (idStr === undefined) return
     const idNum = Number.parseInt(idStr)
     if (Number.isNaN(idNum)) return
