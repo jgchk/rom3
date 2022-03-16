@@ -23,7 +23,7 @@ model Meta {
 }
 
 model MetaName {
-  meta   Meta   @relation(fields: [metaId], references: [id])
+  meta   Meta   @relation(fields: [metaId], references: [id], onDelete: Cascade)
   metaId Int
   name   String
 
@@ -31,9 +31,9 @@ model MetaName {
 }
 
 model MetaParent {
-  parent   Meta @relation("MetaParent", fields: [parentId], references: [id])
+  parent   Meta @relation("MetaParent", fields: [parentId], references: [id], onDelete: Cascade)
   parentId Int
-  child    Meta @relation("MetaChild", fields: [childId], references: [id])
+  child    Meta @relation("MetaChild", fields: [childId], references: [id], onDelete: Cascade)
   childId  Int
 
   @@id([parentId, childId])
@@ -121,7 +121,7 @@ model StyleStyleParent {
 }
 
 model StyleMetaParent {
-  parent   Meta  @relation("StyleMetaParent", fields: [parentId], references: [id])
+  parent   Meta  @relation("StyleMetaParent", fields: [parentId], references: [id], onDelete: Cascade)
   parentId Int
   child    Style @relation("StyleMetaChild", fields: [childId], references: [id])
   childId  Int
@@ -200,7 +200,7 @@ model TrendStyleParent {
 }
 
 model TrendMetaParent {
-  parent   Meta  @relation("TrendMetaParent", fields: [parentId], references: [id])
+  parent   Meta  @relation("TrendMetaParent", fields: [parentId], references: [id], onDelete: Cascade)
   parentId Int
   child    Trend @relation("TrendMetaChild", fields: [childId], references: [id])
   childId  Int

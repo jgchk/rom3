@@ -24,16 +24,24 @@ export const TrendInput = z.object({
   name: z.string().min(1),
   shortDesc: z.string().min(1),
   longDesc: z.string().min(1),
-  alternateNames: z.array(z.string()),
+  alternateNames: z.array(z.string().min(1)),
   parentTrends: z.array(z.number()),
   parentStyles: z.array(z.number()),
   parentMetas: z.array(z.number()),
   influencedByTrends: z.array(z.number()),
   influencedByStyles: z.array(z.number()),
   locations: z.array(
-    z.object({ city: z.string(), region: z.string(), country: z.string() })
+    z
+      .object({ city: z.string(), region: z.string(), country: z.string() })
+      .refine(
+        (val) =>
+          val.city.length > 0 ||
+          val.region.length > 0 ||
+          val.country.length > 0,
+        { message: "Location can't be empty" }
+      )
   ),
-  cultures: z.array(z.string()),
+  cultures: z.array(z.string().min(1)),
 })
 export type TrendInput = z.infer<typeof TrendInput>
 

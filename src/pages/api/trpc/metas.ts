@@ -10,7 +10,7 @@ export const MetaInput = z.object({
   name: z.string().min(1),
   shortDesc: z.string().min(1),
   longDesc: z.string().min(1),
-  alternateNames: z.array(z.string()),
+  alternateNames: z.array(z.string().min(1)),
   parentMetas: z.array(z.number()),
 })
 export type MetaInput = z.infer<typeof MetaInput>
@@ -83,17 +83,17 @@ export const editMeta = async (
   id: number,
   data: MetaInput
 ): Promise<MetaOutput> => {
-  await prisma.metaName.deleteMany({ where: { metaId: id } })
-  await prisma.metaParent.deleteMany({ where: { childId: id } })
   const meta = await prisma.meta.update({
     where: { id: id },
     data: {
       ...data,
       alternateNames: {
+        deleteMany: { metaId: id },
         create: data.alternateNames.map((name) => ({ name })),
       },
       parentMetas: {
-        create: data.parentMetas.map((id) => ({ parentId: id })),
+        deleteMany: { childId: id },
+        create: data.parentMetas.map((parentId) => ({ parentId })),
       },
     },
     include: {
@@ -105,28 +105,7 @@ export const editMeta = async (
 }
 
 export const deleteMeta = async (id: number): Promise<number> => {
-  const deleteNames = prisma.metaName.deleteMany({ where: { metaId: id } })
-  const deleteMetaParents = prisma.metaParent.deleteMany({
-    where: { childId: id },
-  })
-  const deleteMetaChildren = prisma.metaParent.deleteMany({
-    where: { parentId: id },
-  })
-  const deleteStyleChildren = prisma.styleStyleParent.deleteMany({
-    where: { parentId: id },
-  })
-  const deleteTrendChildren = prisma.trendStyleParent.deleteMany({
-    where: { parentId: id },
-  })
-  const deleteMeta = prisma.style.delete({ where: { id } })
-  await prisma.$transaction([
-    deleteNames,
-    deleteMetaParents,
-    deleteMetaChildren,
-    deleteStyleChildren,
-    deleteTrendChildren,
-    deleteMeta,
-  ])
+  await prisma.meta.delete({ where: { id } })
   return id
 }
 

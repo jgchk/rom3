@@ -70,6 +70,7 @@ export const useEditGenreMutation = () => {
   })
 }
 
+// TODO: invalidate or update related queries (parents, influences)
 export const useDeleteGenreMutation = () => {
   const util = trpc.useContext()
   return trpc.useMutation('delete', {
