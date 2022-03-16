@@ -1,19 +1,20 @@
 import { Dispatch, ReactElement, SetStateAction } from 'react'
 
 import { GenreUiState } from '../../utils/types'
+import { GenreMultiselectProps } from '../GenreMultiselect'
 import MetaForm from './MetaForm'
 import SceneForm from './SceneForm'
 import StyleForm from './StyleForm'
 import TrendForm from './TrendForm'
 
 export type GenreFormProps = {
-  selfId?: number
+  self?: GenreMultiselectProps['self']
   data: GenreUiState
   onChange: Dispatch<SetStateAction<GenreUiState>>
 }
 
 const GenreForm = ({
-  selfId,
+  self,
   data,
   onChange,
 }: // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,7 +23,7 @@ GenreFormProps): ReactElement<any, any> | null => {
     case 'meta':
       return (
         <MetaForm
-          selfId={selfId}
+          self={self}
           data={data}
           onChange={(val) => onChange(val as SetStateAction<GenreUiState>)}
         />
@@ -30,7 +31,7 @@ GenreFormProps): ReactElement<any, any> | null => {
     case 'scene':
       return (
         <SceneForm
-          selfId={selfId}
+          self={self}
           data={data}
           onChange={(val) => onChange(val as SetStateAction<GenreUiState>)}
         />
@@ -38,7 +39,7 @@ GenreFormProps): ReactElement<any, any> | null => {
     case 'style':
       return (
         <StyleForm
-          selfId={selfId}
+          self={self}
           data={data}
           onChange={(val) => onChange(val as SetStateAction<GenreUiState>)}
         />
@@ -46,7 +47,7 @@ GenreFormProps): ReactElement<any, any> | null => {
     case 'trend':
       return (
         <TrendForm
-          selfId={selfId}
+          self={self}
           data={data}
           onChange={(val) => onChange(val as SetStateAction<GenreUiState>)}
         />

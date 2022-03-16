@@ -103,7 +103,11 @@ const EditInnerInner: FC<{
             ))}
           </select>
         </FormElement>
-        <GenreForm selfId={id} data={data} onChange={setData} />
+        <GenreForm
+          self={{ type: originalType, id }}
+          data={data}
+          onChange={setData}
+        />
         <button
           type='submit'
           disabled={isSubmitting}

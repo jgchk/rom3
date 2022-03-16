@@ -4,15 +4,15 @@ import { isSimpleMetaOutput } from '../../utils/types/metas'
 import { isSimpleStyleOutput } from '../../utils/types/styles'
 import { isSimpleTrendOutput, TrendUiState } from '../../utils/types/trends'
 import FormElement from '../FormElement'
-import GenreMultiselect from '../GenreMultiselect'
+import GenreMultiselect, { GenreMultiselectProps } from '../GenreMultiselect'
 import LocationInput from '../LocationInput'
 import SmallLabel from '../SmallLabel'
 
 const TrendForm: FC<{
-  selfId?: number
+  self?: GenreMultiselectProps['self']
   data: TrendUiState
   onChange: Dispatch<SetStateAction<TrendUiState>>
-}> = ({ selfId, data, onChange }) => (
+}> = ({ self, data, onChange }) => (
   <>
     <FormElement>
       <label>Name *</label>
@@ -35,7 +35,7 @@ const TrendForm: FC<{
     <FormElement>
       <label>Parents</label>
       <GenreMultiselect
-        selfId={selfId}
+        self={self}
         value={[
           ...data.parentTrends,
           ...data.parentStyles,
@@ -55,7 +55,7 @@ const TrendForm: FC<{
     <FormElement>
       <label>Influences</label>
       <GenreMultiselect
-        selfId={selfId}
+        self={self}
         value={[...data.influencedByTrends, ...data.influencedByStyles]}
         onChange={(influencedBy) =>
           onChange((d) => ({

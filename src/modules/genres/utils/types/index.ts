@@ -20,6 +20,9 @@ export type SimpleGenreOutputMap = {
 }
 export type SimpleGenreOutput = SimpleGenreOutputMap[keyof SimpleGenreOutputMap]
 
+export const getGenreKey = ({ type, id }: { type: string; id: number }) =>
+  `${type}_${id}`
+
 export type GenreUiState =
   | MetaUiState
   | SceneUiState

@@ -1,33 +1,36 @@
 import { useMemo } from 'react'
 
 import { useGenresQuery } from '../services'
-import { SimpleGenreOutput, SimpleGenreOutputMap } from '../utils/types'
+import {
+  GenreName,
+  getGenreKey,
+  SimpleGenreOutput,
+  SimpleGenreOutputMap,
+} from '../utils/types'
 import Multiselect from './Multiselect'
 
-export type GenreMultiselectProps<K extends keyof SimpleGenreOutputMap> = {
-  selfId?: number
+export type GenreMultiselectProps<
+  K extends keyof SimpleGenreOutputMap = keyof SimpleGenreOutputMap
+> = {
+  self?: { type: GenreName; id: number }
   value: SimpleGenreOutputMap[K][]
   onChange: (value: SimpleGenreOutputMap[K][]) => void
   types: K[]
 }
 
 const GenreMultiselect = <K extends keyof SimpleGenreOutputMap>({
-  selfId,
+  self,
   value,
   onChange,
   types,
 }: GenreMultiselectProps<K>) => {
   const { data, error, isLoading } = useGenresQuery({ type: types })
 
-  const dataWithoutSelf = useMemo(
-    () =>
-      selfId === undefined
-        ? data
-        : data?.filter(
-            (item) => !(item.type === 'trend' && item.id === selfId)
-          ),
-    [data, selfId]
-  )
+  const dataWithoutSelf = useMemo(() => {
+    if (self === undefined) return data
+    const selfKey = getGenreKey(self)
+    return data?.filter((item) => getGenreKey(item) !== selfKey)
+  }, [data, self])
 
   return (
     <Multiselect
@@ -38,7 +41,7 @@ const GenreMultiselect = <K extends keyof SimpleGenreOutputMap>({
         item.name.toLowerCase().startsWith(query.toLowerCase())
       }
       itemDisplay={(item) => item.name}
-      itemKey={(item) => item.id}
+      itemKey={(item) => `${item.type}_${item.id}`}
       selected={value}
       onChange={(selected) => onChange(selected as never)}
     />
