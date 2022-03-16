@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { SceneInput } from '../../utils/create'
+import { SceneUiState } from '../../utils/types/scenes'
 import FormElement from '../FormElement'
 import GenreMultiselect from '../GenreMultiselect'
 import LocationInput from '../LocationInput'
@@ -8,8 +8,8 @@ import SmallLabel from '../SmallLabel'
 
 const SceneForm: FC<{
   selfId?: number
-  data: SceneInput
-  onChange: Dispatch<SetStateAction<SceneInput>>
+  data: SceneUiState
+  onChange: Dispatch<SetStateAction<SceneUiState>>
 }> = ({ selfId, data, onChange }) => (
   <>
     <FormElement>

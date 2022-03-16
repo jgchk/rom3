@@ -1,12 +1,9 @@
 import { unique, uniqueBy } from '../../../common/utils/array'
-import {
-  InferMutationInput,
-  InferQueryOutput,
-} from '../../../common/utils/trpc'
-import { GenreInput, GenreType } from './create'
-import { hashLocation, locationNotEmpty } from './location'
+import { InferMutationInput } from '../../../common/utils/trpc'
+import { GenreName, GenreOutput, GenreUiState } from './types'
+import { hashLocation, locationNotEmpty } from './types/location'
 
-export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
+export const fromApi = (data: GenreOutput): GenreUiState => {
   switch (data.type) {
     case 'meta': {
       return {
@@ -60,7 +57,7 @@ export const fromApi = (data: InferQueryOutput<'get'>): GenreInput => {
   }
 }
 
-export const toAddApi = (data: GenreInput): InferMutationInput<'add'> => {
+export const toAddApi = (data: GenreUiState): InferMutationInput<'add'> => {
   switch (data.type) {
     case 'meta': {
       return {
@@ -162,9 +159,9 @@ export const toAddApi = (data: GenreInput): InferMutationInput<'add'> => {
 }
 
 export const toEditApi = (
-  type: GenreType,
+  type: GenreName,
   id: number,
-  data: GenreInput
+  data: GenreUiState
 ): InferMutationInput<'edit'> => {
   switch (data.type) {
     case 'meta': {

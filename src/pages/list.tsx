@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 import toast from 'react-hot-toast'
 
 import trpc from '../common/utils/trpc'
-import { GenreType } from '../modules/genres/utils/create'
+import { GenreName } from '../modules/genres/utils/types'
 
 const List: NextPage = () => {
   const { data, error } = trpc.useQuery([
@@ -15,7 +15,7 @@ const List: NextPage = () => {
   const { mutate: deleteItem } = trpc.useMutation('delete')
   const util = trpc.useContext()
   const handleDelete = useCallback(
-    (type: GenreType, id: number, name: string) =>
+    (type: GenreName, id: number, name: string) =>
       deleteItem(
         { type, id },
         {

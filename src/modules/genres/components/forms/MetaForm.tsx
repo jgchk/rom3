@@ -1,14 +1,14 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { MetaInput } from '../../utils/create'
+import { MetaUiState } from '../../utils/types/metas'
 import FormElement from '../FormElement'
 import GenreMultiselect from '../GenreMultiselect'
 import SmallLabel from '../SmallLabel'
 
 const MetaForm: FC<{
   selfId?: number
-  data: MetaInput
-  onChange: Dispatch<SetStateAction<MetaInput>>
+  data: MetaUiState
+  onChange: Dispatch<SetStateAction<MetaUiState>>
 }> = ({ selfId, data, onChange }) => (
   <>
     <FormElement>

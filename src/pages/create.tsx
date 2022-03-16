@@ -13,15 +13,15 @@ import StyleForm from '../modules/genres/components/forms/StyleForm'
 import TrendForm from '../modules/genres/components/forms/TrendForm'
 import { toAddApi } from '../modules/genres/utils/convert'
 import {
-  GenreInput,
-  GenreType,
-  genreTypes,
-  makeInput,
-  makeScene,
-} from '../modules/genres/utils/create'
+  GenreName,
+  genreNames,
+  GenreUiState,
+  makeUiState,
+} from '../modules/genres/utils/types'
+import { makeSceneUiState } from '../modules/genres/utils/types/scenes'
 
 const Create: NextPage = () => {
-  const [data, setData] = useState<GenreInput>(makeScene()[0])
+  const [data, setData] = useState<GenreUiState>(makeSceneUiState()[0])
 
   const { mutate, isLoading: isSubmitting } = trpc.useMutation('add')
   const utils = trpc.useContext()
@@ -121,8 +121,8 @@ const Create: NextPage = () => {
           <select
             value={data.type}
             onChange={(e) => {
-              const objectType = e.target.value as GenreType
-              const [newData, dataLost] = makeInput(objectType, data)
+              const objectType = e.target.value as GenreName
+              const [newData, dataLost] = makeUiState(objectType, data)
               const shouldRun = dataLost
                 ? confirm(
                     'Some data may be lost in the conversion. Are you sure you want to continue?'
@@ -131,7 +131,7 @@ const Create: NextPage = () => {
               if (shouldRun) setData(newData)
             }}
           >
-            {genreTypes.map((objectType) => (
+            {genreNames.map((objectType) => (
               <option key={objectType} value={objectType}>
                 {capitalize(objectType)}
               </option>

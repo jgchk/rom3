@@ -14,18 +14,18 @@ import TrendForm from '../modules/genres/components/forms/TrendForm'
 import { getParam } from '../modules/genres/utils/api'
 import { fromApi, toEditApi } from '../modules/genres/utils/convert'
 import {
-  GenreInput,
-  GenreType,
-  genreTypes,
-  isGenreType,
-  makeInput,
-} from '../modules/genres/utils/create'
+  GenreName,
+  genreNames,
+  GenreUiState,
+  isGenreName,
+  makeUiState,
+} from '../modules/genres/utils/types'
 
 const Edit: NextPage = () => {
   const router = useRouter()
   const type = useMemo(() => {
     const type_ = getParam(router.query.type)
-    if (type_ && isGenreType(type_)) return type_
+    if (type_ && isGenreName(type_)) return type_
   }, [router.query.type])
   const id = useMemo(() => {
     const idStr = getParam(router.query.id)
@@ -42,7 +42,7 @@ const Edit: NextPage = () => {
   return <EditInner type={type} id={id} />
 }
 
-const EditInner: FC<{ type: GenreType; id: number }> = ({ type, id }) => {
+const EditInner: FC<{ type: GenreName; id: number }> = ({ type, id }) => {
   const { data, error } = trpc.useQuery(['get', { type, id }])
 
   if (data) {
@@ -57,11 +57,11 @@ const EditInner: FC<{ type: GenreType; id: number }> = ({ type, id }) => {
 }
 
 const EditInnerInner: FC<{
-  type: GenreType
+  type: GenreName
   id: number
   data: InferQueryOutput<'get'>
 }> = ({ type: originalType, id, data: originalData }) => {
-  const [data, setData] = useState<GenreInput>(fromApi(originalData))
+  const [data, setData] = useState<GenreUiState>(fromApi(originalData))
 
   const { mutate, isLoading: isSubmitting } = trpc.useMutation('edit')
   const utils = trpc.useContext()
@@ -157,11 +157,12 @@ const EditInnerInner: FC<{
       <Form>
         <FormElement>
           <label>Type</label>
+          {/* TODO: create primitive for typesafe <select> */}
           <select
             value={data.type}
             onChange={(e) => {
-              const objectType = e.target.value as GenreType
-              const [newData, dataLost] = makeInput(objectType, data)
+              const objectType = e.target.value as GenreName
+              const [newData, dataLost] = makeUiState(objectType, data)
               const shouldRun = dataLost
                 ? confirm(
                     'Some data may be lost in the conversion. Are you sure you want to continue?'
@@ -170,7 +171,7 @@ const EditInnerInner: FC<{
               if (shouldRun) setData(newData)
             }}
           >
-            {genreTypes.map((objectType) => (
+            {genreNames.map((objectType) => (
               <option key={objectType} value={objectType}>
                 {capitalize(objectType)}
               </option>

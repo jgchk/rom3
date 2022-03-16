@@ -1,6 +1,8 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { isMeta, isStyle, isTrend, TrendInput } from '../../utils/create'
+import { isSimpleMetaOutput } from '../../utils/types/metas'
+import { isSimpleStyleOutput } from '../../utils/types/styles'
+import { isSimpleTrendOutput, TrendUiState } from '../../utils/types/trends'
 import FormElement from '../FormElement'
 import GenreMultiselect from '../GenreMultiselect'
 import LocationInput from '../LocationInput'
@@ -8,8 +10,8 @@ import SmallLabel from '../SmallLabel'
 
 const TrendForm: FC<{
   selfId?: number
-  data: TrendInput
-  onChange: Dispatch<SetStateAction<TrendInput>>
+  data: TrendUiState
+  onChange: Dispatch<SetStateAction<TrendUiState>>
 }> = ({ selfId, data, onChange }) => (
   <>
     <FormElement>
@@ -42,9 +44,9 @@ const TrendForm: FC<{
         onChange={(parents) =>
           onChange((d) => ({
             ...d,
-            parentTrends: parents.filter(isTrend),
-            parentStyles: parents.filter(isStyle),
-            parentMetas: parents.filter(isMeta),
+            parentTrends: parents.filter(isSimpleTrendOutput),
+            parentStyles: parents.filter(isSimpleStyleOutput),
+            parentMetas: parents.filter(isSimpleMetaOutput),
           }))
         }
         types={['trend', 'style', 'meta']}
@@ -58,8 +60,8 @@ const TrendForm: FC<{
         onChange={(influencedBy) =>
           onChange((d) => ({
             ...d,
-            influencedByTrends: influencedBy.filter(isTrend),
-            influencedByStyles: influencedBy.filter(isStyle),
+            influencedByTrends: influencedBy.filter(isSimpleTrendOutput),
+            influencedByStyles: influencedBy.filter(isSimpleStyleOutput),
           }))
         }
         types={['trend', 'style']}

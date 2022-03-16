@@ -3,6 +3,7 @@ import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
+// TODO: use only 1 prisma client
 const prisma = new PrismaClient()
 
 export const MetaInput = z.object({
@@ -66,6 +67,16 @@ export const getMeta = async (id: number): Promise<MetaOutput> => {
     })
   }
   return toOutput(meta)
+}
+
+export const getMetas = async (): Promise<MetaOutput[]> => {
+  const metas = await prisma.meta.findMany({
+    include: {
+      alternateNames: true,
+      parentMetas: { include: { parent: true } },
+    },
+  })
+  return metas.map(toOutput)
 }
 
 export const editMeta = async (

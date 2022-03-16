@@ -1,6 +1,7 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { isMeta, isStyle, StyleInput } from '../../utils/create'
+import { isSimpleMetaOutput } from '../../utils/types/metas'
+import { isSimpleStyleOutput, StyleUiState } from '../../utils/types/styles'
 import FormElement from '../FormElement'
 import GenreMultiselect from '../GenreMultiselect'
 import LocationInput from '../LocationInput'
@@ -8,8 +9,8 @@ import SmallLabel from '../SmallLabel'
 
 const StyleForm: FC<{
   selfId?: number
-  data: StyleInput
-  onChange: Dispatch<SetStateAction<StyleInput>>
+  data: StyleUiState
+  onChange: Dispatch<SetStateAction<StyleUiState>>
 }> = ({ selfId, data, onChange }) => (
   <>
     <FormElement>
@@ -38,8 +39,8 @@ const StyleForm: FC<{
         onChange={(parents) =>
           onChange((d) => ({
             ...d,
-            parentStyles: parents.filter(isStyle),
-            parentMetas: parents.filter(isMeta),
+            parentStyles: parents.filter(isSimpleStyleOutput),
+            parentMetas: parents.filter(isSimpleMetaOutput),
           }))
         }
         types={['style', 'meta']}

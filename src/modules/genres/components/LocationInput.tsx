@@ -1,14 +1,11 @@
 import styled from '@emotion/styled'
 import { FC, useMemo } from 'react'
 
-import {
-  LocationInput as LocationInputType,
-  makeLocation,
-} from '../utils/create'
+import { LocationUiState, makeLocation } from '../utils/types/location'
 
 const LocationInput: FC<{
-  value: LocationInputType[]
-  onChange: (data: LocationInputType[]) => void
+  value: LocationUiState[]
+  onChange: (data: LocationUiState[]) => void
 }> = ({ value: rawValue, onChange }) => {
   const value = useMemo(
     () => (rawValue.length === 0 ? [makeLocation()] : rawValue),

@@ -1,17 +1,17 @@
 import { useMemo } from 'react'
 
 import trpc from '../../../common/utils/trpc'
-import { GenreOutputsMap } from '../utils/genres'
+import { SimpleGenreOutput, SimpleGenreOutputMap } from '../utils/types'
 import Multiselect from './Multiselect'
 
-export type GenreMultiselectProps<K extends keyof GenreOutputsMap> = {
+export type GenreMultiselectProps<K extends keyof SimpleGenreOutputMap> = {
   selfId?: number
-  value: GenreOutputsMap[K][]
-  onChange: (value: GenreOutputsMap[K][]) => void
+  value: SimpleGenreOutputMap[K][]
+  onChange: (value: SimpleGenreOutputMap[K][]) => void
   types: K[]
 }
 
-const GenreMultiselect = <K extends keyof GenreOutputsMap>({
+const GenreMultiselect = <K extends keyof SimpleGenreOutputMap>({
   selfId,
   value,
   onChange,
@@ -31,7 +31,7 @@ const GenreMultiselect = <K extends keyof GenreOutputsMap>({
 
   return (
     <Multiselect
-      data={dataWithoutSelf}
+      data={dataWithoutSelf as SimpleGenreOutput[]}
       error={error}
       isLoading={isLoading}
       filter={(item, query) =>

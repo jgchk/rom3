@@ -1,4 +1,3 @@
-import { Meta, PrismaClient, Scene, Style, Trend } from '@prisma/client'
 import * as trpc from '@trpc/server'
 import * as trpcNext from '@trpc/server/adapters/next'
 import { z } from 'zod'
@@ -8,35 +7,33 @@ import metasRouter, {
   deleteMeta,
   editMeta,
   getMeta,
+  getMetas,
   MetaInput,
-  MetaOutput,
 } from './metas'
 import scenesRouter, {
   addScene,
   deleteScene,
   editScene,
   getScene,
+  getScenes,
   SceneInput,
-  SceneOutput,
 } from './scenes'
 import stylesRouter, {
   addStyle,
   deleteStyle,
   editStyle,
   getStyle,
+  getStyles,
   StyleInput,
-  StyleOutput,
 } from './styles'
 import trendsRouter, {
   addTrend,
   deleteTrend,
   editTrend,
   getTrend,
+  getTrends,
   TrendInput,
-  TrendOutput,
 } from './trends'
-
-const prisma = new PrismaClient()
 
 const GenreType = z.union([
   z.literal('meta'),
@@ -44,8 +41,6 @@ const GenreType = z.union([
   z.literal('style'),
   z.literal('trend'),
 ])
-
-type GenreOutput = MetaOutput | SceneOutput | StyleOutput | TrendOutput
 
 const appRouter = trpc
   .router()
@@ -55,37 +50,18 @@ const appRouter = trpc
     }),
     resolve: async ({ input }) => {
       const results = await Promise.all(
-        [...new Set(input.type)].map(
-          async (
-            type_
-          ): Promise<
-            (
-              | (Meta & { type: 'meta' })
-              | (Scene & { type: 'scene' })
-              | (Style & { type: 'style' })
-              | (Trend & { type: 'trend' })
-            )[]
-          > => {
-            switch (type_) {
-              case 'meta': {
-                const metas = await prisma.meta.findMany()
-                return metas.map((meta) => ({ ...meta, type: 'meta' }))
-              }
-              case 'scene': {
-                const scenes = await prisma.scene.findMany()
-                return scenes.map((scene) => ({ ...scene, type: 'scene' }))
-              }
-              case 'style': {
-                const styles = await prisma.style.findMany()
-                return styles.map((style) => ({ ...style, type: 'style' }))
-              }
-              case 'trend': {
-                const trends = await prisma.trend.findMany()
-                return trends.map((trend) => ({ ...trend, type: 'trend' }))
-              }
-            }
+        [...new Set(input.type)].map(async (type_) => {
+          switch (type_) {
+            case 'meta':
+              return getMetas()
+            case 'scene':
+              return getScenes()
+            case 'style':
+              return getStyles()
+            case 'trend':
+              return getTrends()
           }
-        )
+        })
       )
       return results.flat()
     },
@@ -112,16 +88,16 @@ const appRouter = trpc
   })
   .query('get', {
     input: z.object({ type: GenreType, id: z.number() }),
-    resolve: async ({ input }): Promise<GenreOutput> => {
+    resolve: async ({ input }) => {
       switch (input.type) {
         case 'meta':
-          return { ...(await getMeta(input.id)), type: 'meta' }
+          return getMeta(input.id)
         case 'scene':
-          return { ...(await getScene(input.id)), type: 'scene' }
+          return getScene(input.id)
         case 'style':
-          return { ...(await getStyle(input.id)), type: 'style' }
+          return getStyle(input.id)
         case 'trend':
-          return { ...(await getTrend(input.id)), type: 'trend' }
+          return getTrend(input.id)
       }
     },
   })

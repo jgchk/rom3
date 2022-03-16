@@ -160,6 +160,22 @@ export const getTrend = async (id: number): Promise<TrendOutput> => {
   return toOutput(trend)
 }
 
+export const getTrends = async (): Promise<TrendOutput[]> => {
+  const trends = await prisma.trend.findMany({
+    include: {
+      alternateNames: true,
+      parentTrends: { include: { parent: true } },
+      parentStyles: { include: { parent: true } },
+      parentMetas: { include: { parent: true } },
+      influencedByTrends: { include: { influencer: true } },
+      influencedByStyles: { include: { influencer: true } },
+      locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
+    },
+  })
+  return trends.map(toOutput)
+}
+
 export const editTrend = async (
   id: number,
   data: TrendInput

@@ -139,6 +139,20 @@ export const getStyle = async (id: number): Promise<StyleOutput> => {
   return toOutput(style)
 }
 
+export const getStyles = async (): Promise<StyleOutput[]> => {
+  const styles = await prisma.style.findMany({
+    include: {
+      alternateNames: true,
+      parentStyles: { include: { parent: true } },
+      parentMetas: { include: { parent: true } },
+      influencedByStyles: { include: { influencer: true } },
+      locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
+    },
+  })
+  return styles.map(toOutput)
+}
+
 export const editStyle = async (
   id: number,
   data: StyleInput

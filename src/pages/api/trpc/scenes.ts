@@ -118,6 +118,18 @@ export const getScene = async (id: number): Promise<SceneOutput> => {
   return toOutput(scene)
 }
 
+export const getScenes = async (): Promise<SceneOutput[]> => {
+  const scenes = await prisma.scene.findMany({
+    include: {
+      alternateNames: true,
+      influencedByScenes: { include: { influencer: true } },
+      locations: { include: { location: true } },
+      cultures: { include: { culture: true } },
+    },
+  })
+  return scenes.map(toOutput)
+}
+
 export const editScene = async (
   id: number,
   data: SceneInput
