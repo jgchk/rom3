@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import { capitalize } from '../common/utils/string'
 import trpc, { InferQueryOutput } from '../common/utils/trpc'
 import FormElement from '../modules/genres/components/FormElement'
+import MetaForm from '../modules/genres/components/forms/MetaForm'
 import SceneForm from '../modules/genres/components/forms/SceneForm'
 import StyleForm from '../modules/genres/components/forms/StyleForm'
 import TrendForm from '../modules/genres/components/forms/TrendForm'
@@ -76,6 +77,11 @@ const EditInnerInner: FC<{
           await utils.invalidateQueries('genres')
           utils.setQueryData(['get', { type: res.type, id: res.id }], res)
           switch (res.type) {
+            case 'meta': {
+              await utils.invalidateQueries('metas.all')
+              utils.setQueryData(['metas.byId', { id: res.id }], res)
+              break
+            }
             case 'scene': {
               await utils.invalidateQueries('scenes.all')
               utils.setQueryData(['scenes.byId', { id: res.id }], res)
@@ -99,6 +105,17 @@ const EditInnerInner: FC<{
 
   const renderForm = () => {
     switch (data.type) {
+      case 'meta':
+        return (
+          <MetaForm
+            selfId={id}
+            data={data}
+            onChange={(val) => {
+              const updatedData = typeof val === 'function' ? val(data) : val
+              setData({ ...updatedData, type: 'meta' })
+            }}
+          />
+        )
       case 'scene':
         return (
           <SceneForm

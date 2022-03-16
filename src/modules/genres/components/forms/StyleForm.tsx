@@ -1,11 +1,23 @@
 import { Dispatch, FC, SetStateAction, useMemo } from 'react'
 
-import trpc from '../../../../common/utils/trpc'
-import { StyleInput, StyleObject } from '../../utils/create'
+import trpc, { InferQueryOutput } from '../../../../common/utils/trpc'
+import {
+  isMeta,
+  isStyle,
+  MetaObject,
+  StyleInput,
+  StyleObject,
+} from '../../utils/create'
 import FormElement from '../FormElement'
 import LocationInput from '../LocationInput'
 import Multiselect from '../Multiselect'
 import SmallLabel from '../SmallLabel'
+
+type Output = InferQueryOutput<'genres'>[number]
+
+type StyleParent = StyleObject | MetaObject
+const isStyleParent = (o: Output): o is StyleParent =>
+  o.type === 'style' || o.type === 'meta'
 
 const StyleForm: FC<{
   selfId?: number
@@ -33,15 +45,21 @@ const StyleForm: FC<{
     </FormElement>
     <FormElement>
       <label>Parents</label>
-      <StyleMultiselect
+      <StyleParentMultiselect
         selfId={selfId}
         value={data.parentStyles}
-        onChange={(parentStyles) => onChange((d) => ({ ...d, parentStyles }))}
+        onChange={(parents) =>
+          onChange((d) => ({
+            ...d,
+            parentStyles: parents.filter(isStyle),
+            parentMetas: parents.filter(isMeta),
+          }))
+        }
       />
     </FormElement>
     <FormElement>
       <label>Influences</label>
-      <StyleMultiselect
+      <StyleInfluenceMultiselect
         selfId={selfId}
         value={data.influencedByStyles}
         onChange={(influencedByStyles) =>
@@ -85,7 +103,43 @@ const StyleForm: FC<{
   </>
 )
 
-const StyleMultiselect: FC<{
+const StyleParentMultiselect: FC<{
+  selfId?: number
+  value: StyleParent[]
+  onChange: (value: StyleParent[]) => void
+}> = ({ selfId, value, onChange }) => {
+  const { data, error, isLoading } = trpc.useQuery([
+    'genres',
+    { type: ['style', 'trend', 'meta'] },
+  ])
+
+  const dataWithoutSelf = useMemo(
+    () =>
+      selfId === undefined
+        ? data
+        : data?.filter(
+            (item) => !(item.type === 'trend' && item.id === selfId)
+          ),
+    [data, selfId]
+  )
+
+  return (
+    <Multiselect
+      data={dataWithoutSelf}
+      error={error}
+      isLoading={isLoading}
+      filter={(item, query) =>
+        item.name.toLowerCase().startsWith(query.toLowerCase())
+      }
+      itemDisplay={(item) => item.name}
+      itemKey={(item) => item.id}
+      selected={value}
+      onChange={(selected) => onChange(selected.filter(isStyleParent))}
+    />
+  )
+}
+
+const StyleInfluenceMultiselect: FC<{
   selfId?: number
   value: StyleObject[]
   onChange: (selected: StyleObject[]) => void

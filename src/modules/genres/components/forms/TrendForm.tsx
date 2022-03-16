@@ -4,6 +4,7 @@ import trpc, { InferQueryOutput } from '../../../../common/utils/trpc'
 import {
   isStyle,
   isTrend,
+  MetaObject,
   StyleObject,
   TrendInput,
   TrendObject,
@@ -14,7 +15,13 @@ import Multiselect from '../Multiselect'
 import SmallLabel from '../SmallLabel'
 
 type Output = InferQueryOutput<'genres'>[number]
-const isStyleOrTrend = (o: Output): o is StyleObject | TrendObject =>
+
+type TrendParent = StyleObject | TrendObject | MetaObject
+const isTrendParent = (o: Output): o is TrendParent =>
+  o.type === 'style' || o.type === 'trend' || o.type === 'meta'
+
+type TrendInfluence = StyleObject | TrendObject
+const isTrendInfluence = (o: Output): o is TrendInfluence =>
   o.type === 'style' || o.type === 'trend'
 
 const TrendForm: FC<{
@@ -43,7 +50,7 @@ const TrendForm: FC<{
     </FormElement>
     <FormElement>
       <label>Parents</label>
-      <StyleOrTrendMultiselect
+      <TrendParentMultiselect
         selfId={selfId}
         value={[...data.parentTrends, ...data.parentStyles]}
         onChange={(parents) =>
@@ -57,7 +64,7 @@ const TrendForm: FC<{
     </FormElement>
     <FormElement>
       <label>Influences</label>
-      <StyleOrTrendMultiselect
+      <TrendInfluenceMultiselect
         selfId={selfId}
         value={[...data.influencedByTrends, ...data.influencedByStyles]}
         onChange={(influencedBy) =>
@@ -105,10 +112,47 @@ const TrendForm: FC<{
   </>
 )
 
-const StyleOrTrendMultiselect: FC<{
+// TODO: find a higher-level abstraction to combine Parent & Influence multiselects into one component
+const TrendParentMultiselect: FC<{
   selfId?: number
-  value: (TrendObject | StyleObject)[]
-  onChange: (value: (TrendObject | StyleObject)[]) => void
+  value: TrendParent[]
+  onChange: (value: TrendParent[]) => void
+}> = ({ selfId, value, onChange }) => {
+  const { data, error, isLoading } = trpc.useQuery([
+    'genres',
+    { type: ['style', 'trend', 'meta'] },
+  ])
+
+  const dataWithoutSelf = useMemo(
+    () =>
+      selfId === undefined
+        ? data
+        : data?.filter(
+            (item) => !(item.type === 'trend' && item.id === selfId)
+          ),
+    [data, selfId]
+  )
+
+  return (
+    <Multiselect
+      data={dataWithoutSelf}
+      error={error}
+      isLoading={isLoading}
+      filter={(item, query) =>
+        item.name.toLowerCase().startsWith(query.toLowerCase())
+      }
+      itemDisplay={(item) => item.name}
+      itemKey={(item) => item.id}
+      selected={value}
+      onChange={(selected) => onChange(selected.filter(isTrendParent))}
+    />
+  )
+}
+
+const TrendInfluenceMultiselect: FC<{
+  selfId?: number
+  value: TrendInfluence[]
+  onChange: (value: TrendInfluence[]) => void
 }> = ({ selfId, value, onChange }) => {
   const { data, error, isLoading } = trpc.useQuery([
     'genres',
@@ -136,7 +180,7 @@ const StyleOrTrendMultiselect: FC<{
       itemDisplay={(item) => item.name}
       itemKey={(item) => item.id}
       selected={value}
-      onChange={(selected) => onChange(selected.filter(isStyleOrTrend))}
+      onChange={(selected) => onChange(selected.filter(isTrendInfluence))}
     />
   )
 }

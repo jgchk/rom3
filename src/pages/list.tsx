@@ -9,7 +9,7 @@ import { GenreType } from '../modules/genres/utils/create'
 const List: NextPage = () => {
   const { data, error } = trpc.useQuery([
     'genres',
-    { type: ['scene', 'style', 'trend'] },
+    { type: ['meta', 'scene', 'style', 'trend'] },
   ])
 
   const { mutate: deleteItem } = trpc.useMutation('delete')

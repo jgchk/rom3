@@ -1,8 +1,16 @@
-import { PrismaClient, Scene, Style, Trend } from '@prisma/client'
+import { Meta, PrismaClient, Scene, Style, Trend } from '@prisma/client'
 import * as trpc from '@trpc/server'
 import * as trpcNext from '@trpc/server/adapters/next'
 import { z } from 'zod'
 
+import metasRouter, {
+  addMeta,
+  deleteMeta,
+  editMeta,
+  getMeta,
+  MetaInput,
+  MetaOutput,
+} from './metas'
 import scenesRouter, {
   addScene,
   deleteScene,
@@ -31,12 +39,13 @@ import trendsRouter, {
 const prisma = new PrismaClient()
 
 const GenreType = z.union([
+  z.literal('meta'),
   z.literal('scene'),
   z.literal('style'),
   z.literal('trend'),
 ])
 
-type GenreOutput = SceneOutput | StyleOutput | TrendOutput
+type GenreOutput = MetaOutput | SceneOutput | StyleOutput | TrendOutput
 
 const appRouter = trpc
   .router()
@@ -51,12 +60,17 @@ const appRouter = trpc
             type_
           ): Promise<
             (
+              | (Meta & { type: 'meta' })
               | (Scene & { type: 'scene' })
               | (Style & { type: 'style' })
               | (Trend & { type: 'trend' })
             )[]
           > => {
             switch (type_) {
+              case 'meta': {
+                const metas = await prisma.meta.findMany()
+                return metas.map((meta) => ({ ...meta, type: 'meta' }))
+              }
               case 'scene': {
                 const scenes = await prisma.scene.findMany()
                 return scenes.map((scene) => ({ ...scene, type: 'scene' }))
@@ -78,12 +92,15 @@ const appRouter = trpc
   })
   .mutation('add', {
     input: z.union([
+      z.object({ type: z.literal('meta'), data: MetaInput }),
       z.object({ type: z.literal('scene'), data: SceneInput }),
       z.object({ type: z.literal('style'), data: StyleInput }),
       z.object({ type: z.literal('trend'), data: TrendInput }),
     ]),
     resolve: async ({ input }) => {
       switch (input.type) {
+        case 'meta':
+          return addMeta(input.data)
         case 'scene':
           return addScene(input.data)
         case 'style':
@@ -97,6 +114,8 @@ const appRouter = trpc
     input: z.object({ type: GenreType, id: z.number() }),
     resolve: async ({ input }): Promise<GenreOutput> => {
       switch (input.type) {
+        case 'meta':
+          return { ...(await getMeta(input.id)), type: 'meta' }
         case 'scene':
           return { ...(await getScene(input.id)), type: 'scene' }
         case 'style':
@@ -111,18 +130,10 @@ const appRouter = trpc
       type: GenreType,
       id: z.number(),
       data: z.union([
-        z.object({
-          type: z.literal('scene'),
-          data: SceneInput,
-        }),
-        z.object({
-          type: z.literal('style'),
-          data: StyleInput,
-        }),
-        z.object({
-          type: z.literal('trend'),
-          data: TrendInput,
-        }),
+        z.object({ type: z.literal('meta'), data: MetaInput }),
+        z.object({ type: z.literal('scene'), data: SceneInput }),
+        z.object({ type: z.literal('style'), data: StyleInput }),
+        z.object({ type: z.literal('trend'), data: TrendInput }),
       ]),
     }),
     resolve: async ({ input }) => {
@@ -130,6 +141,10 @@ const appRouter = trpc
         // switching types
         // TODO: need to handle relations where we're the parent and try to preserve them. warn the user if connections may be wiped
         switch (input.type) {
+          case 'meta': {
+            await deleteMeta(input.id)
+            break
+          }
           case 'scene': {
             await deleteScene(input.id)
             break
@@ -144,6 +159,8 @@ const appRouter = trpc
           }
         }
         switch (input.data.type) {
+          case 'meta':
+            return addMeta(input.data.data)
           case 'scene':
             return addScene(input.data.data)
           case 'style':
@@ -154,6 +171,8 @@ const appRouter = trpc
       } else {
         // keeping same type
         switch (input.data.type) {
+          case 'meta':
+            return editMeta(input.id, input.data.data)
           case 'scene':
             return editScene(input.id, input.data.data)
           case 'style':
@@ -168,6 +187,8 @@ const appRouter = trpc
     input: z.object({ type: GenreType, id: z.number() }),
     resolve: async ({ input }) => {
       switch (input.type) {
+        case 'meta':
+          return deleteMeta(input.id)
         case 'scene':
           return deleteScene(input.id)
         case 'style':
@@ -177,6 +198,7 @@ const appRouter = trpc
       }
     },
   })
+  .merge('metas.', metasRouter)
   .merge('scenes.', scenesRouter)
   .merge('styles.', stylesRouter)
   .merge('trends.', trendsRouter)

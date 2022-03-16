@@ -1,11 +1,13 @@
 import {
   Culture,
   Location,
+  Meta,
   PrismaClient,
   Style,
   Trend,
   TrendCulture,
   TrendLocation,
+  TrendMetaParent,
   TrendName,
   TrendStyleInfluence,
   TrendStyleParent,
@@ -25,6 +27,7 @@ export const TrendInput = z.object({
   alternateNames: z.array(z.string()),
   parentTrends: z.array(z.number()),
   parentStyles: z.array(z.number()),
+  parentMetas: z.array(z.number()),
   influencedByTrends: z.array(z.number()),
   influencedByStyles: z.array(z.number()),
   locations: z.array(
@@ -39,6 +42,7 @@ export type TrendOutput = Trend & {
   alternateNames: string[]
   parentTrends: Trend[]
   parentStyles: Style[]
+  parentMetas: Meta[]
   influencedByTrends: Trend[]
   influencedByStyles: Style[]
   locations: Location[]
@@ -50,6 +54,7 @@ const toOutput = (
     alternateNames: TrendName[]
     parentTrends: (TrendTrendParent & { parent: Trend })[]
     parentStyles: (TrendStyleParent & { parent: Style })[]
+    parentMetas: (TrendMetaParent & { parent: Meta })[]
     influencedByTrends: (TrendTrendInfluence & { influencer: Trend })[]
     influencedByStyles: (TrendStyleInfluence & { influencer: Style })[]
     locations: (TrendLocation & { location: Location })[]
@@ -61,6 +66,7 @@ const toOutput = (
   alternateNames: trend.alternateNames.map((an) => an.name),
   parentTrends: trend.parentTrends.map((p) => p.parent),
   parentStyles: trend.parentStyles.map((p) => p.parent),
+  parentMetas: trend.parentMetas.map((p) => p.parent),
   influencedByTrends: trend.influencedByTrends.map((inf) => inf.influencer),
   influencedByStyles: trend.influencedByStyles.map((inf) => inf.influencer),
   locations: trend.locations.map((loc) => loc.location),
@@ -79,6 +85,9 @@ export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
       },
       parentStyles: {
         create: input.parentStyles.map((id) => ({ parentId: id })),
+      },
+      parentMetas: {
+        create: input.parentMetas.map((id) => ({ parentId: id })),
       },
       influencedByTrends: {
         create: input.influencedByTrends.map((id) => ({ influencerId: id })),
@@ -118,6 +127,7 @@ export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
       alternateNames: true,
       parentTrends: { include: { parent: true } },
       parentStyles: { include: { parent: true } },
+      parentMetas: { include: { parent: true } },
       influencedByTrends: { include: { influencer: true } },
       influencedByStyles: { include: { influencer: true } },
       locations: { include: { location: true } },
@@ -134,6 +144,7 @@ export const getTrend = async (id: number): Promise<TrendOutput> => {
       alternateNames: true,
       parentTrends: { include: { parent: true } },
       parentStyles: { include: { parent: true } },
+      parentMetas: { include: { parent: true } },
       influencedByTrends: { include: { influencer: true } },
       influencedByStyles: { include: { influencer: true } },
       locations: { include: { location: true } },
@@ -156,6 +167,7 @@ export const editTrend = async (
   await prisma.trendName.deleteMany({ where: { trendId: id } })
   await prisma.trendTrendParent.deleteMany({ where: { childId: id } })
   await prisma.trendStyleParent.deleteMany({ where: { childId: id } })
+  await prisma.trendMetaParent.deleteMany({ where: { childId: id } })
   await prisma.trendTrendInfluence.deleteMany({ where: { influencedId: id } })
   await prisma.trendStyleInfluence.deleteMany({ where: { influencedId: id } })
   await prisma.trendLocation.deleteMany({ where: { trendId: id } })
@@ -171,6 +183,9 @@ export const editTrend = async (
       },
       parentStyles: {
         create: data.parentStyles.map((id) => ({ parentId: id })),
+      },
+      parentMetas: {
+        create: data.parentMetas.map((id) => ({ parentId: id })),
       },
       influencedByTrends: {
         create: data.influencedByTrends.map((id) => ({ influencerId: id })),
@@ -210,6 +225,7 @@ export const editTrend = async (
       alternateNames: true,
       parentTrends: { include: { parent: true } },
       parentStyles: { include: { parent: true } },
+      parentMetas: { include: { parent: true } },
       influencedByTrends: { include: { influencer: true } },
       influencedByStyles: { include: { influencer: true } },
       locations: { include: { location: true } },
@@ -225,6 +241,9 @@ export const deleteTrend = async (id: number): Promise<number> => {
     where: { childId: id },
   })
   const deleteStyleParents = prisma.trendStyleParent.deleteMany({
+    where: { childId: id },
+  })
+  const deleteMetaParents = prisma.trendMetaParent.deleteMany({
     where: { childId: id },
   })
   const deleteTrendChildren = prisma.trendTrendParent.deleteMany({
@@ -247,6 +266,7 @@ export const deleteTrend = async (id: number): Promise<number> => {
     deleteNames,
     deleteTrendParents,
     deleteStyleParents,
+    deleteMetaParents,
     deleteTrendChildren,
     deleteInfluencesTrends,
     deleteInfluencedByTrends,

@@ -1,15 +1,22 @@
-import { Scene, Style, Trend } from '@prisma/client'
+import { Meta, Scene, Style, Trend } from '@prisma/client'
 
 import { InferMutationInput } from '../../../common/utils/trpc'
 
+export type MetaObject = Meta & { type: 'meta' }
 export type SceneObject = Scene & { type: 'scene' }
 export type StyleObject = Style & { type: 'style' }
 export type TrendObject = Trend & { type: 'trend' }
-export type GenreObject = SceneObject | StyleObject | TrendObject
+export type GenreObject = MetaObject | SceneObject | StyleObject | TrendObject
 
+export const isMeta = (o: GenreObject): o is MetaObject => o.type === 'meta'
 export const isScene = (o: GenreObject): o is SceneObject => o.type === 'scene'
 export const isStyle = (o: GenreObject): o is StyleObject => o.type === 'style'
 export const isTrend = (o: GenreObject): o is TrendObject => o.type === 'trend'
+
+export type MetaInput = Omit<
+  InferMutationInput<'metas.add'>,
+  'alternateNames' | 'parentMetas'
+> & { type: 'meta'; alternateNames: string; parentMetas: MetaObject[] }
 
 export type SceneInput = Omit<
   InferMutationInput<'scenes.add'>,
@@ -22,11 +29,16 @@ export type SceneInput = Omit<
 }
 export type StyleInput = Omit<
   InferMutationInput<'styles.add'>,
-  'alternateNames' | 'parentStyles' | 'influencedByStyles' | 'cultures'
+  | 'alternateNames'
+  | 'parentStyles'
+  | 'parentMetas'
+  | 'influencedByStyles'
+  | 'cultures'
 > & {
   type: 'style'
   alternateNames: string
   parentStyles: StyleObject[]
+  parentMetas: MetaObject[]
   influencedByStyles: StyleObject[]
   cultures: string
 }
@@ -35,6 +47,7 @@ export type TrendInput = Omit<
   | 'alternateNames'
   | 'parentTrends'
   | 'parentStyles'
+  | 'parentMetas'
   | 'influencedByTrends'
   | 'influencedByStyles'
   | 'cultures'
@@ -43,18 +56,21 @@ export type TrendInput = Omit<
   alternateNames: string
   parentTrends: TrendObject[]
   parentStyles: StyleObject[]
+  parentMetas: MetaObject[]
   influencedByTrends: TrendObject[]
   influencedByStyles: StyleObject[]
   cultures: string
 }
-export type GenreInput = SceneInput | StyleInput | TrendInput
+export type GenreInput = MetaInput | SceneInput | StyleInput | TrendInput
 
 export type LocationInput =
-  InferMutationInput<'add'>['data']['locations'][number]
+  InferMutationInput<'scenes.add'>['locations'][number]
 
 const getInfluencedBy = (oldData?: GenreInput): GenreObject[] => {
   if (!oldData) return []
   switch (oldData.type) {
+    case 'meta':
+      return []
     case 'scene':
       return oldData.influencedByScenes
     case 'style':
@@ -67,12 +83,42 @@ const getInfluencedBy = (oldData?: GenreInput): GenreObject[] => {
 const getParents = (oldData?: GenreInput): GenreObject[] => {
   if (!oldData) return []
   switch (oldData.type) {
+    case 'meta':
+      return oldData.parentMetas
     case 'scene':
       return []
     case 'style':
-      return oldData.parentStyles
+      return [...oldData.parentStyles, ...oldData.parentMetas]
     case 'trend':
-      return [...oldData.parentTrends, ...oldData.parentStyles]
+      return [
+        ...oldData.parentTrends,
+        ...oldData.parentStyles,
+        ...oldData.parentMetas,
+      ]
+  }
+}
+
+const getLocations = (oldData?: GenreInput): LocationInput[] => {
+  if (!oldData) return []
+  switch (oldData.type) {
+    case 'meta':
+      return []
+    case 'scene':
+    case 'style':
+    case 'trend':
+      return oldData.locations
+  }
+}
+
+const getCultures = (oldData?: GenreInput): string => {
+  if (!oldData) return ''
+  switch (oldData.type) {
+    case 'meta':
+      return ''
+    case 'scene':
+    case 'style':
+    case 'trend':
+      return oldData.cultures
   }
 }
 
@@ -82,10 +128,37 @@ export const makeLocation = (): LocationInput => ({
   country: '',
 })
 
+export const makeMeta = (oldData?: GenreInput): [MetaInput, boolean] => {
+  const oldParents = getParents(oldData)
+  const oldInfluencedBy = getInfluencedBy(oldData)
+  const oldLocations = getLocations(oldData)
+  const oldCultures = getCultures(oldData)
+
+  const parentMetas = oldParents.filter(isMeta)
+
+  const lostData =
+    parentMetas.length !== oldParents.length ||
+    oldInfluencedBy.length > 0 ||
+    oldLocations.length > 0 ||
+    oldCultures.length > 0
+
+  return [
+    {
+      type: 'meta',
+      name: oldData?.name ?? '',
+      alternateNames: oldData?.alternateNames ?? '',
+      shortDesc: oldData?.shortDesc ?? '',
+      longDesc: oldData?.longDesc ?? '',
+      parentMetas,
+    },
+    lostData,
+  ]
+}
+
 export const makeScene = (oldData?: GenreInput): [SceneInput, boolean] => {
   const oldParents = getParents(oldData)
-
   const oldInfluencedBy = getInfluencedBy(oldData)
+
   const influencedByScenes = oldInfluencedBy.filter(isScene)
 
   const lostData =
@@ -100,8 +173,8 @@ export const makeScene = (oldData?: GenreInput): [SceneInput, boolean] => {
       shortDesc: oldData?.shortDesc ?? '',
       longDesc: oldData?.longDesc ?? '',
       influencedByScenes,
-      locations: oldData?.locations ?? [],
-      cultures: oldData?.cultures ?? '',
+      locations: getLocations(oldData),
+      cultures: getCultures(oldData),
     },
     lostData,
   ]
@@ -109,14 +182,15 @@ export const makeScene = (oldData?: GenreInput): [SceneInput, boolean] => {
 
 export const makeStyle = (oldData?: GenreInput): [StyleInput, boolean] => {
   const oldParents = getParents(oldData)
-  const parentStyles = oldParents.filter(isStyle)
-
   const oldInfluencedBy = getInfluencedBy(oldData)
+
+  const parentStyles = oldParents.filter(isStyle)
+  const parentMetas = oldParents.filter(isMeta)
   const influencedByStyles = oldInfluencedBy.filter(isStyle)
 
   const lostData =
     influencedByStyles.length !== oldInfluencedBy.length ||
-    parentStyles.length !== oldParents.length
+    parentStyles.length + parentMetas.length !== oldParents.length
 
   return [
     {
@@ -126,9 +200,10 @@ export const makeStyle = (oldData?: GenreInput): [StyleInput, boolean] => {
       shortDesc: oldData?.shortDesc ?? '',
       longDesc: oldData?.longDesc ?? '',
       parentStyles,
+      parentMetas,
       influencedByStyles,
-      locations: oldData?.locations ?? [],
-      cultures: oldData?.cultures ?? '',
+      locations: getLocations(oldData),
+      cultures: getCultures(oldData),
     },
     lostData,
   ]
@@ -136,17 +211,19 @@ export const makeStyle = (oldData?: GenreInput): [StyleInput, boolean] => {
 
 export const makeTrend = (oldData?: GenreInput): [TrendInput, boolean] => {
   const oldParents = getParents(oldData)
+  const oldInfluencedBy = getInfluencedBy(oldData)
+
   const parentTrends = oldParents.filter(isTrend)
   const parentStyles = oldParents.filter(isStyle)
-
-  const oldInfluencedBy = getInfluencedBy(oldData)
+  const parentMetas = oldParents.filter(isMeta)
   const influencedByTrends = oldInfluencedBy.filter(isTrend)
   const influencedByStyles = oldInfluencedBy.filter(isStyle)
 
   const lostData =
     influencedByTrends.length + influencedByStyles.length !==
       oldInfluencedBy.length ||
-    parentTrends.length + parentStyles.length !== oldParents.length
+    parentTrends.length + parentStyles.length + parentMetas.length !==
+      oldParents.length
 
   return [
     {
@@ -157,10 +234,11 @@ export const makeTrend = (oldData?: GenreInput): [TrendInput, boolean] => {
       longDesc: oldData?.longDesc ?? '',
       parentTrends,
       parentStyles,
+      parentMetas,
       influencedByTrends,
       influencedByStyles,
-      locations: oldData?.locations ?? [],
-      cultures: oldData?.cultures ?? '',
+      locations: getLocations(oldData),
+      cultures: getCultures(oldData),
     },
     lostData,
   ]
@@ -171,6 +249,8 @@ export const makeInput = (
   oldData?: GenreInput
 ): [GenreInput, boolean] => {
   switch (targetType) {
+    case 'meta':
+      return makeMeta(oldData)
     case 'scene':
       return makeScene(oldData)
     case 'style':
@@ -181,6 +261,6 @@ export const makeInput = (
 }
 
 export type GenreType = GenreInput['type']
-export const genreTypes: GenreType[] = ['scene', 'style', 'trend']
+export const genreTypes: GenreType[] = ['meta', 'scene', 'style', 'trend']
 export const isGenreType = (s: string): s is GenreType =>
   (genreTypes as string[]).includes(s)
