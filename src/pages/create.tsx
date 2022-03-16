@@ -6,10 +6,7 @@ import toast from 'react-hot-toast'
 
 import { capitalize } from '../common/utils/string'
 import FormElement from '../modules/genres/components/FormElement'
-import MetaForm from '../modules/genres/components/forms/MetaForm'
-import SceneForm from '../modules/genres/components/forms/SceneForm'
-import StyleForm from '../modules/genres/components/forms/StyleForm'
-import TrendForm from '../modules/genres/components/forms/TrendForm'
+import GenreForm from '../modules/genres/components/forms/GenreForm'
 import { useAddGenreMutation } from '../modules/genres/services'
 import { toAddApi } from '../modules/genres/utils/convert'
 import {
@@ -23,8 +20,9 @@ import { makeSceneUiState } from '../modules/genres/utils/types/scenes'
 const Create: NextPage = () => {
   const [data, setData] = useState<GenreUiState>(makeSceneUiState()[0])
 
-  const { mutate, isLoading: isSubmitting } = useAddGenreMutation()
   const router = useRouter()
+
+  const { mutate, isLoading: isSubmitting } = useAddGenreMutation()
   const handleCreate = useCallback(
     () =>
       mutate(toAddApi(data), {
@@ -41,51 +39,6 @@ const Create: NextPage = () => {
       }),
     [data, mutate, router]
   )
-
-  const renderForm = () => {
-    switch (data.type) {
-      case 'meta':
-        return (
-          <MetaForm
-            data={data}
-            onChange={(val) => {
-              const updatedData = typeof val === 'function' ? val(data) : val
-              setData({ ...updatedData, type: 'meta' })
-            }}
-          />
-        )
-      case 'scene':
-        return (
-          <SceneForm
-            data={data}
-            onChange={(val) => {
-              const updatedData = typeof val === 'function' ? val(data) : val
-              setData({ ...updatedData, type: 'scene' })
-            }}
-          />
-        )
-      case 'style':
-        return (
-          <StyleForm
-            data={data}
-            onChange={(val) => {
-              const updatedData = typeof val === 'function' ? val(data) : val
-              setData({ ...updatedData, type: 'style' })
-            }}
-          />
-        )
-      case 'trend':
-        return (
-          <TrendForm
-            data={data}
-            onChange={(val) => {
-              const updatedData = typeof val === 'function' ? val(data) : val
-              setData({ ...updatedData, type: 'trend' })
-            }}
-          />
-        )
-    }
-  }
 
   return (
     <Layout>
@@ -112,7 +65,7 @@ const Create: NextPage = () => {
             ))}
           </select>
         </FormElement>
-        {renderForm()}
+        <GenreForm data={data} onChange={setData} />
         <button
           type='submit'
           disabled={isSubmitting}

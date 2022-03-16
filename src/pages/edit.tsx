@@ -7,10 +7,7 @@ import toast from 'react-hot-toast'
 import { getFirstOrValue } from '../common/utils/array'
 import { capitalize } from '../common/utils/string'
 import FormElement from '../modules/genres/components/FormElement'
-import MetaForm from '../modules/genres/components/forms/MetaForm'
-import SceneForm from '../modules/genres/components/forms/SceneForm'
-import StyleForm from '../modules/genres/components/forms/StyleForm'
-import TrendForm from '../modules/genres/components/forms/TrendForm'
+import GenreForm from '../modules/genres/components/forms/GenreForm'
 import { useEditGenreMutation, useGenreQuery } from '../modules/genres/services'
 import { fromApi, toEditApi } from '../modules/genres/utils/convert'
 import {
@@ -80,56 +77,6 @@ const EditInnerInner: FC<{
     [data, id, mutate, originalType]
   )
 
-  const renderForm = () => {
-    switch (data.type) {
-      case 'meta':
-        return (
-          <MetaForm
-            selfId={id}
-            data={data}
-            onChange={(val) => {
-              // TODO: create helper for this
-              const updatedData = typeof val === 'function' ? val(data) : val
-              setData({ ...updatedData, type: 'meta' })
-            }}
-          />
-        )
-      case 'scene':
-        return (
-          <SceneForm
-            selfId={id}
-            data={data}
-            onChange={(val) => {
-              const updatedData = typeof val === 'function' ? val(data) : val
-              setData({ ...updatedData, type: 'scene' })
-            }}
-          />
-        )
-      case 'style':
-        return (
-          <StyleForm
-            selfId={id}
-            data={data}
-            onChange={(val) => {
-              const updatedData = typeof val === 'function' ? val(data) : val
-              setData({ ...updatedData, type: 'style' })
-            }}
-          />
-        )
-      case 'trend':
-        return (
-          <TrendForm
-            selfId={id}
-            data={data}
-            onChange={(val) => {
-              const updatedData = typeof val === 'function' ? val(data) : val
-              setData({ ...updatedData, type: 'trend' })
-            }}
-          />
-        )
-    }
-  }
-
   return (
     <Layout>
       <Form>
@@ -156,7 +103,7 @@ const EditInnerInner: FC<{
             ))}
           </select>
         </FormElement>
-        {renderForm()}
+        <GenreForm selfId={id} data={data} onChange={setData} />
         <button
           type='submit'
           disabled={isSubmitting}
