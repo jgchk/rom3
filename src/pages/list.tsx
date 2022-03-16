@@ -3,17 +3,18 @@ import Link from 'next/link'
 import { useCallback } from 'react'
 import toast from 'react-hot-toast'
 
-import trpc from '../common/utils/trpc'
+import {
+  useDeleteGenreMutation,
+  useGenresQuery,
+} from '../modules/genres/services'
 import { GenreName } from '../modules/genres/utils/types'
 
 const List: NextPage = () => {
-  const { data, error } = trpc.useQuery([
-    'genres',
-    { type: ['meta', 'scene', 'style', 'trend'] },
-  ])
+  const { data, error } = useGenresQuery({
+    type: ['meta', 'scene', 'style', 'trend'],
+  })
 
-  const { mutate: deleteItem } = trpc.useMutation('delete')
-  const util = trpc.useContext()
+  const { mutate: deleteItem } = useDeleteGenreMutation()
   const handleDelete = useCallback(
     (type: GenreName, id: number, name: string) =>
       deleteItem(
@@ -22,32 +23,12 @@ const List: NextPage = () => {
           onError: (error) => {
             toast.error(error.message)
           },
-          onSuccess: async (_, { type, id }) => {
+          onSuccess: () => {
             toast.success(`Deleted ${name}!`)
-
-            await util.invalidateQueries('genres')
-            await util.invalidateQueries(['get', { type, id }])
-            switch (type) {
-              case 'scene': {
-                await util.invalidateQueries('scenes.all')
-                await util.invalidateQueries(['scenes.byId', { id }])
-                break
-              }
-              case 'style': {
-                await util.invalidateQueries('styles.all')
-                await util.invalidateQueries(['styles.byId', { id }])
-                break
-              }
-              case 'trend': {
-                await util.invalidateQueries('trends.all')
-                await util.invalidateQueries(['trends.byId', { id }])
-                break
-              }
-            }
           },
         }
       ),
-    [deleteItem, util]
+    [deleteItem]
   )
 
   if (data) {

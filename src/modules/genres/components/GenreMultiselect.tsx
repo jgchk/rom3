@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import trpc from '../../../common/utils/trpc'
+import { useGenresQuery } from '../services'
 import { SimpleGenreOutput, SimpleGenreOutputMap } from '../utils/types'
 import Multiselect from './Multiselect'
 
@@ -17,7 +17,7 @@ const GenreMultiselect = <K extends keyof SimpleGenreOutputMap>({
   onChange,
   types,
 }: GenreMultiselectProps<K>) => {
-  const { data, error, isLoading } = trpc.useQuery(['genres', { type: types }])
+  const { data, error, isLoading } = useGenresQuery({ type: types })
 
   const dataWithoutSelf = useMemo(
     () =>

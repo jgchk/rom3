@@ -5,17 +5,18 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { capitalize } from '../common/utils/string'
-import trpc, { InferQueryOutput } from '../common/utils/trpc'
 import FormElement from '../modules/genres/components/FormElement'
 import MetaForm from '../modules/genres/components/forms/MetaForm'
 import SceneForm from '../modules/genres/components/forms/SceneForm'
 import StyleForm from '../modules/genres/components/forms/StyleForm'
 import TrendForm from '../modules/genres/components/forms/TrendForm'
+import { useEditGenreMutation, useGenreQuery } from '../modules/genres/services'
 import { getParam } from '../modules/genres/utils/api'
 import { fromApi, toEditApi } from '../modules/genres/utils/convert'
 import {
   GenreName,
   genreNames,
+  GenreOutput,
   GenreUiState,
   isGenreName,
   makeUiState,
@@ -43,7 +44,7 @@ const Edit: NextPage = () => {
 }
 
 const EditInner: FC<{ type: GenreName; id: number }> = ({ type, id }) => {
-  const { data, error } = trpc.useQuery(['get', { type, id }])
+  const { data, error } = useGenreQuery({ type, id })
 
   if (data) {
     return <EditInnerInner type={type} id={id} data={data} />
@@ -59,48 +60,22 @@ const EditInner: FC<{ type: GenreName; id: number }> = ({ type, id }) => {
 const EditInnerInner: FC<{
   type: GenreName
   id: number
-  data: InferQueryOutput<'get'>
+  data: GenreOutput
 }> = ({ type: originalType, id, data: originalData }) => {
   const [data, setData] = useState<GenreUiState>(fromApi(originalData))
 
-  const { mutate, isLoading: isSubmitting } = trpc.useMutation('edit')
-  const utils = trpc.useContext()
+  const { mutate, isLoading: isSubmitting } = useEditGenreMutation()
   const handleEdit = useCallback(
     () =>
       mutate(toEditApi(originalType, id, data), {
         onError: (error) => {
           toast.error(error.message)
         },
-        onSuccess: async (res) => {
+        onSuccess: (res) => {
           toast.success(`Edited ${res.name}!`)
-
-          await utils.invalidateQueries('genres')
-          utils.setQueryData(['get', { type: res.type, id: res.id }], res)
-          switch (res.type) {
-            case 'meta': {
-              await utils.invalidateQueries('metas.all')
-              utils.setQueryData(['metas.byId', { id: res.id }], res)
-              break
-            }
-            case 'scene': {
-              await utils.invalidateQueries('scenes.all')
-              utils.setQueryData(['scenes.byId', { id: res.id }], res)
-              break
-            }
-            case 'style': {
-              await utils.invalidateQueries('styles.all')
-              utils.setQueryData(['styles.byId', { id: res.id }], res)
-              break
-            }
-            case 'trend': {
-              await utils.invalidateQueries('trends.all')
-              utils.setQueryData(['trends.byId', { id: res.id }], res)
-              break
-            }
-          }
         },
       }),
-    [data, id, mutate, originalType, utils]
+    [data, id, mutate, originalType]
   )
 
   const renderForm = () => {
@@ -111,6 +86,7 @@ const EditInnerInner: FC<{
             selfId={id}
             data={data}
             onChange={(val) => {
+              // TODO: create helper for this
               const updatedData = typeof val === 'function' ? val(data) : val
               setData({ ...updatedData, type: 'meta' })
             }}
