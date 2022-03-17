@@ -7,7 +7,7 @@ import {
   useDeleteGenreMutation,
   useGenresQuery,
 } from '../modules/genres/services'
-import { GenreName } from '../modules/genres/utils/types'
+import { GenreName, getGenreKey } from '../modules/genres/utils/types'
 
 const List: NextPage = () => {
   const { data, error } = useGenresQuery({
@@ -44,7 +44,7 @@ const List: NextPage = () => {
         </thead>
         <tbody>
           {data.map((genre) => (
-            <tr key={genre.id}>
+            <tr key={getGenreKey(genre)}>
               <td>{genre.name}</td>
               <td>{genre.type}</td>
               <td>{genre.shortDesc}</td>
