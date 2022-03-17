@@ -13,7 +13,7 @@
   "dependencies": {
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
-    "@prisma/client": "^3.10.0",
+    "@prisma/client": "^3.11.0",
     "@trpc/client": "^9.20.1",
     "@trpc/next": "^9.20.1",
     "@trpc/react": "^9.20.1",
@@ -42,7 +42,7 @@
     "husky": ">=6",
     "lint-staged": ">=10",
     "prettier": "^2.5.1",
-    "prisma": "^3.10.0",
+    "prisma": "^3.11.0",
     "stylelint": "^14.5.3",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-rational-order": "^0.1.2",
