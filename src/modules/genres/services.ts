@@ -12,6 +12,7 @@ export const useAddGenreMutation = () => {
     onSuccess: async (res) => {
       await utils.invalidateQueries('genres')
       utils.setQueryData(['get', { type: res.type, id: res.id }], res)
+
       switch (res.type) {
         case 'meta': {
           await utils.invalidateQueries('metas.all')
@@ -44,6 +45,7 @@ export const useEditGenreMutation = () => {
     onSuccess: async (res) => {
       await utils.invalidateQueries('genres')
       utils.setQueryData(['get', { type: res.type, id: res.id }], res)
+
       switch (res.type) {
         case 'meta': {
           await utils.invalidateQueries('metas.all')
@@ -70,30 +72,23 @@ export const useEditGenreMutation = () => {
   })
 }
 
-// TODO: invalidate or update related queries (parents, influences)
 export const useDeleteGenreMutation = () => {
-  const util = trpc.useContext()
+  const utils = trpc.useContext()
   return trpc.useMutation('delete', {
-    onSuccess: async (_, { type, id }) => {
-      await util.invalidateQueries('genres')
-      await util.invalidateQueries(['get', { type, id }])
-      switch (type) {
-        case 'scene': {
-          await util.invalidateQueries('scenes.all')
-          await util.invalidateQueries(['scenes.byId', { id }])
-          break
-        }
-        case 'style': {
-          await util.invalidateQueries('styles.all')
-          await util.invalidateQueries(['styles.byId', { id }])
-          break
-        }
-        case 'trend': {
-          await util.invalidateQueries('trends.all')
-          await util.invalidateQueries(['trends.byId', { id }])
-          break
-        }
-      }
+    onSuccess: async () => {
+      await utils.invalidateQueries('genres')
+      await utils.invalidateQueries('get')
+
+      // we have to invalidate queries for all genre types since
+      // we may have deleted relationships with them (parent, influence, etc.)
+      await utils.invalidateQueries('metas.all')
+      await utils.invalidateQueries('metas.byId')
+      await utils.invalidateQueries('scenes.all')
+      await utils.invalidateQueries('scenes.byId')
+      await utils.invalidateQueries('styles.all')
+      await utils.invalidateQueries('styles.byId')
+      await utils.invalidateQueries('trends.all')
+      await utils.invalidateQueries('trends.byId')
     },
   })
 }
