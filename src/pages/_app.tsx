@@ -7,7 +7,7 @@ import { Toaster } from 'react-hot-toast'
 
 import Navbar from '../common/components/Navbar'
 import { isBrowser } from '../common/utils/ssr'
-import { AppRouter } from './api/trpc/[trpc]'
+import { AppRouter } from '../modules/server/routers/_app'
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
   <Layout>
