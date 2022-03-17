@@ -1,7 +1,8 @@
 import styled from '@emotion/styled'
+import { deepEqual } from 'fast-equals'
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useMemo, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { getFirstOrValue } from '../common/utils/array'
@@ -43,41 +44,55 @@ const Edit: NextPage = () => {
 }
 
 const EditInner: FC<{ type: GenreName; id: number }> = ({ type, id }) => {
-  const { data, isFetching } = useGenreQuery({ type, id })
-
-  // we don't want to load the form with stale data then change it on the user while
-  // they're editing.
-  // instead, let's show a loader until fresh data is loaded.
-  if (isFetching) {
-    return <div>Loading...</div>
-  }
+  const { data, error } = useGenreQuery({ type, id })
 
   if (data) {
     return <EditInnerInner type={type} id={id} data={data} />
   }
 
-  return <div>Error</div>
+  if (error) {
+    return <div>Error</div>
+  }
+
+  return <div>Loading...</div>
 }
 
 const EditInnerInner: FC<{
   type: GenreName
   id: number
   data: GenreOutput
-}> = ({ type: originalType, id, data: originalData }) => {
-  const [data, setData] = useState<GenreUiState>(fromApi(originalData))
+}> = ({ type: originalType, id, data: serverData }) => {
+  const serverUiState = useMemo(() => fromApi(serverData), [serverData])
+
+  const [originalUiState, setOriginalUiState] =
+    useState<GenreUiState>(serverUiState)
+  const [uiState, setUiState] = useState<GenreUiState>(serverUiState)
+
+  const isDirty = useMemo(
+    () => !deepEqual(uiState, originalUiState),
+    [originalUiState, uiState]
+  )
+  useEffect(() => {
+    if (!isDirty) {
+      setOriginalUiState(serverUiState)
+      setUiState(serverUiState)
+    }
+  }, [isDirty, serverUiState])
+  // TODO: show indicator when dirty but server state has changed w/ button to apply latest changes
 
   const { mutate, isLoading: isSubmitting } = useEditGenreMutation()
   const handleEdit = useCallback(
     () =>
-      mutate(toEditApi(originalType, id, data), {
+      mutate(toEditApi(originalType, id, uiState), {
         onError: (error) => {
           toast.error(error.message)
         },
         onSuccess: (res) => {
           toast.success(`Edited ${res.name}!`)
+          setOriginalUiState(fromApi(res))
         },
       }),
-    [data, id, mutate, originalType]
+    [uiState, id, mutate, originalType]
   )
 
   return (
@@ -87,19 +102,19 @@ const EditInnerInner: FC<{
           <FormElement>
             <label>Type</label>
             <GenreNameSelect
-              value={data.type}
+              value={uiState.type}
               onChange={(val) => {
-                const [newData, dataLost] = makeUiState(val, data)
+                const [newData, dataLost] = makeUiState(val, uiState)
                 const shouldRun = dataLost
                   ? confirm(
                       'Some data may be lost in the conversion. Are you sure you want to continue?'
                     )
                   : true
-                if (shouldRun) setData(newData)
+                if (shouldRun) setUiState(newData)
               }}
             />
           </FormElement>
-          <GenreForm data={data} onChange={setData} />
+          <GenreForm data={uiState} onChange={setUiState} />
           <button
             type='submit'
             disabled={isSubmitting}
