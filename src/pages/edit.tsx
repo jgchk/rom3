@@ -4,17 +4,15 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import Select from '../common/components/Select'
 import { getFirstOrValue } from '../common/utils/array'
-import { capitalize } from '../common/utils/string'
 import FormElement from '../modules/genres/components/FormElement'
 import GenreForm from '../modules/genres/components/forms/GenreForm'
+import GenreNameSelect from '../modules/genres/components/GenreNameSelect'
 import { EditContextProvider } from '../modules/genres/contexts/EditContext'
 import { useEditGenreMutation, useGenreQuery } from '../modules/genres/services'
 import { fromApi, toEditApi } from '../modules/genres/utils/convert'
 import {
   GenreName,
-  genreNames,
   GenreOutput,
   GenreUiState,
   isGenreName,
@@ -85,7 +83,7 @@ const EditInnerInner: FC<{
         <Form>
           <FormElement>
             <label>Type</label>
-            <Select
+            <GenreNameSelect
               value={data.type}
               onChange={(val) => {
                 const [newData, dataLost] = makeUiState(val, data)
@@ -96,11 +94,6 @@ const EditInnerInner: FC<{
                   : true
                 if (shouldRun) setData(newData)
               }}
-              options={genreNames.map((genreName) => ({
-                key: genreName,
-                value: genreName,
-                label: capitalize(genreName),
-              }))}
             />
           </FormElement>
           <GenreForm data={data} onChange={setData} />

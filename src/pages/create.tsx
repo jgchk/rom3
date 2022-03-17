@@ -4,17 +4,12 @@ import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import Select from '../common/components/Select'
-import { capitalize } from '../common/utils/string'
 import FormElement from '../modules/genres/components/FormElement'
 import GenreForm from '../modules/genres/components/forms/GenreForm'
+import GenreNameSelect from '../modules/genres/components/GenreNameSelect'
 import { useAddGenreMutation } from '../modules/genres/services'
 import { toAddApi } from '../modules/genres/utils/convert'
-import {
-  genreNames,
-  GenreUiState,
-  makeUiState,
-} from '../modules/genres/utils/types'
+import { GenreUiState, makeUiState } from '../modules/genres/utils/types'
 import { makeSceneUiState } from '../modules/genres/utils/types/scenes'
 
 const Create: NextPage = () => {
@@ -45,7 +40,7 @@ const Create: NextPage = () => {
       <Form>
         <FormElement>
           <label>Type</label>
-          <Select
+          <GenreNameSelect
             value={data.type}
             onChange={(val) => {
               const [newData, dataLost] = makeUiState(val, data)
@@ -56,11 +51,6 @@ const Create: NextPage = () => {
                 : true
               if (shouldRun) setData(newData)
             }}
-            options={genreNames.map((genreName) => ({
-              key: genreName,
-              value: genreName,
-              label: capitalize(genreName),
-            }))}
           />
         </FormElement>
         <GenreForm data={data} onChange={setData} />
