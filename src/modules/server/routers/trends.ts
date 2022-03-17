@@ -45,7 +45,7 @@ export type TrendOutput = Trend & {
   parentStyles: Style[]
   parentMetas: Meta[]
   influencedByTrends: Trend[]
-  influencedByStyles: { style: Style; influenceType: InfluenceType }[]
+  influencedByStyles: (Style & { influenceType: InfluenceType })[]
   locations: Location[]
   cultures: Culture[]
 }
@@ -70,7 +70,7 @@ const toOutput = (
   parentMetas: trend.parentMetas.map((p) => p.parent),
   influencedByTrends: trend.influencedByTrends.map((inf) => inf.influencer),
   influencedByStyles: trend.influencedByStyles.map((inf) => ({
-    style: inf.influencer,
+    ...inf.influencer,
     influenceType: inf.influenceType,
   })),
   locations: trend.locations.map((loc) => loc.location),

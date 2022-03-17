@@ -51,7 +51,7 @@ const InfluenceMultiselect = <K extends keyof InfluenceUiStateMap>({
   const getItemKey = useCallback(
     (item: InfluenceUiState) =>
       isStyleInfluence(item)
-        ? `${getGenreKey(item.style)}_${item.influenceType}`
+        ? `${getGenreKey(item)}_${item.influenceType}`
         : getGenreKey(item),
     []
   )
@@ -64,25 +64,27 @@ const InfluenceMultiselect = <K extends keyof InfluenceUiStateMap>({
     return data?.filter((item) => getItemKey(item) !== selfKey)
   }, [data, getItemKey, self])
 
-  const filter = useCallback((item: InfluenceUiState, query: string) => {
-    const itemName = isStyleInfluence(item) ? item.style.name : item.name
-    return itemName.toLowerCase().startsWith(query.toLowerCase())
-  }, [])
+  const filter = useCallback(
+    (item: InfluenceUiState, query: string) =>
+      item.name.toLowerCase().startsWith(query.toLowerCase()),
+    []
+  )
 
-  const renderItem = useCallback((item: InfluenceUiState) => {
-    console.log(item)
-    return isStyleInfluence(item) ? (
-      <div>
-        <div>{item.style.name}</div>
-        <label>
-          <input type='checkbox' />
-          Historical
-        </label>
-      </div>
-    ) : (
-      item.name
-    )
-  }, [])
+  const renderItem = useCallback(
+    (item: InfluenceUiState) =>
+      isStyleInfluence(item) ? (
+        <div>
+          <div>{item.name}</div>
+          <label>
+            <input type='checkbox' />
+            Historical
+          </label>
+        </div>
+      ) : (
+        item.name
+      ),
+    []
+  )
 
   return (
     <Multiselect

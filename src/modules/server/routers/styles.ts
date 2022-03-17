@@ -38,7 +38,7 @@ export type StyleOutput = Style & {
   alternateNames: string[]
   parentStyles: Style[]
   parentMetas: Meta[]
-  influencedByStyles: { style: Style; influenceType: InfluenceType }[]
+  influencedByStyles: (Style & { influenceType: InfluenceType })[]
   locations: Location[]
   cultures: Culture[]
 }
@@ -59,7 +59,7 @@ const toOutput = (
   parentStyles: style.parentStyles.map((p) => p.parent),
   parentMetas: style.parentMetas.map((p) => p.parent),
   influencedByStyles: style.influencedByStyles.map((inf) => ({
-    style: inf.influencer,
+    ...inf.influencer,
     influenceType: inf.influenceType,
   })),
   locations: style.locations.map((loc) => loc.location),

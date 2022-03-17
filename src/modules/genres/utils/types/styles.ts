@@ -30,14 +30,13 @@ export const isStyleInfluence = (
 
 export type InfluenceTypeOutput =
   StyleOutput['influencedByStyles'][number]['influenceType']
-export type StyleInfluenceUiState = {
-  style: SimpleStyleOutput
+export type StyleInfluenceUiState = SimpleStyleOutput & {
   influenceType: InfluenceTypeOutput
 }
 
 export const makeStyleInfluenceUiState = (
   style: SimpleStyleOutput
-): StyleInfluenceUiState => ({ style, influenceType: 'HISTORICAL' })
+): StyleInfluenceUiState => ({ ...style, influenceType: 'HISTORICAL' })
 
 export type StyleUiState = Omit<
   InferMutationInput<'styles.add'>,

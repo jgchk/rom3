@@ -34,7 +34,7 @@ const toIds = <T>(os: { id: T }[]) => os.map((o) => o.id)
 
 const toStyleInfluences = (os: StyleInfluenceUiState[]) =>
   os.map((o) => ({
-    id: o.style.id,
+    id: o.id,
     type: o.influenceType,
   }))
 
@@ -65,10 +65,8 @@ export const fromApi = (data: GenreOutput): GenreUiState => {
         parentStyles: data.parentStyles.map((p) => ({ ...p, type: 'style' })),
         parentMetas: data.parentMetas.map((p) => ({ ...p, type: 'meta' })),
         influencedByStyles: data.influencedByStyles.map((inf) => ({
-          style: {
-            ...inf.style,
-            type: 'style',
-          },
+          ...inf,
+          type: 'style',
           influenceType: inf.influenceType,
         })),
         cultures: fromCultures(data.cultures),
@@ -86,10 +84,8 @@ export const fromApi = (data: GenreOutput): GenreUiState => {
           type: 'trend',
         })),
         influencedByStyles: data.influencedByStyles.map((inf) => ({
-          style: {
-            ...inf.style,
-            type: 'style',
-          },
+          ...inf,
+          type: 'style',
           influenceType: inf.influenceType,
         })),
         cultures: fromCultures(data.cultures),
