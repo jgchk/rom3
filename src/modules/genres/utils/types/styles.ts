@@ -35,6 +35,10 @@ export type StyleInfluenceUiState = {
   influenceType: InfluenceTypeOutput
 }
 
+export const makeStyleInfluenceUiState = (
+  style: SimpleStyleOutput
+): StyleInfluenceUiState => ({ style, influenceType: 'HISTORICAL' })
+
 export type StyleUiState = Omit<
   InferMutationInput<'styles.add'>,
   | 'alternateNames'
