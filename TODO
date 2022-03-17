@@ -1,0 +1,8 @@
+- add toggle to Style influences field to switch between Historical Influence and Sonic Influence
+- add controls for splitting long description into multiple sections
+- add initial styling
+- set up background fetching indicators
+- add locations & cultures list pages
+- add "view genre" page
+- add "view location" page
+- add "view culture" page
