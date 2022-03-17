@@ -1,10 +1,9 @@
-import { Meta, MetaName, MetaParent, PrismaClient } from '@prisma/client'
-import * as trpc from '@trpc/server'
+import { Meta, MetaName, MetaParent } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
-// TODO: use only 1 prisma client
-const prisma = new PrismaClient()
+import createRouter from '../createRouter'
+import prisma from '../prisma'
 
 export const MetaInput = z.object({
   name: z.string().min(1),
@@ -109,8 +108,7 @@ export const deleteMeta = async (id: number): Promise<number> => {
   return id
 }
 
-const metasRouter = trpc
-  .router()
+const metasRouter = createRouter()
   .mutation('add', {
     input: MetaInput,
     resolve: ({ input }) => addMeta(input),

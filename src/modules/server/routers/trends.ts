@@ -2,7 +2,6 @@ import {
   Culture,
   Location,
   Meta,
-  PrismaClient,
   Style,
   Trend,
   TrendCulture,
@@ -14,11 +13,11 @@ import {
   TrendTrendInfluence,
   TrendTrendParent,
 } from '@prisma/client'
-import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
-const prisma = new PrismaClient()
+import createRouter from '../createRouter'
+import prisma from '../prisma'
 
 export const TrendInput = z.object({
   name: z.string().min(1),
@@ -301,8 +300,7 @@ export const deleteTrend = async (id: number): Promise<number> => {
   return id
 }
 
-const trendsRouter = trpc
-  .router()
+const trendsRouter = createRouter()
   .mutation('add', {
     input: TrendInput,
     resolve: ({ input }) => addTrend(input),

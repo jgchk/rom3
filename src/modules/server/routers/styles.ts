@@ -2,7 +2,6 @@ import {
   Culture,
   Location,
   Meta,
-  PrismaClient,
   Style,
   StyleCulture,
   StyleInfluence,
@@ -11,11 +10,11 @@ import {
   StyleName,
   StyleStyleParent,
 } from '@prisma/client'
-import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
-const prisma = new PrismaClient()
+import createRouter from '../createRouter'
+import prisma from '../prisma'
 
 export const StyleInput = z.object({
   name: z.string().min(1),
@@ -268,8 +267,7 @@ export const deleteStyle = async (id: number): Promise<number> => {
   return id
 }
 
-const stylesRouter = trpc
-  .router()
+const stylesRouter = createRouter()
   .mutation('add', {
     input: StyleInput,
     resolve: ({ input }) => addStyle(input),

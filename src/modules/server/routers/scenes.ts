@@ -1,18 +1,17 @@
 import {
   Culture,
   Location,
-  PrismaClient,
   Scene,
   SceneCulture,
   SceneInfluence,
   SceneLocation,
   SceneName,
 } from '@prisma/client'
-import * as trpc from '@trpc/server'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
-const prisma = new PrismaClient()
+import createRouter from '../createRouter'
+import prisma from '../prisma'
 
 // TODO: extract validators into utils
 export const SceneInput = z.object({
@@ -217,8 +216,7 @@ export const deleteScene = async (id: number): Promise<number> => {
   return id
 }
 
-const scenesRouter = trpc
-  .router()
+const scenesRouter = createRouter()
   .mutation('add', {
     input: SceneInput,
     resolve: ({ input }) => addScene(input),
