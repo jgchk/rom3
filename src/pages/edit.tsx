@@ -43,17 +43,20 @@ const Edit: NextPage = () => {
 }
 
 const EditInner: FC<{ type: GenreName; id: number }> = ({ type, id }) => {
-  const { data, error } = useGenreQuery({ type, id })
+  const { data, isFetching } = useGenreQuery({ type, id })
+
+  // we don't want to load the form with stale data then change it on the user while
+  // they're editing.
+  // instead, let's show a loader until fresh data is loaded.
+  if (isFetching) {
+    return <div>Loading...</div>
+  }
 
   if (data) {
     return <EditInnerInner type={type} id={id} data={data} />
   }
 
-  if (error) {
-    return <div>Error</div>
-  }
-
-  return <div>Loading...</div>
+  return <div>Error</div>
 }
 
 const EditInnerInner: FC<{
