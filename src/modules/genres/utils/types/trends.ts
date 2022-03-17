@@ -31,7 +31,7 @@ export const isTrendOutput = (o: GenreOutput): o is TrendOutput =>
 export const isTrendParent = (o: ParentUiState): o is SimpleTrendOutput =>
   o.type === 'trend'
 export const isTrendInfluence = (o: InfluenceUiState): o is SimpleTrendOutput =>
-  'type' in o && o.type === 'trend'
+  o.type === 'trend'
 
 export type TrendUiState = Omit<
   InferMutationInput<'trends.add'>,

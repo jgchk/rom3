@@ -26,7 +26,7 @@ export const isStyleParent = (o: ParentUiState): o is SimpleStyleOutput =>
   o.type === 'style'
 export const isStyleInfluence = (
   o: InfluenceUiState
-): o is StyleInfluenceUiState => 'style' in o
+): o is StyleInfluenceUiState => o.type === 'style'
 
 export type InfluenceTypeOutput =
   StyleOutput['influencedByStyles'][number]['influenceType']

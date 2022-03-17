@@ -21,7 +21,7 @@ export type SimpleSceneOutput = SceneOutput['influencedByScenes'][number] & {
 export const isSceneOutput = (o: GenreOutput): o is SceneOutput =>
   o.type === 'scene'
 export const isSceneInfluence = (o: InfluenceUiState): o is SimpleSceneOutput =>
-  'type' in o && o.type === 'scene'
+  o.type === 'scene'
 
 export type SceneUiState = Omit<
   InferMutationInput<'scenes.add'>,
