@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import Select from '../common/components/Select'
 import { getFirstOrValue } from '../common/utils/array'
 import { capitalize } from '../common/utils/string'
 import FormElement from '../modules/genres/components/FormElement'
@@ -84,12 +85,10 @@ const EditInnerInner: FC<{
         <Form>
           <FormElement>
             <label>Type</label>
-            {/* TODO: create primitive for typesafe <select> */}
-            <select
+            <Select
               value={data.type}
-              onChange={(e) => {
-                const objectType = e.target.value as GenreName
-                const [newData, dataLost] = makeUiState(objectType, data)
+              onChange={(val) => {
+                const [newData, dataLost] = makeUiState(val, data)
                 const shouldRun = dataLost
                   ? confirm(
                       'Some data may be lost in the conversion. Are you sure you want to continue?'
@@ -97,13 +96,12 @@ const EditInnerInner: FC<{
                   : true
                 if (shouldRun) setData(newData)
               }}
-            >
-              {genreNames.map((objectType) => (
-                <option key={objectType} value={objectType}>
-                  {capitalize(objectType)}
-                </option>
-              ))}
-            </select>
+              options={genreNames.map((genreName) => ({
+                key: genreName,
+                value: genreName,
+                label: capitalize(genreName),
+              }))}
+            />
           </FormElement>
           <GenreForm data={data} onChange={setData} />
           <button

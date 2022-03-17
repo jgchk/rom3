@@ -4,13 +4,13 @@ import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import Select from '../common/components/Select'
 import { capitalize } from '../common/utils/string'
 import FormElement from '../modules/genres/components/FormElement'
 import GenreForm from '../modules/genres/components/forms/GenreForm'
 import { useAddGenreMutation } from '../modules/genres/services'
 import { toAddApi } from '../modules/genres/utils/convert'
 import {
-  GenreName,
   genreNames,
   GenreUiState,
   makeUiState,
@@ -45,11 +45,10 @@ const Create: NextPage = () => {
       <Form>
         <FormElement>
           <label>Type</label>
-          <select
+          <Select
             value={data.type}
-            onChange={(e) => {
-              const objectType = e.target.value as GenreName
-              const [newData, dataLost] = makeUiState(objectType, data)
+            onChange={(val) => {
+              const [newData, dataLost] = makeUiState(val, data)
               const shouldRun = dataLost
                 ? confirm(
                     'Some data may be lost in the conversion. Are you sure you want to continue?'
@@ -57,13 +56,12 @@ const Create: NextPage = () => {
                 : true
               if (shouldRun) setData(newData)
             }}
-          >
-            {genreNames.map((objectType) => (
-              <option key={objectType} value={objectType}>
-                {capitalize(objectType)}
-              </option>
-            ))}
-          </select>
+            options={genreNames.map((genreName) => ({
+              key: genreName,
+              value: genreName,
+              label: capitalize(genreName),
+            }))}
+          />
         </FormElement>
         <GenreForm data={data} onChange={setData} />
         <button
