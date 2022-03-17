@@ -133,21 +133,20 @@ export const editScene = async (
   id: number,
   data: SceneInput
 ): Promise<SceneOutput> => {
-  await prisma.sceneName.deleteMany({ where: { sceneId: id } })
-  await prisma.sceneInfluence.deleteMany({ where: { influencedId: id } })
-  await prisma.sceneLocation.deleteMany({ where: { sceneId: id } })
-  await prisma.sceneCulture.deleteMany({ where: { sceneId: id } })
   const scene = await prisma.scene.update({
     where: { id: id },
     data: {
       ...data,
       alternateNames: {
+        deleteMany: { sceneId: id },
         create: data.alternateNames.map((name) => ({ name })),
       },
       influencedByScenes: {
+        deleteMany: { influencedId: id },
         create: data.influencedByScenes.map((id) => ({ influencerId: id })),
       },
       locations: {
+        deleteMany: { sceneId: id },
         create: data.locations.map((loc) => ({
           location: {
             connectOrCreate: {
@@ -168,6 +167,7 @@ export const editScene = async (
         })),
       },
       cultures: {
+        deleteMany: { sceneId: id },
         create: data.cultures.map((c) => ({
           culture: {
             connectOrCreate: { where: { name: c }, create: { name: c } },
@@ -186,24 +186,7 @@ export const editScene = async (
 }
 
 export const deleteScene = async (id: number): Promise<number> => {
-  const deleteNames = prisma.sceneName.deleteMany({ where: { sceneId: id } })
-  const deleteInfluencesScenes = prisma.sceneInfluence.deleteMany({
-    where: { influencerId: id },
-  })
-  const deletedInfluencedByScenes = prisma.sceneInfluence.deleteMany({
-    where: { influencedId: id },
-  })
-  const deleteLocations = prisma.sceneLocation.deleteMany({
-    where: { sceneId: id },
-  })
-  const deleteScene = prisma.scene.delete({ where: { id } })
-  await prisma.$transaction([
-    deleteNames,
-    deleteInfluencesScenes,
-    deletedInfluencedByScenes,
-    deleteLocations,
-    deleteScene,
-  ])
+  await prisma.scene.delete({ where: { id } })
   return id
 }
 

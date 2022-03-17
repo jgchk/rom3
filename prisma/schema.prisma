@@ -52,7 +52,7 @@ model Scene {
 }
 
 model SceneName {
-  scene   Scene  @relation(fields: [sceneId], references: [id])
+  scene   Scene  @relation(fields: [sceneId], references: [id], onDelete: Cascade)
   sceneId Int
   name    String
 
@@ -60,27 +60,27 @@ model SceneName {
 }
 
 model SceneInfluence {
-  influencer   Scene @relation("SceneInfluencer", fields: [influencerId], references: [id])
+  influencer   Scene @relation("SceneInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
   influencerId Int
-  influenced   Scene @relation("SceneInfluenced", fields: [influencedId], references: [id])
+  influenced   Scene @relation("SceneInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
   influencedId Int
 
   @@id([influencerId, influencedId])
 }
 
 model SceneLocation {
-  scene      Scene    @relation(fields: [sceneId], references: [id])
+  scene      Scene    @relation(fields: [sceneId], references: [id], onDelete: Cascade)
   sceneId    Int
-  location   Location @relation(fields: [locationId], references: [id])
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
   locationId Int
 
   @@id([sceneId, locationId])
 }
 
 model SceneCulture {
-  scene     Scene   @relation(fields: [sceneId], references: [id])
+  scene     Scene   @relation(fields: [sceneId], references: [id], onDelete: Cascade)
   sceneId   Int
-  culture   Culture @relation(fields: [cultureId], references: [id])
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
   cultureId Int
 
   @@id([sceneId, cultureId])
