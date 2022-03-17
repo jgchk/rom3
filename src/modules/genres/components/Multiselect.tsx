@@ -157,6 +157,7 @@ const Input = styled.input`
 
 const Menu = styled.ul`
   position: absolute;
+  z-index: 100;
   width: 100%;
   background: white;
   border: 1px solid black;
