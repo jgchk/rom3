@@ -1,4 +1,3 @@
-- fix multiselect dropdown z-index bug
 - add toggle to Style influences field to switch between Historical Influence and Sonic Influence
 - add controls for splitting long description into multiple sections
 - add initial styling
