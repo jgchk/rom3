@@ -9,10 +9,16 @@ import {
   getInfluencedBy,
   getLocations,
   getParents,
-  SimpleGenreOutput,
 } from '.'
-import { isSimpleMetaOutput, SimpleMetaOutput } from './metas'
-import { isSimpleStyleOutput, SimpleStyleOutput } from './styles'
+import { InfluenceUiState } from './influence'
+import { isMetaParent, SimpleMetaOutput } from './metas'
+import { ParentUiState } from './parents'
+import {
+  isStyleInfluence,
+  isStyleParent,
+  SimpleStyleOutput,
+  StyleInfluenceUiState,
+} from './styles'
 
 export type TrendInput = InferMutationInput<'trends.add'>
 export type TrendOutput = InferQueryOutput<'trends.byId'>
@@ -22,9 +28,10 @@ export type SimpleTrendOutput = TrendOutput['parentTrends'][number] & {
 
 export const isTrendOutput = (o: GenreOutput): o is TrendOutput =>
   o.type === 'trend'
-export const isSimpleTrendOutput = (
-  o: SimpleGenreOutput
-): o is SimpleTrendOutput => o.type === 'trend'
+export const isTrendParent = (o: ParentUiState): o is SimpleTrendOutput =>
+  o.type === 'trend'
+export const isTrendInfluence = (o: InfluenceUiState): o is SimpleTrendOutput =>
+  'type' in o && o.type === 'trend'
 
 export type TrendUiState = Omit<
   InferMutationInput<'trends.add'>,
@@ -42,7 +49,7 @@ export type TrendUiState = Omit<
   parentStyles: SimpleStyleOutput[]
   parentMetas: SimpleMetaOutput[]
   influencedByTrends: SimpleTrendOutput[]
-  influencedByStyles: SimpleStyleOutput[]
+  influencedByStyles: StyleInfluenceUiState[]
   cultures: string
 }
 
@@ -52,11 +59,11 @@ export const makeTrendUiState = (
   const oldParents = getParents(oldState)
   const oldInfluencedBy = getInfluencedBy(oldState)
 
-  const parentTrends = oldParents.filter(isSimpleTrendOutput)
-  const parentStyles = oldParents.filter(isSimpleStyleOutput)
-  const parentMetas = oldParents.filter(isSimpleMetaOutput)
-  const influencedByTrends = oldInfluencedBy.filter(isSimpleTrendOutput)
-  const influencedByStyles = oldInfluencedBy.filter(isSimpleStyleOutput)
+  const parentTrends = oldParents.filter(isTrendParent)
+  const parentStyles = oldParents.filter(isStyleParent)
+  const parentMetas = oldParents.filter(isMetaParent)
+  const influencedByTrends = oldInfluencedBy.filter(isTrendInfluence)
+  const influencedByStyles = oldInfluencedBy.filter(isStyleInfluence)
 
   const lostData =
     influencedByTrends.length + influencedByStyles.length !==

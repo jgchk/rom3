@@ -9,8 +9,8 @@ import {
   getInfluencedBy,
   getLocations,
   getParents,
-  SimpleGenreOutput,
 } from '.'
+import { InfluenceUiState } from './influence'
 
 export type SceneInput = InferMutationInput<'scenes.add'>
 export type SceneOutput = InferQueryOutput<'scenes.byId'>
@@ -20,9 +20,8 @@ export type SimpleSceneOutput = SceneOutput['influencedByScenes'][number] & {
 
 export const isSceneOutput = (o: GenreOutput): o is SceneOutput =>
   o.type === 'scene'
-export const isSimpleSceneOutput = (
-  o: SimpleGenreOutput
-): o is SimpleSceneOutput => o.type === 'scene'
+export const isSceneInfluence = (o: InfluenceUiState): o is SimpleSceneOutput =>
+  'type' in o && o.type === 'scene'
 
 export type SceneUiState = Omit<
   InferMutationInput<'scenes.add'>,
@@ -40,7 +39,7 @@ export const makeSceneUiState = (
   const oldParents = getParents(oldState)
   const oldInfluencedBy = getInfluencedBy(oldState)
 
-  const influencedByScenes = oldInfluencedBy.filter(isSimpleSceneOutput)
+  const influencedByScenes = oldInfluencedBy.filter(isSceneInfluence)
 
   const lostData =
     influencedByScenes.length !== oldInfluencedBy.length ||

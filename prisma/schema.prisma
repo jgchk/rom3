@@ -130,10 +130,11 @@ model StyleMetaParent {
 }
 
 model StyleInfluence {
-  influencer   Style @relation("StyleInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
-  influencerId Int
-  influenced   Style @relation("StyleInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
-  influencedId Int
+  influencer    Style         @relation("StyleInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
+  influencerId  Int
+  influenced    Style         @relation("StyleInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
+  influencedId  Int
+  influenceType InfluenceType
 
   @@id([influencerId, influencedId])
 }
@@ -218,10 +219,11 @@ model TrendTrendInfluence {
 }
 
 model TrendStyleInfluence {
-  influencer   Style @relation("TrendStyleInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
-  influencerId Int
-  influenced   Trend @relation("TrendStyleInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
-  influencedId Int
+  influencer    Style         @relation("TrendStyleInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
+  influencerId  Int
+  influenced    Trend         @relation("TrendStyleInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
+  influencedId  Int
+  influenceType InfluenceType
 
   @@id([influencerId, influencedId])
 }
@@ -266,4 +268,9 @@ model Culture {
   trends TrendCulture[]
 
   @@unique([name])
+}
+
+enum InfluenceType {
+  HISTORICAL
+  SONIC
 }

@@ -1,3 +1,4 @@
+import { InfluenceType } from '@prisma/client'
 import { z } from 'zod'
 
 export const BaseGenreInput = z.object({
@@ -20,3 +21,12 @@ export const LocationsInput = z.array(
 )
 
 export const CulturesInput = z.array(z.string().min(1))
+
+export const InfluenceTypeInput = z.union([
+  z.literal(InfluenceType.HISTORICAL),
+  z.literal(InfluenceType.SONIC),
+])
+
+export const StyleInfluencesInput = z.array(
+  z.object({ id: z.number(), type: InfluenceTypeInput })
+)

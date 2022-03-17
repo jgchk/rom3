@@ -1,10 +1,11 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { isSimpleMetaOutput } from '../../utils/types/metas'
-import { isSimpleStyleOutput, StyleUiState } from '../../utils/types/styles'
+import { isMetaParent } from '../../utils/types/metas'
+import { isStyleParent, StyleUiState } from '../../utils/types/styles'
 import FormElement from '../FormElement'
-import GenreMultiselect from '../GenreMultiselect'
+import InfluenceMultiselect from '../InfluenceMultiselect'
 import LocationInput from '../LocationInput'
+import ParentMultiselect from '../ParentMultiselect'
 import SmallLabel from '../SmallLabel'
 
 const StyleForm: FC<{
@@ -32,13 +33,13 @@ const StyleForm: FC<{
     </FormElement>
     <FormElement>
       <label>Parents</label>
-      <GenreMultiselect
+      <ParentMultiselect
         value={data.parentStyles}
         onChange={(parents) =>
           onChange((d) => ({
             ...d,
-            parentStyles: parents.filter(isSimpleStyleOutput),
-            parentMetas: parents.filter(isSimpleMetaOutput),
+            parentStyles: parents.filter(isStyleParent),
+            parentMetas: parents.filter(isMetaParent),
           }))
         }
         types={['style', 'meta']}
@@ -46,7 +47,7 @@ const StyleForm: FC<{
     </FormElement>
     <FormElement>
       <label>Influences</label>
-      <GenreMultiselect
+      <InfluenceMultiselect
         value={data.influencedByStyles}
         onChange={(influencedByStyles) =>
           onChange((d) => ({ ...d, influencedByStyles }))

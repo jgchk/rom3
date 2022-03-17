@@ -1,5 +1,6 @@
 import {
   Culture,
+  InfluenceType,
   Location,
   Meta,
   Style,
@@ -20,12 +21,13 @@ import {
   CulturesInput,
   IdsInput,
   LocationsInput,
+  StyleInfluencesInput,
 } from '../utils/validators'
 
 export const StyleInput = BaseGenreInput.extend({
   parentStyles: IdsInput,
   parentMetas: IdsInput,
-  influencedByStyles: IdsInput,
+  influencedByStyles: StyleInfluencesInput,
   locations: LocationsInput,
   cultures: CulturesInput,
 })
@@ -36,7 +38,7 @@ export type StyleOutput = Style & {
   alternateNames: string[]
   parentStyles: Style[]
   parentMetas: Meta[]
-  influencedByStyles: Style[]
+  influencedByStyles: { style: Style; influenceType: InfluenceType }[]
   locations: Location[]
   cultures: Culture[]
 }
@@ -56,7 +58,10 @@ const toOutput = (
   alternateNames: style.alternateNames.map((an) => an.name),
   parentStyles: style.parentStyles.map((p) => p.parent),
   parentMetas: style.parentMetas.map((p) => p.parent),
-  influencedByStyles: style.influencedByStyles.map((inf) => inf.influencer),
+  influencedByStyles: style.influencedByStyles.map((inf) => ({
+    style: inf.influencer,
+    influenceType: inf.influenceType,
+  })),
   locations: style.locations.map((loc) => loc.location),
   cultures: style.cultures.map((c) => c.culture),
 })
@@ -75,7 +80,10 @@ export const addStyle = async (input: StyleInput): Promise<StyleOutput> => {
         create: input.parentMetas.map((id) => ({ parentId: id })),
       },
       influencedByStyles: {
-        create: input.influencedByStyles.map((id) => ({ influencerId: id })),
+        create: input.influencedByStyles.map((inf) => ({
+          influencerId: inf.id,
+          influenceType: inf.type,
+        })),
       },
       locations: {
         create: input.locations.map((loc) => ({
@@ -174,7 +182,10 @@ export const editStyle = async (
       },
       influencedByStyles: {
         deleteMany: { influencedId: id },
-        create: data.influencedByStyles.map((id) => ({ influencerId: id })),
+        create: data.influencedByStyles.map((inf) => ({
+          influencerId: inf.id,
+          influenceType: inf.type,
+        })),
       },
       locations: {
         deleteMany: { styleId: id },

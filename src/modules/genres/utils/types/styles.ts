@@ -9,9 +9,10 @@ import {
   getInfluencedBy,
   getLocations,
   getParents,
-  SimpleGenreOutput,
 } from '.'
-import { isSimpleMetaOutput, SimpleMetaOutput } from './metas'
+import { InfluenceUiState } from './influence'
+import { isMetaParent, SimpleMetaOutput } from './metas'
+import { ParentUiState } from './parents'
 
 export type StyleInput = InferMutationInput<'styles.add'>
 export type StyleOutput = InferQueryOutput<'styles.byId'>
@@ -21,9 +22,18 @@ export type SimpleStyleOutput = StyleOutput['parentStyles'][number] & {
 
 export const isStyleOutput = (o: GenreOutput): o is StyleOutput =>
   o.type === 'style'
-export const isSimpleStyleOutput = (
-  o: SimpleGenreOutput
-): o is SimpleStyleOutput => o.type === 'style'
+export const isStyleParent = (o: ParentUiState): o is SimpleStyleOutput =>
+  o.type === 'style'
+export const isStyleInfluence = (
+  o: InfluenceUiState
+): o is StyleInfluenceUiState => 'style' in o
+
+export type InfluenceTypeOutput =
+  StyleOutput['influencedByStyles'][number]['influenceType']
+export type StyleInfluenceUiState = {
+  style: SimpleStyleOutput
+  influenceType: InfluenceTypeOutput
+}
 
 export type StyleUiState = Omit<
   InferMutationInput<'styles.add'>,
@@ -37,7 +47,7 @@ export type StyleUiState = Omit<
   alternateNames: string
   parentStyles: SimpleStyleOutput[]
   parentMetas: SimpleMetaOutput[]
-  influencedByStyles: SimpleStyleOutput[]
+  influencedByStyles: StyleInfluenceUiState[]
   cultures: string
 }
 
@@ -47,9 +57,9 @@ export const makeStyleUiState = (
   const oldParents = getParents(oldState)
   const oldInfluencedBy = getInfluencedBy(oldState)
 
-  const parentStyles = oldParents.filter(isSimpleStyleOutput)
-  const parentMetas = oldParents.filter(isSimpleMetaOutput)
-  const influencedByStyles = oldInfluencedBy.filter(isSimpleStyleOutput)
+  const parentStyles = oldParents.filter(isStyleParent)
+  const parentMetas = oldParents.filter(isMetaParent)
+  const influencedByStyles = oldInfluencedBy.filter(isStyleInfluence)
 
   const lostData =
     influencedByStyles.length !== oldInfluencedBy.length ||

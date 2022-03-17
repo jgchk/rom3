@@ -2,26 +2,23 @@ import { useMemo } from 'react'
 
 import { useEditContext } from '../contexts/EditContext'
 import { useGenresQuery } from '../services'
-import {
-  getGenreKey,
-  SimpleGenreOutput,
-  SimpleGenreOutputMap,
-} from '../utils/types'
+import { getGenreKey } from '../utils/types'
+import { ParentUiState, ParentUiStateMap } from '../utils/types/parents'
 import Multiselect from './Multiselect'
 
-export type GenreMultiselectProps<
-  K extends keyof SimpleGenreOutputMap = keyof SimpleGenreOutputMap
+export type ParentMultiselectProps<
+  K extends keyof ParentUiStateMap = keyof ParentUiStateMap
 > = {
-  value: SimpleGenreOutputMap[K][]
-  onChange: (value: SimpleGenreOutputMap[K][]) => void
+  value: ParentUiStateMap[K][]
+  onChange: (value: ParentUiStateMap[K][]) => void
   types: K[]
 }
 
-const GenreMultiselect = <K extends keyof SimpleGenreOutputMap>({
+const ParentMultiselect = <K extends keyof ParentUiStateMap>({
   value,
   onChange,
   types,
-}: GenreMultiselectProps<K>) => {
+}: ParentMultiselectProps<K>) => {
   const { data, error, isLoading } = useGenresQuery({ type: types })
 
   const self = useEditContext()
@@ -34,7 +31,7 @@ const GenreMultiselect = <K extends keyof SimpleGenreOutputMap>({
 
   return (
     <Multiselect
-      data={dataWithoutSelf as SimpleGenreOutput[]}
+      data={dataWithoutSelf as ParentUiState[]}
       error={error}
       isLoading={isLoading}
       filter={(item, query) =>
@@ -48,4 +45,4 @@ const GenreMultiselect = <K extends keyof SimpleGenreOutputMap>({
   )
 }
 
-export default GenreMultiselect
+export default ParentMultiselect

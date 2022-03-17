@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import { TRPCClientErrorLike } from '@trpc/client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
 import type { AppRouter } from '../../server/routers/_app'
 
@@ -9,7 +9,7 @@ type MultiselectProps<T> = {
   error: TRPCClientErrorLike<AppRouter> | null
   isLoading: boolean
   filter: (item: T, query: string) => boolean
-  itemDisplay: (item: T) => string
+  itemDisplay: (item: T) => ReactNode
   itemKey: (item: T) => string | number
   selected: T[]
   onChange: (selected: T[]) => void

@@ -9,8 +9,8 @@ import {
   getInfluencedBy,
   getLocations,
   getParents,
-  SimpleGenreOutput,
 } from '.'
+import { ParentUiState } from './parents'
 
 export type MetaInput = InferMutationInput<'metas.add'>
 export type MetaOutput = InferQueryOutput<'metas.byId'>
@@ -20,9 +20,8 @@ export type SimpleMetaOutput = MetaOutput['parentMetas'][number] & {
 
 export const isMetaOutput = (o: GenreOutput): o is MetaOutput =>
   o.type === 'meta'
-export const isSimpleMetaOutput = (
-  o: SimpleGenreOutput
-): o is SimpleMetaOutput => o.type === 'meta'
+export const isMetaParent = (o: ParentUiState): o is SimpleMetaOutput =>
+  o.type === 'meta'
 
 export type MetaUiState = Omit<
   InferMutationInput<'metas.add'>,
@@ -37,7 +36,7 @@ export const makeMetaUiState = (
   const oldLocations = getLocations(oldState)
   const oldCultures = getCultures(oldState)
 
-  const parentMetas = oldParents.filter(isSimpleMetaOutput)
+  const parentMetas = oldParents.filter(isMetaParent)
 
   const lostData =
     parentMetas.length !== oldParents.length ||

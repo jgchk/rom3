@@ -1,11 +1,16 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { isSimpleMetaOutput } from '../../utils/types/metas'
-import { isSimpleStyleOutput } from '../../utils/types/styles'
-import { isSimpleTrendOutput, TrendUiState } from '../../utils/types/trends'
+import { isMetaParent } from '../../utils/types/metas'
+import { isStyleInfluence, isStyleParent } from '../../utils/types/styles'
+import {
+  isTrendInfluence,
+  isTrendParent,
+  TrendUiState,
+} from '../../utils/types/trends'
 import FormElement from '../FormElement'
-import GenreMultiselect from '../GenreMultiselect'
+import InfluenceMultiselect from '../InfluenceMultiselect'
 import LocationInput from '../LocationInput'
+import ParentMultiselect from '../ParentMultiselect'
 import SmallLabel from '../SmallLabel'
 
 const TrendForm: FC<{
@@ -33,7 +38,7 @@ const TrendForm: FC<{
     </FormElement>
     <FormElement>
       <label>Parents</label>
-      <GenreMultiselect
+      <ParentMultiselect
         value={[
           ...data.parentTrends,
           ...data.parentStyles,
@@ -42,9 +47,9 @@ const TrendForm: FC<{
         onChange={(parents) =>
           onChange((d) => ({
             ...d,
-            parentTrends: parents.filter(isSimpleTrendOutput),
-            parentStyles: parents.filter(isSimpleStyleOutput),
-            parentMetas: parents.filter(isSimpleMetaOutput),
+            parentTrends: parents.filter(isTrendParent),
+            parentStyles: parents.filter(isStyleParent),
+            parentMetas: parents.filter(isMetaParent),
           }))
         }
         types={['trend', 'style', 'meta']}
@@ -52,13 +57,13 @@ const TrendForm: FC<{
     </FormElement>
     <FormElement>
       <label>Influences</label>
-      <GenreMultiselect
+      <InfluenceMultiselect
         value={[...data.influencedByTrends, ...data.influencedByStyles]}
         onChange={(influencedBy) =>
           onChange((d) => ({
             ...d,
-            influencedByTrends: influencedBy.filter(isSimpleTrendOutput),
-            influencedByStyles: influencedBy.filter(isSimpleStyleOutput),
+            influencedByTrends: influencedBy.filter(isTrendInfluence),
+            influencedByStyles: influencedBy.filter(isStyleInfluence),
           }))
         }
         types={['trend', 'style']}

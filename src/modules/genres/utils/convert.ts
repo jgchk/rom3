@@ -7,6 +7,7 @@ import {
   locationNotEmpty,
   LocationUiState,
 } from './types/location'
+import { StyleInfluenceUiState } from './types/styles'
 
 const fromAlternateNames = (an: string[]) => an.join(', ')
 const toAlternateNames = (an: string) =>
@@ -30,6 +31,12 @@ const toCultures = (cs: string) =>
   )
 
 const toIds = <T>(os: { id: T }[]) => os.map((o) => o.id)
+
+const toStyleInfluences = (os: StyleInfluenceUiState[]) =>
+  os.map((o) => ({
+    id: o.style.id,
+    type: o.influenceType,
+  }))
 
 export const fromApi = (data: GenreOutput): GenreUiState => {
   switch (data.type) {
@@ -58,8 +65,11 @@ export const fromApi = (data: GenreOutput): GenreUiState => {
         parentStyles: data.parentStyles.map((p) => ({ ...p, type: 'style' })),
         parentMetas: data.parentMetas.map((p) => ({ ...p, type: 'meta' })),
         influencedByStyles: data.influencedByStyles.map((inf) => ({
-          ...inf,
-          type: 'style',
+          style: {
+            ...inf.style,
+            type: 'style',
+          },
+          influenceType: inf.influenceType,
         })),
         cultures: fromCultures(data.cultures),
       }
@@ -76,8 +86,11 @@ export const fromApi = (data: GenreOutput): GenreUiState => {
           type: 'trend',
         })),
         influencedByStyles: data.influencedByStyles.map((inf) => ({
-          ...inf,
-          type: 'style',
+          style: {
+            ...inf.style,
+            type: 'style',
+          },
+          influenceType: inf.influenceType,
         })),
         cultures: fromCultures(data.cultures),
       }
@@ -117,7 +130,7 @@ export const toAddApi = (data: GenreUiState): InferMutationInput<'add'> => {
           alternateNames: toAlternateNames(data.alternateNames),
           parentStyles: toIds(data.parentStyles),
           parentMetas: toIds(data.parentMetas),
-          influencedByStyles: toIds(data.influencedByStyles),
+          influencedByStyles: toStyleInfluences(data.influencedByStyles),
           locations: toLocations(data.locations),
           cultures: toCultures(data.cultures),
         },
@@ -133,7 +146,7 @@ export const toAddApi = (data: GenreUiState): InferMutationInput<'add'> => {
           parentStyles: toIds(data.parentStyles),
           parentMetas: toIds(data.parentMetas),
           influencedByTrends: toIds(data.influencedByTrends),
-          influencedByStyles: toIds(data.influencedByStyles),
+          influencedByStyles: toStyleInfluences(data.influencedByStyles),
           locations: toLocations(data.locations),
           cultures: toCultures(data.cultures),
         },
@@ -189,7 +202,7 @@ export const toEditApi = (
             alternateNames: toAlternateNames(data.alternateNames),
             parentStyles: toIds(data.parentStyles),
             parentMetas: toIds(data.parentMetas),
-            influencedByStyles: toIds(data.influencedByStyles),
+            influencedByStyles: toStyleInfluences(data.influencedByStyles),
             locations: toLocations(data.locations),
             cultures: toCultures(data.cultures),
           },
@@ -209,7 +222,7 @@ export const toEditApi = (
             parentStyles: toIds(data.parentStyles),
             parentMetas: toIds(data.parentMetas),
             influencedByTrends: toIds(data.influencedByTrends),
-            influencedByStyles: toIds(data.influencedByStyles),
+            influencedByStyles: toStyleInfluences(data.influencedByStyles),
             locations: toLocations(data.locations),
             cultures: toCultures(data.cultures),
           },

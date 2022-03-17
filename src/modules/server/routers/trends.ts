@@ -1,5 +1,6 @@
 import {
   Culture,
+  InfluenceType,
   Location,
   Meta,
   Style,
@@ -23,6 +24,7 @@ import {
   CulturesInput,
   IdsInput,
   LocationsInput,
+  StyleInfluencesInput,
 } from '../utils/validators'
 
 export const TrendInput = BaseGenreInput.extend({
@@ -30,7 +32,7 @@ export const TrendInput = BaseGenreInput.extend({
   parentStyles: IdsInput,
   parentMetas: IdsInput,
   influencedByTrends: IdsInput,
-  influencedByStyles: IdsInput,
+  influencedByStyles: StyleInfluencesInput,
   locations: LocationsInput,
   cultures: CulturesInput,
 })
@@ -43,7 +45,7 @@ export type TrendOutput = Trend & {
   parentStyles: Style[]
   parentMetas: Meta[]
   influencedByTrends: Trend[]
-  influencedByStyles: Style[]
+  influencedByStyles: { style: Style; influenceType: InfluenceType }[]
   locations: Location[]
   cultures: Culture[]
 }
@@ -67,7 +69,10 @@ const toOutput = (
   parentStyles: trend.parentStyles.map((p) => p.parent),
   parentMetas: trend.parentMetas.map((p) => p.parent),
   influencedByTrends: trend.influencedByTrends.map((inf) => inf.influencer),
-  influencedByStyles: trend.influencedByStyles.map((inf) => inf.influencer),
+  influencedByStyles: trend.influencedByStyles.map((inf) => ({
+    style: inf.influencer,
+    influenceType: inf.influenceType,
+  })),
   locations: trend.locations.map((loc) => loc.location),
   cultures: trend.cultures.map((c) => c.culture),
 })
@@ -92,7 +97,10 @@ export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
         create: input.influencedByTrends.map((id) => ({ influencerId: id })),
       },
       influencedByStyles: {
-        create: input.influencedByStyles.map((id) => ({ influencerId: id })),
+        create: input.influencedByStyles.map((inf) => ({
+          influencerId: inf.id,
+          influenceType: inf.type,
+        })),
       },
       locations: {
         create: input.locations.map((loc) => ({
@@ -205,7 +213,10 @@ export const editTrend = async (
       },
       influencedByStyles: {
         deleteMany: { influencedId: id },
-        create: data.influencedByStyles.map((id) => ({ influencerId: id })),
+        create: data.influencedByStyles.map((inf) => ({
+          influencerId: inf.id,
+          influenceType: inf.type,
+        })),
       },
       locations: {
         deleteMany: { trendId: id },
