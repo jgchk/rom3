@@ -43,9 +43,8 @@ const InfluenceMultiselect = <K extends keyof InfluenceUiStateMap>({
             return
           case 'scene':
             return item
-          case 'style': {
+          case 'style':
             return makeStyleInfluenceUiState(item)
-          }
           case 'trend':
             return item
         }

@@ -1,6 +1,13 @@
 import styled from '@emotion/styled'
 import { TRPCClientErrorLike } from '@trpc/client'
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 import type { AppRouter } from '../../server/routers/_app'
 
@@ -32,12 +39,18 @@ const Multiselect = <T,>({
   const [inputValue, setInputValue] = useState('')
   const [open, setOpen] = useState(false)
 
+  const selectedKeys = useMemo(
+    () => selected.map((item) => itemKey(item)),
+    [itemKey, selected]
+  )
+
   const getFilteredItems = useCallback(
     (items: T[]) =>
       items.filter(
-        (item) => !selected.includes(item) && filter(item, inputValue)
+        (item) =>
+          !selectedKeys.includes(itemKey(item)) && filter(item, inputValue)
       ),
-    [filter, inputValue, selected]
+    [filter, inputValue, itemKey, selectedKeys]
   )
 
   const removeSelectedItem = useCallback(
