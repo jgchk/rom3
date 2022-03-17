@@ -33,6 +33,7 @@ export type InfluenceTypeOutput =
 export type StyleInfluenceUiState = SimpleStyleOutput & {
   influenceType: InfluenceTypeOutput
 }
+export const influenceTypes: InfluenceTypeOutput[] = ['HISTORICAL', 'SONIC']
 
 export const makeStyleInfluenceUiState = (
   style: SimpleStyleOutput

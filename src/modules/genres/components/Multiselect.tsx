@@ -9,20 +9,25 @@ type MultiselectProps<T> = {
   error: TRPCClientErrorLike<AppRouter> | null
   isLoading: boolean
   filter: (item: T, query: string) => boolean
-  itemDisplay: (item: T) => ReactNode
   itemKey: (item: T) => string | number
   selected: T[]
   onChange: (selected: T[]) => void
-}
+} & ItemDisplay<T>
+type ItemDisplay<T> =
+  | { itemDisplay: (item: T) => ReactNode }
+  | {
+      selectedItemDisplay: (item: T) => ReactNode
+      menuItemDisplay: (item: T) => ReactNode
+    }
 
 const Multiselect = <T,>({
   data,
   isLoading,
   filter,
-  itemDisplay,
   itemKey,
   selected,
   onChange,
+  ...props
 }: MultiselectProps<T>) => {
   const [inputValue, setInputValue] = useState('')
   const [open, setOpen] = useState(false)
@@ -46,6 +51,22 @@ const Multiselect = <T,>({
   const addSelectedItem = useCallback(
     (addItem: T) => onChange([...selected, addItem]),
     [onChange, selected]
+  )
+
+  const renderMenuItem = useCallback(
+    (item: T) =>
+      'itemDisplay' in props
+        ? props.itemDisplay(item)
+        : props.menuItemDisplay(item),
+    [props]
+  )
+
+  const renderSelectedItem = useCallback(
+    (item: T) =>
+      'itemDisplay' in props
+        ? props.itemDisplay(item)
+        : props.selectedItemDisplay(item),
+    [props]
   )
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -75,7 +96,7 @@ const Multiselect = <T,>({
           type='button'
           onClick={() => addSelectedItem(item)}
         >
-          {itemDisplay(item)}
+          {renderMenuItem(item)}
         </MenuItem>
       ))
     }
@@ -87,7 +108,7 @@ const Multiselect = <T,>({
             <SelectedItems>
               {selected.map((selectedItem) => (
                 <SelectedItem key={itemKey(selectedItem)}>
-                  {itemDisplay(selectedItem)}
+                  {renderSelectedItem(selectedItem)}
                   <RemoveButton
                     type='button'
                     onClick={() => removeSelectedItem(selectedItem)}

@@ -1,11 +1,15 @@
+import styled from '@emotion/styled'
 import { useCallback, useMemo } from 'react'
 
+import Select from '../../../common/components/Select'
+import { capitalize } from '../../../common/utils/string'
 import { isDefined } from '../../../common/utils/types'
 import { useEditContext } from '../contexts/EditContext'
 import { useGenresQuery } from '../services'
 import { getGenreKey } from '../utils/types'
 import { InfluenceUiState, InfluenceUiStateMap } from '../utils/types/influence'
 import {
+  influenceTypes,
   isStyleInfluence,
   makeStyleInfluenceUiState,
 } from '../utils/types/styles'
@@ -48,21 +52,13 @@ const InfluenceMultiselect = <K extends keyof InfluenceUiStateMap>({
       .filter(isDefined)
   }, [originalData])
 
-  const getItemKey = useCallback(
-    (item: InfluenceUiState) =>
-      isStyleInfluence(item)
-        ? `${getGenreKey(item)}_${item.influenceType}`
-        : getGenreKey(item),
-    []
-  )
-
   const self = useEditContext()
 
   const dataWithoutSelf = useMemo(() => {
     if (self === undefined) return data
     const selfKey = getGenreKey(self)
-    return data?.filter((item) => getItemKey(item) !== selfKey)
-  }, [data, getItemKey, self])
+    return data?.filter((item) => getGenreKey(item) !== selfKey)
+  }, [data, self])
 
   const filter = useCallback(
     (item: InfluenceUiState, query: string) =>
@@ -70,20 +66,39 @@ const InfluenceMultiselect = <K extends keyof InfluenceUiStateMap>({
     []
   )
 
+  const influenceTypeOptions = useMemo(
+    () =>
+      influenceTypes.map((it) => ({
+        key: it,
+        value: it,
+        label: capitalize(it.toLowerCase()),
+      })),
+    []
+  )
+
   const renderItem = useCallback(
     (item: InfluenceUiState) =>
       isStyleInfluence(item) ? (
-        <div>
-          <div>{item.name}</div>
-          <label>
-            <input type='checkbox' />
-            Historical
-          </label>
-        </div>
+        <StyleInfluenceContainer>
+          {item.name}
+          <Select
+            options={influenceTypeOptions}
+            value={item.influenceType}
+            onChange={(val) =>
+              onChange(
+                value.map((v) =>
+                  getGenreKey(v) === getGenreKey(item)
+                    ? { ...v, influenceType: val }
+                    : v
+                )
+              )
+            }
+          />
+        </StyleInfluenceContainer>
       ) : (
         item.name
       ),
-    []
+    [influenceTypeOptions, onChange, value]
   )
 
   return (
@@ -92,8 +107,9 @@ const InfluenceMultiselect = <K extends keyof InfluenceUiStateMap>({
       error={error}
       isLoading={isLoading}
       filter={(item, query) => filter(item, query)}
-      itemDisplay={(item) => renderItem(item)}
-      itemKey={(item) => getItemKey(item)}
+      menuItemDisplay={(item) => item.name}
+      selectedItemDisplay={(item) => renderItem(item)}
+      itemKey={(item) => getGenreKey(item)}
       selected={value}
       onChange={(selected) => onChange(selected as never)}
     />
@@ -101,3 +117,8 @@ const InfluenceMultiselect = <K extends keyof InfluenceUiStateMap>({
 }
 
 export default InfluenceMultiselect
+
+const StyleInfluenceContainer = styled.div`
+  display: flex;
+  gap: 6px;
+`
