@@ -104,7 +104,7 @@ model Style {
 }
 
 model StyleName {
-  style   Style  @relation(fields: [styleId], references: [id])
+  style   Style  @relation(fields: [styleId], references: [id], onDelete: Cascade)
   styleId Int
   name    String
 
@@ -112,9 +112,9 @@ model StyleName {
 }
 
 model StyleStyleParent {
-  parent   Style @relation("StyleStyleParent", fields: [parentId], references: [id])
+  parent   Style @relation("StyleStyleParent", fields: [parentId], references: [id], onDelete: Cascade)
   parentId Int
-  child    Style @relation("StyleStyleChild", fields: [childId], references: [id])
+  child    Style @relation("StyleStyleChild", fields: [childId], references: [id], onDelete: Cascade)
   childId  Int
 
   @@id([parentId, childId])
@@ -123,34 +123,34 @@ model StyleStyleParent {
 model StyleMetaParent {
   parent   Meta  @relation("StyleMetaParent", fields: [parentId], references: [id], onDelete: Cascade)
   parentId Int
-  child    Style @relation("StyleMetaChild", fields: [childId], references: [id])
+  child    Style @relation("StyleMetaChild", fields: [childId], references: [id], onDelete: Cascade)
   childId  Int
 
   @@id([parentId, childId])
 }
 
 model StyleInfluence {
-  influencer   Style @relation("StyleInfluencer", fields: [influencerId], references: [id])
+  influencer   Style @relation("StyleInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
   influencerId Int
-  influenced   Style @relation("StyleInfluenced", fields: [influencedId], references: [id])
+  influenced   Style @relation("StyleInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
   influencedId Int
 
   @@id([influencerId, influencedId])
 }
 
 model StyleLocation {
-  style      Style    @relation(fields: [styleId], references: [id])
+  style      Style    @relation(fields: [styleId], references: [id], onDelete: Cascade)
   styleId    Int
-  location   Location @relation(fields: [locationId], references: [id])
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
   locationId Int
 
   @@id([styleId, locationId])
 }
 
 model StyleCulture {
-  style     Style   @relation(fields: [styleId], references: [id])
+  style     Style   @relation(fields: [styleId], references: [id], onDelete: Cascade)
   styleId   Int
-  culture   Culture @relation(fields: [cultureId], references: [id])
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
   cultureId Int
 
   @@id([styleId, cultureId])
@@ -174,7 +174,7 @@ model Trend {
 }
 
 model TrendName {
-  trend   Trend  @relation(fields: [trendId], references: [id])
+  trend   Trend  @relation(fields: [trendId], references: [id], onDelete: Cascade)
   trendId Int
   name    String
 
@@ -182,18 +182,18 @@ model TrendName {
 }
 
 model TrendTrendParent {
-  parent   Trend @relation("TrendTrendParent", fields: [parentId], references: [id])
+  parent   Trend @relation("TrendTrendParent", fields: [parentId], references: [id], onDelete: Cascade)
   parentId Int
-  child    Trend @relation("TrendTrendChild", fields: [childId], references: [id])
+  child    Trend @relation("TrendTrendChild", fields: [childId], references: [id], onDelete: Cascade)
   childId  Int
 
   @@id([parentId, childId])
 }
 
 model TrendStyleParent {
-  parent   Style @relation("TrendStyleParent", fields: [parentId], references: [id])
+  parent   Style @relation("TrendStyleParent", fields: [parentId], references: [id], onDelete: Cascade)
   parentId Int
-  child    Trend @relation("TrendStyleChild", fields: [childId], references: [id])
+  child    Trend @relation("TrendStyleChild", fields: [childId], references: [id], onDelete: Cascade)
   childId  Int
 
   @@id([parentId, childId])
@@ -202,43 +202,43 @@ model TrendStyleParent {
 model TrendMetaParent {
   parent   Meta  @relation("TrendMetaParent", fields: [parentId], references: [id], onDelete: Cascade)
   parentId Int
-  child    Trend @relation("TrendMetaChild", fields: [childId], references: [id])
+  child    Trend @relation("TrendMetaChild", fields: [childId], references: [id], onDelete: Cascade)
   childId  Int
 
   @@id([parentId, childId])
 }
 
 model TrendTrendInfluence {
-  influencer   Trend @relation("TrendTrendInfluencer", fields: [influencerId], references: [id])
+  influencer   Trend @relation("TrendTrendInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
   influencerId Int
-  influenced   Trend @relation("TrendTrendInfluenced", fields: [influencedId], references: [id])
+  influenced   Trend @relation("TrendTrendInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
   influencedId Int
 
   @@id([influencerId, influencedId])
 }
 
 model TrendStyleInfluence {
-  influencer   Style @relation("TrendStyleInfluencer", fields: [influencerId], references: [id])
+  influencer   Style @relation("TrendStyleInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
   influencerId Int
-  influenced   Trend @relation("TrendStyleInfluenced", fields: [influencedId], references: [id])
+  influenced   Trend @relation("TrendStyleInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
   influencedId Int
 
   @@id([influencerId, influencedId])
 }
 
 model TrendLocation {
-  trend      Trend    @relation(fields: [trendId], references: [id])
+  trend      Trend    @relation(fields: [trendId], references: [id], onDelete: Cascade)
   trendId    Int
-  location   Location @relation(fields: [locationId], references: [id])
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
   locationId Int
 
   @@id([trendId, locationId])
 }
 
 model TrendCulture {
-  trend     Trend   @relation(fields: [trendId], references: [id])
+  trend     Trend   @relation(fields: [trendId], references: [id], onDelete: Cascade)
   trendId   Int
-  culture   Culture @relation(fields: [cultureId], references: [id])
+  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
   cultureId Int
 
   @@id([trendId, cultureId])

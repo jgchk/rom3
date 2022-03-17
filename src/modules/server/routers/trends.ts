@@ -179,36 +179,36 @@ export const editTrend = async (
   id: number,
   data: TrendInput
 ): Promise<TrendOutput> => {
-  await prisma.trendName.deleteMany({ where: { trendId: id } })
-  await prisma.trendTrendParent.deleteMany({ where: { childId: id } })
-  await prisma.trendStyleParent.deleteMany({ where: { childId: id } })
-  await prisma.trendMetaParent.deleteMany({ where: { childId: id } })
-  await prisma.trendTrendInfluence.deleteMany({ where: { influencedId: id } })
-  await prisma.trendStyleInfluence.deleteMany({ where: { influencedId: id } })
-  await prisma.trendLocation.deleteMany({ where: { trendId: id } })
   const trend = await prisma.trend.update({
     where: { id: id },
     data: {
       ...data,
       alternateNames: {
+        deleteMany: { trendId: id },
         create: data.alternateNames.map((name) => ({ name })),
       },
       parentTrends: {
+        deleteMany: { childId: id },
         create: data.parentTrends.map((id) => ({ parentId: id })),
       },
       parentStyles: {
+        deleteMany: { childId: id },
         create: data.parentStyles.map((id) => ({ parentId: id })),
       },
       parentMetas: {
+        deleteMany: { childId: id },
         create: data.parentMetas.map((id) => ({ parentId: id })),
       },
       influencedByTrends: {
+        deleteMany: { influencedId: id },
         create: data.influencedByTrends.map((id) => ({ influencerId: id })),
       },
       influencedByStyles: {
+        deleteMany: { influencedId: id },
         create: data.influencedByStyles.map((id) => ({ influencerId: id })),
       },
       locations: {
+        deleteMany: { trendId: id },
         create: data.locations.map((loc) => ({
           location: {
             connectOrCreate: {
@@ -229,6 +229,7 @@ export const editTrend = async (
         })),
       },
       cultures: {
+        deleteMany: { trendId: id },
         create: data.cultures.map((c) => ({
           culture: {
             connectOrCreate: { where: { name: c }, create: { name: c } },
@@ -251,44 +252,7 @@ export const editTrend = async (
 }
 
 export const deleteTrend = async (id: number): Promise<number> => {
-  const deleteNames = prisma.trendName.deleteMany({ where: { trendId: id } })
-  const deleteTrendParents = prisma.trendTrendParent.deleteMany({
-    where: { childId: id },
-  })
-  const deleteStyleParents = prisma.trendStyleParent.deleteMany({
-    where: { childId: id },
-  })
-  const deleteMetaParents = prisma.trendMetaParent.deleteMany({
-    where: { childId: id },
-  })
-  const deleteTrendChildren = prisma.trendTrendParent.deleteMany({
-    where: { parentId: id },
-  })
-  const deleteInfluencesTrends = prisma.trendTrendInfluence.deleteMany({
-    where: { influencerId: id },
-  })
-  const deleteInfluencedByTrends = prisma.trendTrendInfluence.deleteMany({
-    where: { influencedId: id },
-  })
-  const deleteInfluencedByStyles = prisma.trendStyleInfluence.deleteMany({
-    where: { influencedId: id },
-  })
-  const deleteLocations = prisma.trendLocation.deleteMany({
-    where: { trendId: id },
-  })
-  const deleteTrend = prisma.trend.delete({ where: { id } })
-  await prisma.$transaction([
-    deleteNames,
-    deleteTrendParents,
-    deleteStyleParents,
-    deleteMetaParents,
-    deleteTrendChildren,
-    deleteInfluencesTrends,
-    deleteInfluencedByTrends,
-    deleteInfluencedByStyles,
-    deleteLocations,
-    deleteTrend,
-  ])
+  await prisma.trend.delete({ where: { id } })
   return id
 }
 

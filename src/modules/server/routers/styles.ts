@@ -156,28 +156,28 @@ export const editStyle = async (
   id: number,
   data: StyleInput
 ): Promise<StyleOutput> => {
-  await prisma.styleName.deleteMany({ where: { styleId: id } })
-  await prisma.styleStyleParent.deleteMany({ where: { childId: id } })
-  await prisma.styleMetaParent.deleteMany({ where: { childId: id } })
-  await prisma.styleInfluence.deleteMany({ where: { influencedId: id } })
-  await prisma.styleLocation.deleteMany({ where: { styleId: id } })
   const style = await prisma.style.update({
     where: { id: id },
     data: {
       ...data,
       alternateNames: {
+        deleteMany: { styleId: id },
         create: data.alternateNames.map((name) => ({ name })),
       },
       parentStyles: {
+        deleteMany: { childId: id },
         create: data.parentStyles.map((id) => ({ parentId: id })),
       },
       parentMetas: {
+        deleteMany: { childId: id },
         create: data.parentMetas.map((id) => ({ parentId: id })),
       },
       influencedByStyles: {
+        deleteMany: { influencedId: id },
         create: data.influencedByStyles.map((id) => ({ influencerId: id })),
       },
       locations: {
+        deleteMany: { styleId: id },
         create: data.locations.map((loc) => ({
           location: {
             connectOrCreate: {
@@ -198,6 +198,7 @@ export const editStyle = async (
         })),
       },
       cultures: {
+        deleteMany: { styleId: id },
         create: data.cultures.map((c) => ({
           culture: {
             connectOrCreate: { where: { name: c }, create: { name: c } },
@@ -218,44 +219,7 @@ export const editStyle = async (
 }
 
 export const deleteStyle = async (id: number): Promise<number> => {
-  const deleteNames = prisma.styleName.deleteMany({ where: { styleId: id } })
-  const deleteStyleParents = prisma.styleStyleParent.deleteMany({
-    where: { childId: id },
-  })
-  const deleteMetaParents = prisma.styleMetaParent.deleteMany({
-    where: { childId: id },
-  })
-  const deleteStyleChildren = prisma.styleStyleParent.deleteMany({
-    where: { parentId: id },
-  })
-  const deleteTrendChildren = prisma.trendStyleParent.deleteMany({
-    where: { parentId: id },
-  })
-  const deleteInfluencesStyles = prisma.styleInfluence.deleteMany({
-    where: { influencerId: id },
-  })
-  const deleteInfluencesTrends = prisma.trendStyleInfluence.deleteMany({
-    where: { influencerId: id },
-  })
-  const deleteInfluencedByStyles = prisma.styleInfluence.deleteMany({
-    where: { influencedId: id },
-  })
-  const deleteLocations = prisma.styleLocation.deleteMany({
-    where: { styleId: id },
-  })
-  const deleteStyle = prisma.style.delete({ where: { id } })
-  await prisma.$transaction([
-    deleteNames,
-    deleteStyleParents,
-    deleteMetaParents,
-    deleteStyleChildren,
-    deleteTrendChildren,
-    deleteInfluencesStyles,
-    deleteInfluencedByStyles,
-    deleteInfluencesTrends,
-    deleteLocations,
-    deleteStyle,
-  ])
+  await prisma.style.delete({ where: { id } })
   return id
 }
 
