@@ -15,27 +15,19 @@ import { z } from 'zod'
 
 import createRouter from '../createRouter'
 import prisma from '../prisma'
+import {
+  BaseGenreInput,
+  CulturesInput,
+  IdsInput,
+  LocationsInput,
+} from '../utils/validators'
 
-export const StyleInput = z.object({
-  name: z.string().min(1),
-  shortDesc: z.string().min(1),
-  longDesc: z.string().min(1),
-  alternateNames: z.array(z.string().min(1)),
-  parentStyles: z.array(z.number()),
-  parentMetas: z.array(z.number()),
-  influencedByStyles: z.array(z.number()),
-  locations: z.array(
-    z
-      .object({ city: z.string(), region: z.string(), country: z.string() })
-      .refine(
-        (val) =>
-          val.city.length > 0 ||
-          val.region.length > 0 ||
-          val.country.length > 0,
-        { message: "Location can't be empty" }
-      )
-  ),
-  cultures: z.array(z.string().min(1)),
+export const StyleInput = BaseGenreInput.extend({
+  parentStyles: IdsInput,
+  parentMetas: IdsInput,
+  influencedByStyles: IdsInput,
+  locations: LocationsInput,
+  cultures: CulturesInput,
 })
 export type StyleInput = z.infer<typeof StyleInput>
 

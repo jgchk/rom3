@@ -4,13 +4,10 @@ import { z } from 'zod'
 
 import createRouter from '../createRouter'
 import prisma from '../prisma'
+import { BaseGenreInput, IdsInput } from '../utils/validators'
 
-export const MetaInput = z.object({
-  name: z.string().min(1),
-  shortDesc: z.string().min(1),
-  longDesc: z.string().min(1),
-  alternateNames: z.array(z.string().min(1)),
-  parentMetas: z.array(z.number()),
+export const MetaInput = BaseGenreInput.extend({
+  parentMetas: IdsInput,
 })
 export type MetaInput = z.infer<typeof MetaInput>
 
