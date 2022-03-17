@@ -33,6 +33,7 @@ const InfluenceMultiselect = <K extends keyof InfluenceUiStateMap>({
     error,
     isLoading,
   } = useGenresQuery({ type: types })
+
   const data: InfluenceUiState[] | undefined = useMemo(() => {
     if (originalData === undefined) return
     return originalData

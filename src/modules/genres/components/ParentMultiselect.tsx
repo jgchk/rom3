@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
+import { isDefined } from '../../../common/utils/types'
 import { useEditContext } from '../contexts/EditContext'
 import { useGenresQuery } from '../services'
 import { getGenreKey } from '../utils/types'
@@ -19,7 +20,18 @@ const ParentMultiselect = <K extends keyof ParentUiStateMap>({
   onChange,
   types,
 }: ParentMultiselectProps<K>) => {
-  const { data, error, isLoading } = useGenresQuery({ type: types })
+  const {
+    data: originalData,
+    error,
+    isLoading,
+  } = useGenresQuery({ type: types })
+
+  const data: ParentUiState[] | undefined = useMemo(() => {
+    if (originalData === undefined) return
+    return originalData
+      .map((item) => (item.type === 'scene' ? undefined : item))
+      .filter(isDefined)
+  }, [originalData])
 
   const self = useEditContext()
 
@@ -29,16 +41,20 @@ const ParentMultiselect = <K extends keyof ParentUiStateMap>({
     return data?.filter((item) => getGenreKey(item) !== selfKey)
   }, [data, self])
 
+  const filter = useCallback(
+    (item: ParentUiState, query: string) =>
+      item.name.toLowerCase().startsWith(query.toLowerCase()),
+    []
+  )
+
   return (
     <Multiselect
-      data={dataWithoutSelf as ParentUiState[]}
+      data={dataWithoutSelf}
       error={error}
       isLoading={isLoading}
-      filter={(item, query) =>
-        item.name.toLowerCase().startsWith(query.toLowerCase())
-      }
+      filter={(item, query) => filter(item, query)}
       itemDisplay={(item) => item.name}
-      itemKey={(item) => `${item.type}_${item.id}`}
+      itemKey={(item) => getGenreKey(item)}
       selected={value}
       onChange={(selected) => onChange(selected as never)}
     />

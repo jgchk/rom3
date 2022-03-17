@@ -34,7 +34,7 @@ const StyleForm: FC<{
     <FormElement>
       <label>Parents</label>
       <ParentMultiselect
-        value={data.parentStyles}
+        value={[...data.parentStyles, ...data.parentMetas]}
         onChange={(parents) =>
           onChange((d) => ({
             ...d,
