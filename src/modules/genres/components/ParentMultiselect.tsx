@@ -2,9 +2,9 @@ import { useCallback, useMemo } from 'react'
 
 import { isDefined } from '../../../common/utils/types'
 import { useEditContext } from '../contexts/EditContext'
+import { getGenreKey } from '../model'
+import { ParentUiState, ParentUiStateMap } from '../model/parents'
 import { useGenresQuery } from '../services'
-import { getGenreKey } from '../utils/types'
-import { ParentUiState, ParentUiStateMap } from '../utils/types/parents'
 import Multiselect from './Multiselect'
 
 export type ParentMultiselectProps<

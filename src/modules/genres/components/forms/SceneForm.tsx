@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { SceneUiState } from '../../utils/types/scenes'
+import { SceneUiState } from '../../model/scenes'
 import FormElement from '../FormElement'
 import InfluenceMultiselect from '../InfluenceMultiselect'
 import LocationInput from '../LocationInput'

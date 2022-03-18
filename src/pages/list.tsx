@@ -3,11 +3,11 @@ import Link from 'next/link'
 import { useCallback } from 'react'
 import toast from 'react-hot-toast'
 
+import { GenreName, getGenreKey } from '../modules/genres/model'
 import {
   useDeleteGenreMutation,
   useGenresQuery,
 } from '../modules/genres/services'
-import { GenreName, getGenreKey } from '../modules/genres/utils/types'
 
 const List: NextPage = () => {
   const { data, error } = useGenresQuery({

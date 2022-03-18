@@ -5,14 +5,14 @@ import Select from '../../../common/components/Select'
 import { capitalize } from '../../../common/utils/string'
 import { isDefined } from '../../../common/utils/types'
 import { useEditContext } from '../contexts/EditContext'
-import { useGenresQuery } from '../services'
-import { getGenreKey } from '../utils/types'
-import { InfluenceUiState, InfluenceUiStateMap } from '../utils/types/influence'
+import { getGenreKey } from '../model'
+import { InfluenceUiState, InfluenceUiStateMap } from '../model/influence'
 import {
   influenceTypes,
   isStyleInfluence,
   makeStyleInfluenceUiState,
-} from '../utils/types/styles'
+} from '../model/styles'
+import { useGenresQuery } from '../services'
 import Multiselect from './Multiselect'
 
 export type InfluenceMultiselectProps<

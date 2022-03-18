@@ -1,12 +1,12 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { isMetaParent } from '../../utils/types/metas'
-import { isStyleInfluence, isStyleParent } from '../../utils/types/styles'
+import { isMetaParent } from '../../model/metas'
+import { isStyleInfluence, isStyleParent } from '../../model/styles'
 import {
   isTrendInfluence,
   isTrendParent,
   TrendUiState,
-} from '../../utils/types/trends'
+} from '../../model/trends'
 import FormElement from '../FormElement'
 import InfluenceMultiselect from '../InfluenceMultiselect'
 import LocationInput from '../LocationInput'

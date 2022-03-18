@@ -7,10 +7,10 @@ import toast from 'react-hot-toast'
 import FormElement from '../modules/genres/components/FormElement'
 import GenreForm from '../modules/genres/components/forms/GenreForm'
 import GenreNameSelect from '../modules/genres/components/GenreNameSelect'
+import { GenreUiState, makeUiState } from '../modules/genres/model'
+import { makeSceneUiState } from '../modules/genres/model/scenes'
 import { useAddGenreMutation } from '../modules/genres/services'
 import { toAddApi } from '../modules/genres/utils/convert'
-import { GenreUiState, makeUiState } from '../modules/genres/utils/types'
-import { makeSceneUiState } from '../modules/genres/utils/types/scenes'
 
 const Create: NextPage = () => {
   const [data, setData] = useState<GenreUiState>(makeSceneUiState()[0])

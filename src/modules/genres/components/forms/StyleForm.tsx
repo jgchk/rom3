@@ -1,7 +1,7 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { isMetaParent } from '../../utils/types/metas'
-import { isStyleParent, StyleUiState } from '../../utils/types/styles'
+import { isMetaParent } from '../../model/metas'
+import { isStyleParent, StyleUiState } from '../../model/styles'
 import FormElement from '../FormElement'
 import InfluenceMultiselect from '../InfluenceMultiselect'
 import LocationInput from '../LocationInput'

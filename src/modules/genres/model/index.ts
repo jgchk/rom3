@@ -1,4 +1,4 @@
-import { InferQueryOutput } from '../../../../common/utils/trpc'
+import { InferQueryOutput } from '../../../common/utils/trpc'
 import { InfluenceUiState } from './influence'
 import { LocationUiState } from './location'
 import { makeMetaUiState, MetaUiState } from './metas'

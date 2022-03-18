@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { MetaUiState } from '../../utils/types/metas'
+import { MetaUiState } from '../../model/metas'
 import FormElement from '../FormElement'
 import ParentMultiselect from '../ParentMultiselect'
 import SmallLabel from '../SmallLabel'

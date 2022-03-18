@@ -1,13 +1,13 @@
 import { unique, uniqueBy } from '../../../common/utils/array'
 import { InferMutationInput } from '../../../common/utils/trpc'
-import { GenreName, GenreOutput, GenreUiState } from './types'
-import { CultureOutput } from './types/culture'
+import { GenreName, GenreOutput, GenreUiState } from '../model'
+import { CultureOutput } from '../model/culture'
 import {
   hashLocation,
   locationNotEmpty,
   LocationUiState,
-} from './types/location'
-import { StyleInfluenceUiState } from './types/styles'
+} from '../model/location'
+import { StyleInfluenceUiState } from '../model/styles'
 
 const fromAlternateNames = (an: string[]) => an.join(', ')
 const toAlternateNames = (an: string) =>

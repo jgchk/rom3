@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import { FC, useMemo } from 'react'
 
-import { LocationUiState, makeLocation } from '../utils/types/location'
+import { LocationUiState, makeLocation } from '../model/location'
 
 const LocationInput: FC<{
   value: LocationUiState[]

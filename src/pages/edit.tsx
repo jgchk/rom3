@@ -10,15 +10,15 @@ import FormElement from '../modules/genres/components/FormElement'
 import GenreForm from '../modules/genres/components/forms/GenreForm'
 import GenreNameSelect from '../modules/genres/components/GenreNameSelect'
 import { EditContextProvider } from '../modules/genres/contexts/EditContext'
-import { useEditGenreMutation, useGenreQuery } from '../modules/genres/services'
-import { fromApi, toEditApi } from '../modules/genres/utils/convert'
 import {
   GenreName,
   GenreOutput,
   GenreUiState,
   isGenreName,
   makeUiState,
-} from '../modules/genres/utils/types'
+} from '../modules/genres/model'
+import { useEditGenreMutation, useGenreQuery } from '../modules/genres/services'
+import { fromApi, toEditApi } from '../modules/genres/utils/convert'
 
 const Edit: NextPage = () => {
   const router = useRouter()

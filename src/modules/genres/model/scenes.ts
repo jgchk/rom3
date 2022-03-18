@@ -1,7 +1,7 @@
 import {
   InferMutationInput,
   InferQueryOutput,
-} from '../../../../common/utils/trpc'
+} from '../../../common/utils/trpc'
 import {
   GenreOutput,
   GenreUiState,

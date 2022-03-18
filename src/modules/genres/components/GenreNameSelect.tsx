@@ -2,7 +2,7 @@ import { FC, useMemo } from 'react'
 
 import Select from '../../../common/components/Select'
 import { capitalize } from '../../../common/utils/string'
-import { GenreName, genreNames } from '../utils/types'
+import { GenreName, genreNames } from '../model'
 
 const GenreNameSelect: FC<{
   value: GenreName

@@ -1,6 +1,6 @@
 import { Dispatch, ReactElement, SetStateAction } from 'react'
 
-import { GenreUiState } from '../../utils/types'
+import { GenreUiState } from '../../model'
 import MetaForm from './MetaForm'
 import SceneForm from './SceneForm'
 import StyleForm from './StyleForm'
