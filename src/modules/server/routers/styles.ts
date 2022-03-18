@@ -66,55 +66,57 @@ const toApiOutput = (
   cultures: style.cultures.map((c) => c.culture),
 })
 
+export const createStyleDbInput = (input: StyleApiInput) => ({
+  ...input,
+  alternateNames: {
+    create: input.alternateNames.map((name) => ({ name })),
+  },
+  parentStyles: {
+    create: input.parentStyles.map((id) => ({ parentId: id })),
+  },
+  parentMetas: {
+    create: input.parentMetas.map((id) => ({ parentId: id })),
+  },
+  influencedByStyles: {
+    create: input.influencedByStyles.map((inf) => ({
+      influencerId: inf.id,
+      influenceType: inf.type,
+    })),
+  },
+  locations: {
+    create: input.locations.map((loc) => ({
+      location: {
+        connectOrCreate: {
+          where: {
+            city_region_country: {
+              city: loc.city,
+              region: loc.region,
+              country: loc.country,
+            },
+          },
+          create: {
+            city: loc.city,
+            region: loc.region,
+            country: loc.country,
+          },
+        },
+      },
+    })),
+  },
+  cultures: {
+    create: input.cultures.map((c) => ({
+      culture: {
+        connectOrCreate: { where: { name: c }, create: { name: c } },
+      },
+    })),
+  },
+})
+
 export const addStyle = async (
   input: StyleApiInput
 ): Promise<StyleApiOutput> => {
   const style = await prisma.style.create({
-    data: {
-      ...input,
-      alternateNames: {
-        create: input.alternateNames.map((name) => ({ name })),
-      },
-      parentStyles: {
-        create: input.parentStyles.map((id) => ({ parentId: id })),
-      },
-      parentMetas: {
-        create: input.parentMetas.map((id) => ({ parentId: id })),
-      },
-      influencedByStyles: {
-        create: input.influencedByStyles.map((inf) => ({
-          influencerId: inf.id,
-          influenceType: inf.type,
-        })),
-      },
-      locations: {
-        create: input.locations.map((loc) => ({
-          location: {
-            connectOrCreate: {
-              where: {
-                city_region_country: {
-                  city: loc.city,
-                  region: loc.region,
-                  country: loc.country,
-                },
-              },
-              create: {
-                city: loc.city,
-                region: loc.region,
-                country: loc.country,
-              },
-            },
-          },
-        })),
-      },
-      cultures: {
-        create: input.cultures.map((c) => ({
-          culture: {
-            connectOrCreate: { where: { name: c }, create: { name: c } },
-          },
-        })),
-      },
-    },
+    data: createStyleDbInput(input),
     include: {
       alternateNames: true,
       parentStyles: { include: { parent: true } },
@@ -164,34 +166,34 @@ export const getStyles = async (): Promise<StyleApiOutput[]> => {
 
 export const editStyle = async (
   id: number,
-  data: StyleApiInput
+  input: StyleApiInput
 ): Promise<StyleApiOutput> => {
   const style = await prisma.style.update({
     where: { id: id },
     data: {
-      ...data,
+      ...input,
       alternateNames: {
         deleteMany: { styleId: id },
-        create: data.alternateNames.map((name) => ({ name })),
+        create: input.alternateNames.map((name) => ({ name })),
       },
       parentStyles: {
         deleteMany: { childId: id },
-        create: data.parentStyles.map((id) => ({ parentId: id })),
+        create: input.parentStyles.map((id) => ({ parentId: id })),
       },
       parentMetas: {
         deleteMany: { childId: id },
-        create: data.parentMetas.map((id) => ({ parentId: id })),
+        create: input.parentMetas.map((id) => ({ parentId: id })),
       },
       influencedByStyles: {
         deleteMany: { influencedId: id },
-        create: data.influencedByStyles.map((inf) => ({
+        create: input.influencedByStyles.map((inf) => ({
           influencerId: inf.id,
           influenceType: inf.type,
         })),
       },
       locations: {
         deleteMany: { styleId: id },
-        create: data.locations.map((loc) => ({
+        create: input.locations.map((loc) => ({
           location: {
             connectOrCreate: {
               where: {
@@ -212,7 +214,7 @@ export const editStyle = async (
       },
       cultures: {
         deleteMany: { styleId: id },
-        create: data.cultures.map((c) => ({
+        create: input.cultures.map((c) => ({
           culture: {
             connectOrCreate: { where: { name: c }, create: { name: c } },
           },

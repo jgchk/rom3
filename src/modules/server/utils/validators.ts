@@ -1,12 +1,48 @@
 import { InfluenceType } from '@prisma/client'
 import { z } from 'zod'
 
+import { MetaApiInput } from '../routers/metas'
+import { SceneApiInput } from '../routers/scenes'
+import { StyleApiInput } from '../routers/styles'
+import { TrendApiInput } from '../routers/trends'
+
 export const BaseGenreInput = z.object({
   name: z.string().min(1),
   shortDesc: z.string().min(1),
   longDesc: z.string().min(1),
   alternateNames: z.array(z.string().min(1)),
 })
+
+export const GenreTypeInput = z.union([
+  z.literal('meta'),
+  z.literal('scene'),
+  z.literal('style'),
+  z.literal('trend'),
+])
+
+// TODO: flatten structure
+export const TypedMetaApiInput = z.object({
+  type: z.literal('meta'),
+  data: MetaApiInput,
+})
+export const TypedSceneApiInput = z.object({
+  type: z.literal('scene'),
+  data: SceneApiInput,
+})
+export const TypedStyleApiInput = z.object({
+  type: z.literal('style'),
+  data: StyleApiInput,
+})
+export const TypedTrendApiInput = z.object({
+  type: z.literal('trend'),
+  data: TrendApiInput,
+})
+export const GenreInput = z.union([
+  TypedMetaApiInput,
+  TypedSceneApiInput,
+  TypedStyleApiInput,
+  TypedTrendApiInput,
+])
 
 export const IdsInput = z.array(z.number())
 

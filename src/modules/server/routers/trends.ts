@@ -77,61 +77,63 @@ const toApiOutput = (
   cultures: trend.cultures.map((c) => c.culture),
 })
 
+export const createTrendDbInput = (input: TrendApiInput) => ({
+  ...input,
+  alternateNames: {
+    create: input.alternateNames.map((name) => ({ name })),
+  },
+  parentTrends: {
+    create: input.parentTrends.map((id) => ({ parentId: id })),
+  },
+  parentStyles: {
+    create: input.parentStyles.map((id) => ({ parentId: id })),
+  },
+  parentMetas: {
+    create: input.parentMetas.map((id) => ({ parentId: id })),
+  },
+  influencedByTrends: {
+    create: input.influencedByTrends.map((id) => ({ influencerId: id })),
+  },
+  influencedByStyles: {
+    create: input.influencedByStyles.map((inf) => ({
+      influencerId: inf.id,
+      influenceType: inf.type,
+    })),
+  },
+  locations: {
+    create: input.locations.map((loc) => ({
+      location: {
+        connectOrCreate: {
+          where: {
+            city_region_country: {
+              city: loc.city,
+              region: loc.region,
+              country: loc.country,
+            },
+          },
+          create: {
+            city: loc.city,
+            region: loc.region,
+            country: loc.country,
+          },
+        },
+      },
+    })),
+  },
+  cultures: {
+    create: input.cultures.map((c) => ({
+      culture: {
+        connectOrCreate: { where: { name: c }, create: { name: c } },
+      },
+    })),
+  },
+})
+
 export const addTrend = async (
   input: TrendApiInput
 ): Promise<TrendApiOutput> => {
   const trend = await prisma.trend.create({
-    data: {
-      ...input,
-      alternateNames: {
-        create: input.alternateNames.map((name) => ({ name })),
-      },
-      parentTrends: {
-        create: input.parentTrends.map((id) => ({ parentId: id })),
-      },
-      parentStyles: {
-        create: input.parentStyles.map((id) => ({ parentId: id })),
-      },
-      parentMetas: {
-        create: input.parentMetas.map((id) => ({ parentId: id })),
-      },
-      influencedByTrends: {
-        create: input.influencedByTrends.map((id) => ({ influencerId: id })),
-      },
-      influencedByStyles: {
-        create: input.influencedByStyles.map((inf) => ({
-          influencerId: inf.id,
-          influenceType: inf.type,
-        })),
-      },
-      locations: {
-        create: input.locations.map((loc) => ({
-          location: {
-            connectOrCreate: {
-              where: {
-                city_region_country: {
-                  city: loc.city,
-                  region: loc.region,
-                  country: loc.country,
-                },
-              },
-              create: {
-                city: loc.city,
-                region: loc.region,
-                country: loc.country,
-              },
-            },
-          },
-        })),
-      },
-      cultures: {
-        create: input.cultures.map((c) => ({
-          culture: {
-            connectOrCreate: { where: { name: c }, create: { name: c } },
-          },
-        })),
-      },
-    },
+    data: createTrendDbInput(input),
     include: {
       alternateNames: true,
       parentTrends: { include: { parent: true } },
@@ -187,42 +189,42 @@ export const getTrends = async (): Promise<TrendApiOutput[]> => {
 
 export const editTrend = async (
   id: number,
-  data: TrendApiInput
+  input: TrendApiInput
 ): Promise<TrendApiOutput> => {
   const trend = await prisma.trend.update({
     where: { id: id },
     data: {
-      ...data,
+      ...input,
       alternateNames: {
         deleteMany: { trendId: id },
-        create: data.alternateNames.map((name) => ({ name })),
+        create: input.alternateNames.map((name) => ({ name })),
       },
       parentTrends: {
         deleteMany: { childId: id },
-        create: data.parentTrends.map((id) => ({ parentId: id })),
+        create: input.parentTrends.map((id) => ({ parentId: id })),
       },
       parentStyles: {
         deleteMany: { childId: id },
-        create: data.parentStyles.map((id) => ({ parentId: id })),
+        create: input.parentStyles.map((id) => ({ parentId: id })),
       },
       parentMetas: {
         deleteMany: { childId: id },
-        create: data.parentMetas.map((id) => ({ parentId: id })),
+        create: input.parentMetas.map((id) => ({ parentId: id })),
       },
       influencedByTrends: {
         deleteMany: { influencedId: id },
-        create: data.influencedByTrends.map((id) => ({ influencerId: id })),
+        create: input.influencedByTrends.map((id) => ({ influencerId: id })),
       },
       influencedByStyles: {
         deleteMany: { influencedId: id },
-        create: data.influencedByStyles.map((inf) => ({
+        create: input.influencedByStyles.map((inf) => ({
           influencerId: inf.id,
           influenceType: inf.type,
         })),
       },
       locations: {
         deleteMany: { trendId: id },
-        create: data.locations.map((loc) => ({
+        create: input.locations.map((loc) => ({
           location: {
             connectOrCreate: {
               where: {
@@ -243,7 +245,7 @@ export const editTrend = async (
       },
       cultures: {
         deleteMany: { trendId: id },
-        create: data.cultures.map((c) => ({
+        create: input.cultures.map((c) => ({
           culture: {
             connectOrCreate: { where: { name: c }, create: { name: c } },
           },

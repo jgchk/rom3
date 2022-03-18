@@ -1,50 +1,16 @@
 import { z } from 'zod'
 
 import createRouter from '../createRouter'
-import {
-  addMeta,
-  deleteMeta,
-  editMeta,
-  getMeta,
-  getMetas,
-  MetaApiInput,
-} from './metas'
-import {
-  addScene,
-  deleteScene,
-  editScene,
-  getScene,
-  getScenes,
-  SceneApiInput,
-} from './scenes'
-import {
-  addStyle,
-  deleteStyle,
-  editStyle,
-  getStyle,
-  getStyles,
-  StyleApiInput,
-} from './styles'
-import {
-  addTrend,
-  deleteTrend,
-  editTrend,
-  getTrend,
-  getTrends,
-  TrendApiInput,
-} from './trends'
-
-const GenreType = z.union([
-  z.literal('meta'),
-  z.literal('scene'),
-  z.literal('style'),
-  z.literal('trend'),
-])
+import { GenreInput, GenreTypeInput } from '../utils/validators'
+import { addMeta, deleteMeta, editMeta, getMeta, getMetas } from './metas'
+import { addScene, deleteScene, editScene, getScene, getScenes } from './scenes'
+import { addStyle, deleteStyle, editStyle, getStyle, getStyles } from './styles'
+import { addTrend, deleteTrend, editTrend, getTrend, getTrends } from './trends'
 
 export const allRouter = createRouter()
   .query('genres', {
     input: z.object({
-      type: z.array(GenreType),
+      type: z.array(GenreTypeInput),
     }),
     resolve: async ({ input }) => {
       const results = await Promise.all(
@@ -65,12 +31,7 @@ export const allRouter = createRouter()
     },
   })
   .mutation('add', {
-    input: z.union([
-      z.object({ type: z.literal('meta'), data: MetaApiInput }),
-      z.object({ type: z.literal('scene'), data: SceneApiInput }),
-      z.object({ type: z.literal('style'), data: StyleApiInput }),
-      z.object({ type: z.literal('trend'), data: TrendApiInput }),
-    ]),
+    input: GenreInput,
     resolve: async ({ input }) => {
       switch (input.type) {
         case 'meta':
@@ -85,7 +46,7 @@ export const allRouter = createRouter()
     },
   })
   .query('get', {
-    input: z.object({ type: GenreType, id: z.number() }),
+    input: z.object({ type: GenreTypeInput, id: z.number() }),
     resolve: async ({ input }) => {
       switch (input.type) {
         case 'meta':
@@ -101,14 +62,9 @@ export const allRouter = createRouter()
   })
   .mutation('edit', {
     input: z.object({
-      type: GenreType,
+      type: GenreTypeInput,
       id: z.number(),
-      data: z.union([
-        z.object({ type: z.literal('meta'), data: MetaApiInput }),
-        z.object({ type: z.literal('scene'), data: SceneApiInput }),
-        z.object({ type: z.literal('style'), data: StyleApiInput }),
-        z.object({ type: z.literal('trend'), data: TrendApiInput }),
-      ]),
+      data: GenreInput,
     }),
     resolve: async ({ input }) => {
       if (input.type !== input.data.type) {
@@ -158,7 +114,7 @@ export const allRouter = createRouter()
     },
   })
   .mutation('delete', {
-    input: z.object({ type: GenreType, id: z.number() }),
+    input: z.object({ type: GenreTypeInput, id: z.number() }),
     resolve: async ({ input }) => {
       switch (input.type) {
         case 'meta':

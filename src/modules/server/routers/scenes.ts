@@ -50,46 +50,48 @@ const toApiOutput = (
   cultures: scene.cultures.map((c) => c.culture),
 })
 
+export const createSceneDbInput = (input: SceneApiInput) => ({
+  ...input,
+  alternateNames: {
+    create: input.alternateNames.map((name) => ({ name })),
+  },
+  influencedByScenes: {
+    create: input.influencedByScenes.map((id) => ({ influencerId: id })),
+  },
+  locations: {
+    create: input.locations.map((loc) => ({
+      location: {
+        connectOrCreate: {
+          where: {
+            city_region_country: {
+              city: loc.city,
+              region: loc.region,
+              country: loc.country,
+            },
+          },
+          create: {
+            city: loc.city,
+            region: loc.region,
+            country: loc.country,
+          },
+        },
+      },
+    })),
+  },
+  cultures: {
+    create: input.cultures.map((c) => ({
+      culture: {
+        connectOrCreate: { where: { name: c }, create: { name: c } },
+      },
+    })),
+  },
+})
+
 export const addScene = async (
   input: SceneApiInput
 ): Promise<SceneApiOutput> => {
   const scene = await prisma.scene.create({
-    data: {
-      ...input,
-      alternateNames: {
-        create: input.alternateNames.map((name) => ({ name })),
-      },
-      influencedByScenes: {
-        create: input.influencedByScenes.map((id) => ({ influencerId: id })),
-      },
-      locations: {
-        create: input.locations.map((loc) => ({
-          location: {
-            connectOrCreate: {
-              where: {
-                city_region_country: {
-                  city: loc.city,
-                  region: loc.region,
-                  country: loc.country,
-                },
-              },
-              create: {
-                city: loc.city,
-                region: loc.region,
-                country: loc.country,
-              },
-            },
-          },
-        })),
-      },
-      cultures: {
-        create: input.cultures.map((c) => ({
-          culture: {
-            connectOrCreate: { where: { name: c }, create: { name: c } },
-          },
-        })),
-      },
-    },
+    data: createSceneDbInput(input),
     include: {
       alternateNames: true,
       influencedByScenes: { include: { influencer: true } },
@@ -133,23 +135,23 @@ export const getScenes = async (): Promise<SceneApiOutput[]> => {
 
 export const editScene = async (
   id: number,
-  data: SceneApiInput
+  input: SceneApiInput
 ): Promise<SceneApiOutput> => {
   const scene = await prisma.scene.update({
     where: { id: id },
     data: {
-      ...data,
+      ...input,
       alternateNames: {
         deleteMany: { sceneId: id },
-        create: data.alternateNames.map((name) => ({ name })),
+        create: input.alternateNames.map((name) => ({ name })),
       },
       influencedByScenes: {
         deleteMany: { influencedId: id },
-        create: data.influencedByScenes.map((id) => ({ influencerId: id })),
+        create: input.influencedByScenes.map((id) => ({ influencerId: id })),
       },
       locations: {
         deleteMany: { sceneId: id },
-        create: data.locations.map((loc) => ({
+        create: input.locations.map((loc) => ({
           location: {
             connectOrCreate: {
               where: {
@@ -170,7 +172,7 @@ export const editScene = async (
       },
       cultures: {
         deleteMany: { sceneId: id },
-        create: data.cultures.map((c) => ({
+        create: input.cultures.map((c) => ({
           culture: {
             connectOrCreate: { where: { name: c }, create: { name: c } },
           },

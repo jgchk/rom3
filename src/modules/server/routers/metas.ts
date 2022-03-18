@@ -29,17 +29,19 @@ const toApiOutput = (
   parentMetas: meta.parentMetas.map((p) => p.parent),
 })
 
+export const createMetaDbInput = (input: MetaApiInput) => ({
+  ...input,
+  alternateNames: {
+    create: input.alternateNames.map((name) => ({ name })),
+  },
+  parentMetas: {
+    create: input.parentMetas.map((id) => ({ parentId: id })),
+  },
+})
+
 export const addMeta = async (input: MetaApiInput): Promise<MetaApiOutput> => {
   const meta = await prisma.meta.create({
-    data: {
-      ...input,
-      alternateNames: {
-        create: input.alternateNames.map((name) => ({ name })),
-      },
-      parentMetas: {
-        create: input.parentMetas.map((id) => ({ parentId: id })),
-      },
-    },
+    data: createMetaDbInput(input),
     include: {
       alternateNames: true,
       parentMetas: { include: { parent: true } },
@@ -77,19 +79,19 @@ export const getMetas = async (): Promise<MetaApiOutput[]> => {
 
 export const editMeta = async (
   id: number,
-  data: MetaApiInput
+  input: MetaApiInput
 ): Promise<MetaApiOutput> => {
   const meta = await prisma.meta.update({
     where: { id: id },
     data: {
-      ...data,
+      ...input,
       alternateNames: {
         deleteMany: { metaId: id },
-        create: data.alternateNames.map((name) => ({ name })),
+        create: input.alternateNames.map((name) => ({ name })),
       },
       parentMetas: {
         deleteMany: { childId: id },
-        create: data.parentMetas.map((parentId) => ({ parentId })),
+        create: input.parentMetas.map((parentId) => ({ parentId })),
       },
     },
     include: {
