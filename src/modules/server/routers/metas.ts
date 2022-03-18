@@ -6,30 +6,30 @@ import createRouter from '../createRouter'
 import prisma from '../prisma'
 import { BaseGenreInput, IdsInput } from '../utils/validators'
 
-export const MetaInput = BaseGenreInput.extend({
+export const MetaApiInput = BaseGenreInput.extend({
   parentMetas: IdsInput,
 })
-export type MetaInput = z.infer<typeof MetaInput>
+export type MetaApiInput = z.infer<typeof MetaApiInput>
 
-export type MetaOutput = Meta & {
+export type MetaApiOutput = Meta & {
   type: 'meta'
   alternateNames: string[]
   parentMetas: Meta[]
 }
 
-const toOutput = (
+const toApiOutput = (
   meta: Meta & {
     alternateNames: MetaName[]
     parentMetas: (MetaParent & { parent: Meta })[]
   }
-): MetaOutput => ({
+): MetaApiOutput => ({
   ...meta,
   type: 'meta',
   alternateNames: meta.alternateNames.map((an) => an.name),
   parentMetas: meta.parentMetas.map((p) => p.parent),
 })
 
-export const addMeta = async (input: MetaInput): Promise<MetaOutput> => {
+export const addMeta = async (input: MetaApiInput): Promise<MetaApiOutput> => {
   const meta = await prisma.meta.create({
     data: {
       ...input,
@@ -45,10 +45,10 @@ export const addMeta = async (input: MetaInput): Promise<MetaOutput> => {
       parentMetas: { include: { parent: true } },
     },
   })
-  return toOutput(meta)
+  return toApiOutput(meta)
 }
 
-export const getMeta = async (id: number): Promise<MetaOutput> => {
+export const getMeta = async (id: number): Promise<MetaApiOutput> => {
   const meta = await prisma.meta.findUnique({
     where: { id },
     include: {
@@ -62,23 +62,23 @@ export const getMeta = async (id: number): Promise<MetaOutput> => {
       message: `No meta with id '${id}'`,
     })
   }
-  return toOutput(meta)
+  return toApiOutput(meta)
 }
 
-export const getMetas = async (): Promise<MetaOutput[]> => {
+export const getMetas = async (): Promise<MetaApiOutput[]> => {
   const metas = await prisma.meta.findMany({
     include: {
       alternateNames: true,
       parentMetas: { include: { parent: true } },
     },
   })
-  return metas.map(toOutput)
+  return metas.map(toApiOutput)
 }
 
 export const editMeta = async (
   id: number,
-  data: MetaInput
-): Promise<MetaOutput> => {
+  data: MetaApiInput
+): Promise<MetaApiOutput> => {
   const meta = await prisma.meta.update({
     where: { id: id },
     data: {
@@ -97,7 +97,7 @@ export const editMeta = async (
       parentMetas: { include: { parent: true } },
     },
   })
-  return toOutput(meta)
+  return toApiOutput(meta)
 }
 
 export const deleteMeta = async (id: number): Promise<number> => {
@@ -107,7 +107,7 @@ export const deleteMeta = async (id: number): Promise<number> => {
 
 const metasRouter = createRouter()
   .mutation('add', {
-    input: MetaInput,
+    input: MetaApiInput,
     resolve: ({ input }) => addMeta(input),
   })
   .query('all', {
@@ -123,7 +123,7 @@ const metasRouter = createRouter()
   .mutation('edit', {
     input: z.object({
       id: z.number(),
-      data: MetaInput,
+      data: MetaApiInput,
     }),
     resolve: ({ input }) => editMeta(input.id, input.data),
   })

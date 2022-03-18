@@ -19,14 +19,14 @@ import {
   LocationsInput,
 } from '../utils/validators'
 
-export const SceneInput = BaseGenreInput.extend({
+export const SceneApiInput = BaseGenreInput.extend({
   influencedByScenes: IdsInput,
   locations: LocationsInput,
   cultures: CulturesInput,
 })
-export type SceneInput = z.infer<typeof SceneInput>
+export type SceneApiInput = z.infer<typeof SceneApiInput>
 
-export type SceneOutput = Scene & {
+export type SceneApiOutput = Scene & {
   type: 'scene'
   alternateNames: string[]
   influencedByScenes: Scene[]
@@ -34,14 +34,14 @@ export type SceneOutput = Scene & {
   cultures: Culture[]
 }
 
-const toOutput = (
+const toApiOutput = (
   scene: Scene & {
     alternateNames: SceneName[]
     influencedByScenes: (SceneInfluence & { influencer: Scene })[]
     locations: (SceneLocation & { location: Location })[]
     cultures: (SceneCulture & { culture: Culture })[]
   }
-): SceneOutput => ({
+): SceneApiOutput => ({
   ...scene,
   type: 'scene',
   alternateNames: scene.alternateNames.map((an) => an.name),
@@ -50,7 +50,9 @@ const toOutput = (
   cultures: scene.cultures.map((c) => c.culture),
 })
 
-export const addScene = async (input: SceneInput): Promise<SceneOutput> => {
+export const addScene = async (
+  input: SceneApiInput
+): Promise<SceneApiOutput> => {
   const scene = await prisma.scene.create({
     data: {
       ...input,
@@ -95,10 +97,10 @@ export const addScene = async (input: SceneInput): Promise<SceneOutput> => {
       cultures: { include: { culture: true } },
     },
   })
-  return toOutput(scene)
+  return toApiOutput(scene)
 }
 
-export const getScene = async (id: number): Promise<SceneOutput> => {
+export const getScene = async (id: number): Promise<SceneApiOutput> => {
   const scene = await prisma.scene.findUnique({
     where: { id },
     include: {
@@ -114,10 +116,10 @@ export const getScene = async (id: number): Promise<SceneOutput> => {
       message: `No scene with id '${id}'`,
     })
   }
-  return toOutput(scene)
+  return toApiOutput(scene)
 }
 
-export const getScenes = async (): Promise<SceneOutput[]> => {
+export const getScenes = async (): Promise<SceneApiOutput[]> => {
   const scenes = await prisma.scene.findMany({
     include: {
       alternateNames: true,
@@ -126,13 +128,13 @@ export const getScenes = async (): Promise<SceneOutput[]> => {
       cultures: { include: { culture: true } },
     },
   })
-  return scenes.map(toOutput)
+  return scenes.map(toApiOutput)
 }
 
 export const editScene = async (
   id: number,
-  data: SceneInput
-): Promise<SceneOutput> => {
+  data: SceneApiInput
+): Promise<SceneApiOutput> => {
   const scene = await prisma.scene.update({
     where: { id: id },
     data: {
@@ -182,7 +184,7 @@ export const editScene = async (
       cultures: { include: { culture: true } },
     },
   })
-  return toOutput(scene)
+  return toApiOutput(scene)
 }
 
 export const deleteScene = async (id: number): Promise<number> => {
@@ -192,7 +194,7 @@ export const deleteScene = async (id: number): Promise<number> => {
 
 const scenesRouter = createRouter()
   .mutation('add', {
-    input: SceneInput,
+    input: SceneApiInput,
     resolve: ({ input }) => addScene(input),
   })
   .query('all', {
@@ -208,7 +210,7 @@ const scenesRouter = createRouter()
   .mutation('edit', {
     input: z.object({
       id: z.number(),
-      data: SceneInput,
+      data: SceneApiInput,
     }),
     resolve: ({ input }) => editScene(input.id, input.data),
   })

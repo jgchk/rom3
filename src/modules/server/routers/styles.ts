@@ -24,16 +24,16 @@ import {
   StyleInfluencesInput,
 } from '../utils/validators'
 
-export const StyleInput = BaseGenreInput.extend({
+export const StyleApiInput = BaseGenreInput.extend({
   parentStyles: IdsInput,
   parentMetas: IdsInput,
   influencedByStyles: StyleInfluencesInput,
   locations: LocationsInput,
   cultures: CulturesInput,
 })
-export type StyleInput = z.infer<typeof StyleInput>
+export type StyleApiInput = z.infer<typeof StyleApiInput>
 
-export type StyleOutput = Style & {
+export type StyleApiOutput = Style & {
   type: 'style'
   alternateNames: string[]
   parentStyles: Style[]
@@ -43,7 +43,7 @@ export type StyleOutput = Style & {
   cultures: Culture[]
 }
 
-const toOutput = (
+const toApiOutput = (
   style: Style & {
     alternateNames: StyleName[]
     parentStyles: (StyleStyleParent & { parent: Style })[]
@@ -52,7 +52,7 @@ const toOutput = (
     locations: (StyleLocation & { location: Location })[]
     cultures: (StyleCulture & { culture: Culture })[]
   }
-): StyleOutput => ({
+): StyleApiOutput => ({
   ...style,
   type: 'style',
   alternateNames: style.alternateNames.map((an) => an.name),
@@ -66,7 +66,9 @@ const toOutput = (
   cultures: style.cultures.map((c) => c.culture),
 })
 
-export const addStyle = async (input: StyleInput): Promise<StyleOutput> => {
+export const addStyle = async (
+  input: StyleApiInput
+): Promise<StyleApiOutput> => {
   const style = await prisma.style.create({
     data: {
       ...input,
@@ -122,10 +124,10 @@ export const addStyle = async (input: StyleInput): Promise<StyleOutput> => {
       cultures: { include: { culture: true } },
     },
   })
-  return toOutput(style)
+  return toApiOutput(style)
 }
 
-export const getStyle = async (id: number): Promise<StyleOutput> => {
+export const getStyle = async (id: number): Promise<StyleApiOutput> => {
   const style = await prisma.style.findUnique({
     where: { id },
     include: {
@@ -143,10 +145,10 @@ export const getStyle = async (id: number): Promise<StyleOutput> => {
       message: `No style with id '${id}'`,
     })
   }
-  return toOutput(style)
+  return toApiOutput(style)
 }
 
-export const getStyles = async (): Promise<StyleOutput[]> => {
+export const getStyles = async (): Promise<StyleApiOutput[]> => {
   const styles = await prisma.style.findMany({
     include: {
       alternateNames: true,
@@ -157,13 +159,13 @@ export const getStyles = async (): Promise<StyleOutput[]> => {
       cultures: { include: { culture: true } },
     },
   })
-  return styles.map(toOutput)
+  return styles.map(toApiOutput)
 }
 
 export const editStyle = async (
   id: number,
-  data: StyleInput
-): Promise<StyleOutput> => {
+  data: StyleApiInput
+): Promise<StyleApiOutput> => {
   const style = await prisma.style.update({
     where: { id: id },
     data: {
@@ -226,7 +228,7 @@ export const editStyle = async (
       cultures: { include: { culture: true } },
     },
   })
-  return toOutput(style)
+  return toApiOutput(style)
 }
 
 export const deleteStyle = async (id: number): Promise<number> => {
@@ -236,7 +238,7 @@ export const deleteStyle = async (id: number): Promise<number> => {
 
 const stylesRouter = createRouter()
   .mutation('add', {
-    input: StyleInput,
+    input: StyleApiInput,
     resolve: ({ input }) => addStyle(input),
   })
   .query('all', {
@@ -252,7 +254,7 @@ const stylesRouter = createRouter()
   .mutation('edit', {
     input: z.object({
       id: z.number(),
-      data: StyleInput,
+      data: StyleApiInput,
     }),
     resolve: ({ input }) => editStyle(input.id, input.data),
   })

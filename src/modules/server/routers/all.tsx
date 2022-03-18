@@ -7,7 +7,7 @@ import {
   editMeta,
   getMeta,
   getMetas,
-  MetaInput,
+  MetaApiInput,
 } from './metas'
 import {
   addScene,
@@ -15,7 +15,7 @@ import {
   editScene,
   getScene,
   getScenes,
-  SceneInput,
+  SceneApiInput,
 } from './scenes'
 import {
   addStyle,
@@ -23,7 +23,7 @@ import {
   editStyle,
   getStyle,
   getStyles,
-  StyleInput,
+  StyleApiInput,
 } from './styles'
 import {
   addTrend,
@@ -31,7 +31,7 @@ import {
   editTrend,
   getTrend,
   getTrends,
-  TrendInput,
+  TrendApiInput,
 } from './trends'
 
 const GenreType = z.union([
@@ -66,10 +66,10 @@ export const allRouter = createRouter()
   })
   .mutation('add', {
     input: z.union([
-      z.object({ type: z.literal('meta'), data: MetaInput }),
-      z.object({ type: z.literal('scene'), data: SceneInput }),
-      z.object({ type: z.literal('style'), data: StyleInput }),
-      z.object({ type: z.literal('trend'), data: TrendInput }),
+      z.object({ type: z.literal('meta'), data: MetaApiInput }),
+      z.object({ type: z.literal('scene'), data: SceneApiInput }),
+      z.object({ type: z.literal('style'), data: StyleApiInput }),
+      z.object({ type: z.literal('trend'), data: TrendApiInput }),
     ]),
     resolve: async ({ input }) => {
       switch (input.type) {
@@ -104,10 +104,10 @@ export const allRouter = createRouter()
       type: GenreType,
       id: z.number(),
       data: z.union([
-        z.object({ type: z.literal('meta'), data: MetaInput }),
-        z.object({ type: z.literal('scene'), data: SceneInput }),
-        z.object({ type: z.literal('style'), data: StyleInput }),
-        z.object({ type: z.literal('trend'), data: TrendInput }),
+        z.object({ type: z.literal('meta'), data: MetaApiInput }),
+        z.object({ type: z.literal('scene'), data: SceneApiInput }),
+        z.object({ type: z.literal('style'), data: StyleApiInput }),
+        z.object({ type: z.literal('trend'), data: TrendApiInput }),
       ]),
     }),
     resolve: async ({ input }) => {

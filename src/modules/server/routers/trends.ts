@@ -27,7 +27,7 @@ import {
   StyleInfluencesInput,
 } from '../utils/validators'
 
-export const TrendInput = BaseGenreInput.extend({
+export const TrendApiInput = BaseGenreInput.extend({
   parentTrends: IdsInput,
   parentStyles: IdsInput,
   parentMetas: IdsInput,
@@ -36,9 +36,9 @@ export const TrendInput = BaseGenreInput.extend({
   locations: LocationsInput,
   cultures: CulturesInput,
 })
-export type TrendInput = z.infer<typeof TrendInput>
+export type TrendApiInput = z.infer<typeof TrendApiInput>
 
-export type TrendOutput = Trend & {
+export type TrendApiOutput = Trend & {
   type: 'trend'
   alternateNames: string[]
   parentTrends: Trend[]
@@ -50,7 +50,7 @@ export type TrendOutput = Trend & {
   cultures: Culture[]
 }
 
-const toOutput = (
+const toApiOutput = (
   trend: Trend & {
     alternateNames: TrendName[]
     parentTrends: (TrendTrendParent & { parent: Trend })[]
@@ -61,7 +61,7 @@ const toOutput = (
     locations: (TrendLocation & { location: Location })[]
     cultures: (TrendCulture & { culture: Culture })[]
   }
-): TrendOutput => ({
+): TrendApiOutput => ({
   ...trend,
   type: 'trend',
   alternateNames: trend.alternateNames.map((an) => an.name),
@@ -77,7 +77,9 @@ const toOutput = (
   cultures: trend.cultures.map((c) => c.culture),
 })
 
-export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
+export const addTrend = async (
+  input: TrendApiInput
+): Promise<TrendApiOutput> => {
   const trend = await prisma.trend.create({
     data: {
       ...input,
@@ -141,10 +143,10 @@ export const addTrend = async (input: TrendInput): Promise<TrendOutput> => {
       cultures: { include: { culture: true } },
     },
   })
-  return toOutput(trend)
+  return toApiOutput(trend)
 }
 
-export const getTrend = async (id: number): Promise<TrendOutput> => {
+export const getTrend = async (id: number): Promise<TrendApiOutput> => {
   const trend = await prisma.trend.findUnique({
     where: { id },
     include: {
@@ -164,10 +166,10 @@ export const getTrend = async (id: number): Promise<TrendOutput> => {
       message: `No trend with id '${id}'`,
     })
   }
-  return toOutput(trend)
+  return toApiOutput(trend)
 }
 
-export const getTrends = async (): Promise<TrendOutput[]> => {
+export const getTrends = async (): Promise<TrendApiOutput[]> => {
   const trends = await prisma.trend.findMany({
     include: {
       alternateNames: true,
@@ -180,13 +182,13 @@ export const getTrends = async (): Promise<TrendOutput[]> => {
       cultures: { include: { culture: true } },
     },
   })
-  return trends.map(toOutput)
+  return trends.map(toApiOutput)
 }
 
 export const editTrend = async (
   id: number,
-  data: TrendInput
-): Promise<TrendOutput> => {
+  data: TrendApiInput
+): Promise<TrendApiOutput> => {
   const trend = await prisma.trend.update({
     where: { id: id },
     data: {
@@ -259,7 +261,7 @@ export const editTrend = async (
       cultures: { include: { culture: true } },
     },
   })
-  return toOutput(trend)
+  return toApiOutput(trend)
 }
 
 export const deleteTrend = async (id: number): Promise<number> => {
@@ -269,7 +271,7 @@ export const deleteTrend = async (id: number): Promise<number> => {
 
 const trendsRouter = createRouter()
   .mutation('add', {
-    input: TrendInput,
+    input: TrendApiInput,
     resolve: ({ input }) => addTrend(input),
   })
   .query('all', {
@@ -285,7 +287,7 @@ const trendsRouter = createRouter()
   .mutation('edit', {
     input: z.object({
       id: z.number(),
-      data: TrendInput,
+      data: TrendApiInput,
     }),
     resolve: ({ input }) => editTrend(input.id, input.data),
   })
