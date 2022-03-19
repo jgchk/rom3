@@ -8,7 +8,6 @@ import {
   getGenre,
   getGenres,
 } from '../utils/genres'
-import { getGenreDataFromRym } from '../utils/import'
 import { GenreApiInput } from '../utils/validators'
 import { GenreTypeInput } from '../utils/validators/misc'
 
@@ -44,13 +43,6 @@ export const allRouter = createRouter()
   .mutation('delete', {
     input: z.object({ type: GenreTypeInput, id: z.number() }),
     resolve: async ({ input }) => deleteGenre(input.type, input.id),
-  })
-  .mutation('import', {
-    input: z.object({ url: z.string() }),
-    resolve: async ({ input }) => {
-      const data = await getGenreDataFromRym(input.url)
-      return addGenre(data)
-    },
   })
 
 export default allRouter
