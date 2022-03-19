@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 import createRouter from '../createRouter'
 import prisma from '../prisma'
-import { GenreInput } from '../utils/validators'
+import { GenreApiInput } from '../utils/validators'
 import { GenreTypeInput } from '../utils/validators/misc'
 import { createMetaDbInput, MetaApiInput } from './metas'
 import { createSceneDbInput, SceneApiInput } from './scenes'
@@ -13,14 +13,14 @@ import { createTrendDbInput, TrendApiInput } from './trends'
 
 const CreateCorrectionApiInput = z.object({
   action: z.literal('create'),
-  data: GenreInput,
+  data: GenreApiInput,
 })
 type CreateCorrectionApiInput = z.infer<typeof CreateCorrectionApiInput>
 
 const EditCorrectionApiInput = z.object({
   action: z.literal('edit'),
   targetId: z.number(),
-  data: GenreInput,
+  data: GenreApiInput,
 })
 type EditCorrectionApiInput = z.infer<typeof EditCorrectionApiInput>
 
@@ -48,16 +48,16 @@ const isDeleteCorrectionApiInput = (
   o: CorrectionApiInput[number]
 ): o is DeleteCorrectionApiInput => o.action === 'delete'
 
-const isMetaCorrectionApiInput = <T extends { data: GenreInput }>(
+const isMetaCorrectionApiInput = <T extends { data: GenreApiInput }>(
   o: T
 ): o is T & { data: MetaApiInput } => o.data.type === 'meta'
-const isSceneCorrectionApiInput = <T extends { data: GenreInput }>(
+const isSceneCorrectionApiInput = <T extends { data: GenreApiInput }>(
   o: T
 ): o is T & { data: SceneApiInput } => o.data.type === 'scene'
-const isStyleCorrectionApiInput = <T extends { data: GenreInput }>(
+const isStyleCorrectionApiInput = <T extends { data: GenreApiInput }>(
   o: T
 ): o is T & { data: StyleApiInput } => o.data.type === 'style'
-const isTrendCorrectionApiInput = <T extends { data: GenreInput }>(
+const isTrendCorrectionApiInput = <T extends { data: GenreApiInput }>(
   o: T
 ): o is T & { data: TrendApiInput } => o.data.type === 'trend'
 

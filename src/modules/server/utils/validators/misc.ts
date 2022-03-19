@@ -14,6 +14,7 @@ export const GenreTypeInput = z.union([
   z.literal('style'),
   z.literal('trend'),
 ])
+export type GenreTypeInput = z.infer<typeof GenreTypeInput>
 
 export const IdsInput = z.array(z.number())
 

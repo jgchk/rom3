@@ -1,12 +1,16 @@
 import { z } from 'zod'
 
 import createRouter from '../createRouter'
-import { GenreInput } from '../utils/validators'
+import {
+  addGenre,
+  deleteGenre,
+  editGenre,
+  getGenre,
+  getGenres,
+} from '../utils/genres'
+import { getGenreDataFromRym } from '../utils/import'
+import { GenreApiInput } from '../utils/validators'
 import { GenreTypeInput } from '../utils/validators/misc'
-import { addMeta, deleteMeta, editMeta, getMeta, getMetas } from './metas'
-import { addScene, deleteScene, editScene, getScene, getScenes } from './scenes'
-import { addStyle, deleteStyle, editStyle, getStyle, getStyles } from './styles'
-import { addTrend, deleteTrend, editTrend, getTrend, getTrends } from './trends'
 
 export const allRouter = createRouter()
   .query('genres', {
@@ -16,118 +20,36 @@ export const allRouter = createRouter()
     resolve: async ({ input }) => {
       // TODO: return all if no input type passed in
       const results = await Promise.all(
-        [...new Set(input.type)].map(async (type_) => {
-          switch (type_) {
-            case 'meta':
-              return getMetas()
-            case 'scene':
-              return getScenes()
-            case 'style':
-              return getStyles()
-            case 'trend':
-              return getTrends()
-          }
-        })
+        [...new Set(input.type)].map((type) => getGenres(type))
       )
       return results.flat()
     },
   })
   .mutation('add', {
-    input: GenreInput,
-    resolve: async ({ input }) => {
-      switch (input.type) {
-        case 'meta':
-          return addMeta(input.data)
-        case 'scene':
-          return addScene(input.data)
-        case 'style':
-          return addStyle(input.data)
-        case 'trend':
-          return addTrend(input.data)
-      }
-    },
+    input: GenreApiInput,
+    resolve: async ({ input }) => addGenre(input),
   })
   .query('get', {
     input: z.object({ type: GenreTypeInput, id: z.number() }),
-    resolve: async ({ input }) => {
-      switch (input.type) {
-        case 'meta':
-          return getMeta(input.id)
-        case 'scene':
-          return getScene(input.id)
-        case 'style':
-          return getStyle(input.id)
-        case 'trend':
-          return getTrend(input.id)
-      }
-    },
+    resolve: async ({ input }) => getGenre(input.type, input.id),
   })
   .mutation('edit', {
     input: z.object({
       type: GenreTypeInput,
       id: z.number(),
-      data: GenreInput,
+      data: GenreApiInput,
     }),
-    resolve: async ({ input }) => {
-      if (input.type !== input.data.type) {
-        // switching types
-        // TODO: need to handle relations where we're the parent and try to preserve them. warn the user if connections may be wiped
-        switch (input.type) {
-          case 'meta': {
-            await deleteMeta(input.id)
-            break
-          }
-          case 'scene': {
-            await deleteScene(input.id)
-            break
-          }
-          case 'style': {
-            await deleteStyle(input.id)
-            break
-          }
-          case 'trend': {
-            await deleteTrend(input.id)
-            break
-          }
-        }
-        switch (input.data.type) {
-          case 'meta':
-            return addMeta(input.data.data)
-          case 'scene':
-            return addScene(input.data.data)
-          case 'style':
-            return addStyle(input.data.data)
-          case 'trend':
-            return addTrend(input.data.data)
-        }
-      } else {
-        // keeping same type
-        switch (input.data.type) {
-          case 'meta':
-            return editMeta(input.id, input.data.data)
-          case 'scene':
-            return editScene(input.id, input.data.data)
-          case 'style':
-            return editStyle(input.id, input.data.data)
-          case 'trend':
-            return editTrend(input.id, input.data.data)
-        }
-      }
-    },
+    resolve: async ({ input }) => editGenre(input.type, input.id, input.data),
   })
   .mutation('delete', {
     input: z.object({ type: GenreTypeInput, id: z.number() }),
+    resolve: async ({ input }) => deleteGenre(input.type, input.id),
+  })
+  .mutation('import', {
+    input: z.object({ url: z.string() }),
     resolve: async ({ input }) => {
-      switch (input.type) {
-        case 'meta':
-          return deleteMeta(input.id)
-        case 'scene':
-          return deleteScene(input.id)
-        case 'style':
-          return deleteStyle(input.id)
-        case 'trend':
-          return deleteTrend(input.id)
-      }
+      const data = await getGenreDataFromRym(input.url)
+      return addGenre(data)
     },
   })
 

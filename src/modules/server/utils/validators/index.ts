@@ -1,15 +1,20 @@
 import { z } from 'zod'
 
-import { TypedMetaApiInput } from '../../routers/metas'
-import { TypedSceneApiInput } from '../../routers/scenes'
-import { TypedStyleApiInput } from '../../routers/styles'
-import { TypedTrendApiInput } from '../../routers/trends'
+import { MetaApiOutput, TypedMetaApiInput } from '../../routers/metas'
+import { SceneApiOutput, TypedSceneApiInput } from '../../routers/scenes'
+import { StyleApiOutput, TypedStyleApiInput } from '../../routers/styles'
+import { TrendApiOutput, TypedTrendApiInput } from '../../routers/trends'
 
-// TODO: flatten structure
-export const GenreInput = z.discriminatedUnion('type', [
+export const GenreApiInput = z.discriminatedUnion('type', [
   TypedMetaApiInput,
   TypedSceneApiInput,
   TypedStyleApiInput,
   TypedTrendApiInput,
 ])
-export type GenreInput = z.infer<typeof GenreInput>
+export type GenreApiInput = z.infer<typeof GenreApiInput>
+
+export type GenreApiOutput =
+  | MetaApiOutput
+  | SceneApiOutput
+  | StyleApiOutput
+  | TrendApiOutput
