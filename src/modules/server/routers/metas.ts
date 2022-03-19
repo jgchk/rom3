@@ -4,12 +4,17 @@ import { z } from 'zod'
 
 import createRouter from '../createRouter'
 import prisma from '../prisma'
-import { BaseGenreInput, IdsInput } from '../utils/validators'
+import { BaseGenreInput, IdsInput } from '../utils/validators/misc'
 
 export const MetaApiInput = BaseGenreInput.extend({
   parentMetas: IdsInput,
 })
 export type MetaApiInput = z.infer<typeof MetaApiInput>
+
+export const TypedMetaApiInput = z.object({
+  type: z.literal('meta'),
+  data: MetaApiInput,
+})
 
 export type MetaApiOutput = Meta & {
   type: 'meta'

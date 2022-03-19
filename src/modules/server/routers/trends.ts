@@ -25,7 +25,7 @@ import {
   IdsInput,
   LocationsInput,
   StyleInfluencesInput,
-} from '../utils/validators'
+} from '../utils/validators/misc'
 
 export const TrendApiInput = BaseGenreInput.extend({
   parentTrends: IdsInput,
@@ -37,6 +37,11 @@ export const TrendApiInput = BaseGenreInput.extend({
   cultures: CulturesInput,
 })
 export type TrendApiInput = z.infer<typeof TrendApiInput>
+
+export const TypedTrendApiInput = z.object({
+  type: z.literal('trend'),
+  data: TrendApiInput,
+})
 
 export type TrendApiOutput = Trend & {
   type: 'trend'

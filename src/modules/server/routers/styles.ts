@@ -22,7 +22,7 @@ import {
   IdsInput,
   LocationsInput,
   StyleInfluencesInput,
-} from '../utils/validators'
+} from '../utils/validators/misc'
 
 export const StyleApiInput = BaseGenreInput.extend({
   parentStyles: IdsInput,
@@ -32,6 +32,11 @@ export const StyleApiInput = BaseGenreInput.extend({
   cultures: CulturesInput,
 })
 export type StyleApiInput = z.infer<typeof StyleApiInput>
+
+export const TypedStyleApiInput = z.object({
+  type: z.literal('style'),
+  data: StyleApiInput,
+})
 
 export type StyleApiOutput = Style & {
   type: 'style'

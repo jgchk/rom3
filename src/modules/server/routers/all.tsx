@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
 import createRouter from '../createRouter'
-import { GenreInput, GenreTypeInput } from '../utils/validators'
+import { GenreInput } from '../utils/validators'
+import { GenreTypeInput } from '../utils/validators/misc'
 import { addMeta, deleteMeta, editMeta, getMeta, getMetas } from './metas'
 import { addScene, deleteScene, editScene, getScene, getScenes } from './scenes'
 import { addStyle, deleteStyle, editStyle, getStyle, getStyles } from './styles'
@@ -13,6 +14,7 @@ export const allRouter = createRouter()
       type: z.array(GenreTypeInput),
     }),
     resolve: async ({ input }) => {
+      // TODO: return all if no input type passed in
       const results = await Promise.all(
         [...new Set(input.type)].map(async (type_) => {
           switch (type_) {

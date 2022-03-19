@@ -23,6 +23,7 @@ model Meta {
 
   includedInCorrections MetaCorrection[] @relation("MetaCorrectionData")
   targetedByCorrections MetaCorrection[] @relation("MetaCorrectionTarget")
+  targetedByDeletions   MetaDeletion[]
 }
 
 model MetaName {
@@ -55,6 +56,7 @@ model Scene {
 
   includedInCorrections SceneCorrection[] @relation("SceneCorrectionData")
   targetedByCorrections SceneCorrection[] @relation("SceneCorrectionTarget")
+  targetedByDeletions   SceneDeletion[]
 }
 
 model SceneName {
@@ -110,6 +112,7 @@ model Style {
 
   includedInCorrections StyleCorrection[] @relation("StyleCorrectionData")
   targetedByCorrections StyleCorrection[] @relation("StyleCorrectionTarget")
+  targetedByDeletions   StyleDeletion[]
 }
 
 model StyleName {
@@ -184,6 +187,7 @@ model Trend {
 
   includedInCorrections TrendCorrection[] @relation("TrendCorrectionData")
   targetedByCorrections TrendCorrection[] @relation("TrendCorrectionTarget")
+  targetedByDeletions   TrendDeletion[]
 }
 
 model TrendName {
@@ -288,11 +292,17 @@ enum InfluenceType {
 }
 
 model Correction {
-  id     Int               @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
   metas  MetaCorrection[]
   scenes SceneCorrection[]
   styles StyleCorrection[]
   trends TrendCorrection[]
+
+  deleteMetas  MetaDeletion[]
+  deleteScenes SceneDeletion[]
+  deleteStyles StyleDeletion[]
+  deleteTrends TrendDeletion[]
 }
 
 model MetaCorrection {
@@ -345,4 +355,44 @@ model TrendCorrection {
   targetTrendId Int?
 
   @@unique([correctionId, trendId])
+}
+
+model MetaDeletion {
+  correction   Correction @relation(fields: [correctionId], references: [id])
+  correctionId Int
+
+  targetMeta   Meta @relation(fields: [targetMetaId], references: [id], onDelete: Cascade)
+  targetMetaId Int
+
+  @@unique([correctionId, targetMetaId])
+}
+
+model SceneDeletion {
+  correction   Correction @relation(fields: [correctionId], references: [id])
+  correctionId Int
+
+  targetScene   Scene @relation(fields: [targetSceneId], references: [id], onDelete: Cascade)
+  targetSceneId Int
+
+  @@unique([correctionId, targetSceneId])
+}
+
+model StyleDeletion {
+  correction   Correction @relation(fields: [correctionId], references: [id])
+  correctionId Int
+
+  targetStyle   Style @relation(fields: [targetStyleId], references: [id], onDelete: Cascade)
+  targetStyleId Int
+
+  @@unique([correctionId, targetStyleId])
+}
+
+model TrendDeletion {
+  correction   Correction @relation(fields: [correctionId], references: [id])
+  correctionId Int
+
+  targetTrend   Trend @relation(fields: [targetTrendId], references: [id], onDelete: Cascade)
+  targetTrendId Int
+
+  @@unique([correctionId, targetTrendId])
 }

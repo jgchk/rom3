@@ -17,7 +17,7 @@ import {
   CulturesInput,
   IdsInput,
   LocationsInput,
-} from '../utils/validators'
+} from '../utils/validators/misc'
 
 export const SceneApiInput = BaseGenreInput.extend({
   influencedByScenes: IdsInput,
@@ -25,6 +25,11 @@ export const SceneApiInput = BaseGenreInput.extend({
   cultures: CulturesInput,
 })
 export type SceneApiInput = z.infer<typeof SceneApiInput>
+
+export const TypedSceneApiInput = z.object({
+  type: z.literal('scene'),
+  data: SceneApiInput,
+})
 
 export type SceneApiOutput = Scene & {
   type: 'scene'
