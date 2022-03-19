@@ -2,14 +2,14 @@ import { NextPage } from 'next'
 import Link from 'next/link'
 import { createContext, FC, useContext, useMemo } from 'react'
 
-import { GenreOutput } from '../modules/genres/model'
+import { GenreOutput, getGenreKey } from '../modules/genres/model'
 import { useGenresQuery } from '../modules/genres/services'
 import { getParents } from '../modules/tree/utils/genres'
 
 type Model = {
-  genres: Record<number, GenreOutput>
-  children: Record<number, number[]>
-  parents: Record<number, number[]>
+  genres: Record<string, GenreOutput>
+  children: Record<string, string[]>
+  parents: Record<string, string[]>
 }
 
 const Tree: NextPage = () => {
@@ -39,15 +39,18 @@ const Loaded: FC<{ data: GenreOutput[] }> = ({ data }) => {
     const m: Model = { genres: {}, children: {}, parents: {} }
 
     for (const genre of data) {
-      m.genres[genre.id] = genre
+      const key = getGenreKey(genre)
+
+      m.genres[key] = genre
 
       const parents = getParents(genre)
 
-      m.parents[genre.id] = parents.map((p) => p.id)
-      m.children[genre.id] = m.children[genre.id] ?? []
+      m.parents[key] = parents.map((p) => getGenreKey(p))
+      m.children[key] = m.children[key] ?? []
 
       for (const parent of parents) {
-        m.children[parent.id] = [...(m.children[parent.id] ?? []), genre.id]
+        const parentKey = getGenreKey(parent)
+        m.children[parentKey] = [...(m.children[parentKey] ?? []), key]
       }
     }
 
@@ -57,7 +60,7 @@ const Loaded: FC<{ data: GenreOutput[] }> = ({ data }) => {
   const topLevelGenres = useMemo(
     () =>
       Object.values(model.genres).filter(
-        (genre) => model.parents[genre.id].length === 0
+        (genre) => model.parents[getGenreKey(genre)].length === 0
       ),
     [model.genres, model.parents]
   )
@@ -65,11 +68,14 @@ const Loaded: FC<{ data: GenreOutput[] }> = ({ data }) => {
   return (
     <ModelContext.Provider value={model}>
       <ul>
-        {topLevelGenres.map((genre) => (
-          <li key={genre.id}>
-            <Node id={genre.id} />
-          </li>
-        ))}
+        {topLevelGenres.map((genre) => {
+          const key = getGenreKey(genre)
+          return (
+            <li key={key}>
+              <Node genreKey={key} />
+            </li>
+          )
+        })}
         {/* <li>
           <button>Add Genre</button>
         </li> */}
@@ -78,11 +84,14 @@ const Loaded: FC<{ data: GenreOutput[] }> = ({ data }) => {
   )
 }
 
-const Node: FC<{ id: number }> = ({ id }) => {
+const Node: FC<{ genreKey: string }> = ({ genreKey }) => {
   const model = useContext(ModelContext)
 
-  const genre = useMemo(() => model.genres[id], [id, model.genres])
-  const children = useMemo(() => model.children[id], [id, model.children])
+  const genre = useMemo(() => model.genres[genreKey], [genreKey, model.genres])
+  const children = useMemo(
+    () => model.children[genreKey],
+    [genreKey, model.children]
+  )
 
   return (
     <div>
@@ -95,9 +104,9 @@ const Node: FC<{ id: number }> = ({ id }) => {
         <a>{genre.name}</a>
       </Link>
       <ul>
-        {children.map((childId) => (
-          <li key={childId}>
-            <Node id={childId} />
+        {children.map((childKey) => (
+          <li key={childKey}>
+            <Node genreKey={childKey} />
           </li>
         ))}
         {/* <li>

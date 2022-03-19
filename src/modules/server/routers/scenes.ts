@@ -34,7 +34,7 @@ export const TypedSceneApiInput = z.object({
 export type SceneApiOutput = Scene & {
   type: 'scene'
   alternateNames: string[]
-  influencedByScenes: Scene[]
+  influencedByScenes: (Scene & { type: 'scene' })[]
   locations: Location[]
   cultures: Culture[]
 }
@@ -50,7 +50,10 @@ const toApiOutput = (
   ...scene,
   type: 'scene',
   alternateNames: scene.alternateNames.map((an) => an.name),
-  influencedByScenes: scene.influencedByScenes.map((inf) => inf.influencer),
+  influencedByScenes: scene.influencedByScenes.map((inf) => ({
+    ...inf.influencer,
+    type: 'scene',
+  })),
   locations: scene.locations.map((loc) => loc.location),
   cultures: scene.cultures.map((c) => c.culture),
 })

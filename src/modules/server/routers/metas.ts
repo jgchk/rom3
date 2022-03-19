@@ -19,7 +19,7 @@ export const TypedMetaApiInput = z.object({
 export type MetaApiOutput = Meta & {
   type: 'meta'
   alternateNames: string[]
-  parentMetas: Meta[]
+  parentMetas: (Meta & { type: 'meta' })[]
 }
 
 const toApiOutput = (
@@ -31,7 +31,7 @@ const toApiOutput = (
   ...meta,
   type: 'meta',
   alternateNames: meta.alternateNames.map((an) => an.name),
-  parentMetas: meta.parentMetas.map((p) => p.parent),
+  parentMetas: meta.parentMetas.map((p) => ({ ...p.parent, type: 'meta' })),
 })
 
 export const createMetaDbInput = (input: MetaApiInput) => ({

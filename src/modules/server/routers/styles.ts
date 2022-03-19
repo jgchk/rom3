@@ -41,9 +41,12 @@ export const TypedStyleApiInput = z.object({
 export type StyleApiOutput = Style & {
   type: 'style'
   alternateNames: string[]
-  parentStyles: Style[]
-  parentMetas: Meta[]
-  influencedByStyles: (Style & { influenceType: InfluenceType })[]
+  parentStyles: (Style & { type: 'style' })[]
+  parentMetas: (Meta & { type: 'meta' })[]
+  influencedByStyles: (Style & {
+    influenceType: InfluenceType
+    type: 'style'
+  })[]
   locations: Location[]
   cultures: Culture[]
 }
@@ -61,11 +64,12 @@ const toApiOutput = (
   ...style,
   type: 'style',
   alternateNames: style.alternateNames.map((an) => an.name),
-  parentStyles: style.parentStyles.map((p) => p.parent),
-  parentMetas: style.parentMetas.map((p) => p.parent),
+  parentStyles: style.parentStyles.map((p) => ({ ...p.parent, type: 'style' })),
+  parentMetas: style.parentMetas.map((p) => ({ ...p.parent, type: 'meta' })),
   influencedByStyles: style.influencedByStyles.map((inf) => ({
     ...inf.influencer,
     influenceType: inf.influenceType,
+    type: 'style',
   })),
   locations: style.locations.map((loc) => loc.location),
   cultures: style.cultures.map((c) => c.culture),

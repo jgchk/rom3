@@ -46,11 +46,14 @@ export const TypedTrendApiInput = z.object({
 export type TrendApiOutput = Trend & {
   type: 'trend'
   alternateNames: string[]
-  parentTrends: Trend[]
-  parentStyles: Style[]
-  parentMetas: Meta[]
-  influencedByTrends: Trend[]
-  influencedByStyles: (Style & { influenceType: InfluenceType })[]
+  parentTrends: (Trend & { type: 'trend' })[]
+  parentStyles: (Style & { type: 'style' })[]
+  parentMetas: (Meta & { type: 'meta' })[]
+  influencedByTrends: (Trend & { type: 'trend' })[]
+  influencedByStyles: (Style & {
+    influenceType: InfluenceType
+    type: 'style'
+  })[]
   locations: Location[]
   cultures: Culture[]
 }
@@ -70,13 +73,17 @@ const toApiOutput = (
   ...trend,
   type: 'trend',
   alternateNames: trend.alternateNames.map((an) => an.name),
-  parentTrends: trend.parentTrends.map((p) => p.parent),
-  parentStyles: trend.parentStyles.map((p) => p.parent),
-  parentMetas: trend.parentMetas.map((p) => p.parent),
-  influencedByTrends: trend.influencedByTrends.map((inf) => inf.influencer),
+  parentTrends: trend.parentTrends.map((p) => ({ ...p.parent, type: 'trend' })),
+  parentStyles: trend.parentStyles.map((p) => ({ ...p.parent, type: 'style' })),
+  parentMetas: trend.parentMetas.map((p) => ({ ...p.parent, type: 'meta' })),
+  influencedByTrends: trend.influencedByTrends.map((inf) => ({
+    ...inf.influencer,
+    type: 'trend',
+  })),
   influencedByStyles: trend.influencedByStyles.map((inf) => ({
     ...inf.influencer,
     influenceType: inf.influenceType,
+    type: 'style',
   })),
   locations: trend.locations.map((loc) => loc.location),
   cultures: trend.cultures.map((c) => c.culture),
