@@ -10,6 +10,9 @@ const Navbar: FC = () => (
     <Link href='/create'>
       <a>Create</a>
     </Link>
+    <Link href='/tree'>
+      <a>Tree</a>
+    </Link>
   </Container>
 )
 
