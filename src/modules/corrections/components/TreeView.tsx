@@ -6,7 +6,9 @@ import { genreTypes } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
 import { capitalize } from '../../../common/utils/string'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
-import useGenreTreeQuery, { GenreTree } from '../hooks/useGenreTreeQuery'
+import useCorrectionGenreTreeQuery, {
+  GenreTree,
+} from '../hooks/useCorrectionGenreTreeQuery'
 import useCorrectionStore from '../state/store'
 import {
   fromCorrectionIdApiInputKey,
@@ -14,7 +16,7 @@ import {
 } from '../utils/keys'
 
 const TreeView: FC = () => {
-  const { data } = useGenreTreeQuery()
+  const { data } = useCorrectionGenreTreeQuery()
 
   if (data) {
     return <Tree tree={data} />

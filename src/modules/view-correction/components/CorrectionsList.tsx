@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { FC } from 'react'
 
-import { useCorrectionsQuery } from '../services'
+import { useCorrectionsQuery } from '../../../common/services/corrections'
 
 const CorrectionsList: FC = () => {
   const { data } = useCorrectionsQuery()

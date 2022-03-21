@@ -1,17 +1,19 @@
 import { useMemo } from 'react'
 
 import { GenreApiOutput } from '../../../common/model'
-import trpc from '../../../common/utils/trpc'
+import { useCorrectionQuery } from '../../../common/services/corrections'
+import { useGenresQuery } from '../../../common/services/genres'
+import { TError } from '../../../common/utils/trpc'
 
-const useGenresQuery = (correctionId: number) => {
-  // TODO: extract to its own service hook
-  const genresQuery = trpc.useQuery(['genres.all'], { useErrorBoundary: true })
-
-  // TODO: extract to its own service hook
-  const correctionQuery = trpc.useQuery(
-    ['corrections.byId', { id: correctionId }],
-    { useErrorBoundary: true }
-  )
+const useCorrectionGenresQuery = (
+  correctionId: number
+): {
+  data?: GenreApiOutput[]
+  error: TError | null
+  isLoading: boolean
+} => {
+  const genresQuery = useGenresQuery()
+  const correctionQuery = useCorrectionQuery(correctionId)
 
   const modifiedData = useMemo(() => {
     if (!genresQuery.data) return
@@ -37,7 +39,13 @@ const useGenresQuery = (correctionId: number) => {
     return genres
   }, [correctionQuery.data, genresQuery.data])
 
-  return { ...genresQuery, data: modifiedData }
+  if (modifiedData) {
+    return { data: modifiedData, error: null, isLoading: false }
+  } else if (genresQuery.error || genresQuery.isLoading) {
+    return { ...genresQuery, data: undefined }
+  } else {
+    return { ...correctionQuery, data: undefined }
+  }
 }
 
-export default useGenresQuery
+export default useCorrectionGenresQuery

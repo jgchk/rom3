@@ -1,11 +1,12 @@
 import { useMemo } from 'react'
 
-import trpc, { TError } from '../../../common/utils/trpc'
+import { useGenreQuery } from '../../../common/services/genres'
+import { TError } from '../../../common/utils/trpc'
 import { CorrectionGenreApiInputData, CorrectionIdApiInput } from '../services'
 import useCorrectionStore from '../state/store'
 import { toCorrectionGenreApiInputData } from '../utils/convert'
 
-const useGenreQuery = (
+const useCorrectionGenreQuery = (
   id: CorrectionIdApiInput
 ): {
   data?: CorrectionGenreApiInputData
@@ -20,9 +21,8 @@ const useGenreQuery = (
     id.type === 'exists' ? state.edit[id.id] : undefined
   )
 
-  const genreQuery = trpc.useQuery(['genres.byId', { id: id.id }], {
+  const genreQuery = useGenreQuery(id.id, {
     enabled: id.type === 'exists' && !editedData,
-    useErrorBoundary: true,
   })
 
   const genreQueryData = useMemo(
@@ -37,4 +37,4 @@ const useGenreQuery = (
   } else return { ...genreQuery, data: genreQueryData }
 }
 
-export default useGenreQuery
+export default useCorrectionGenreQuery

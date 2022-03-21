@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import trpc from '../../../common/utils/trpc'
+import { useGenresQuery } from '../../../common/services/genres'
 import { CorrectionGenreApiInputData, CorrectionIdApiInput } from '../services'
 import useCorrectionStore from '../state/store'
 import { toCorrectionGenreApiInputData } from '../utils/convert'
@@ -10,9 +10,8 @@ export type GenreData = {
   data: CorrectionGenreApiInputData
 }
 
-const useGenresQuery = () => {
-  // TODO: extract to its own service hook
-  const genresQuery = trpc.useQuery(['genres.all'], { useErrorBoundary: true })
+const useCorrectionGenresQuery = () => {
+  const genresQuery = useGenresQuery()
 
   const createCorrections = useCorrectionStore((state) => state.create)
   const editCorrections = useCorrectionStore((state) => state.edit)
@@ -55,4 +54,4 @@ const useGenresQuery = () => {
   return { ...genresQuery, data: modifiedData }
 }
 
-export default useGenresQuery
+export default useCorrectionGenresQuery

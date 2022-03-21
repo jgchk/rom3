@@ -1,6 +1,6 @@
 import { createContext, FC, useContext } from 'react'
 
-import { GenreTree } from '../hooks/useGenreTreeQuery'
+import { GenreTree } from '../hooks/useCorrectionGenreTreeQuery'
 
 const TreeContext = createContext<GenreTree>({
   genres: {},

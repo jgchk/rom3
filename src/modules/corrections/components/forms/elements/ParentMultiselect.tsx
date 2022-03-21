@@ -3,8 +3,8 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { GenreType } from '../../../../../common/model'
 import { genreParentTypes } from '../../../../../common/model/parents'
-import useGenreQuery from '../../../hooks/useGenreQuery'
-import useGenresQuery from '../../../hooks/useGenresQuery'
+import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
+import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
 import { CorrectionIdApiInput } from '../../../services'
 import { toCorrectionIdApiInputKey } from '../../../utils/keys'
 
@@ -50,7 +50,7 @@ const ParentMultiselect: FC<{
     return () => document.removeEventListener('click', listener)
   }, [])
 
-  const { data } = useGenresQuery()
+  const { data } = useCorrectionGenresQuery()
 
   // TODO
   const self: CorrectionIdApiInput | undefined = undefined
@@ -120,7 +120,7 @@ const SelectedItemm: FC<{
   id: CorrectionIdApiInput
   onRemove: () => void
 }> = ({ id, onRemove }) => {
-  const { data, error } = useGenreQuery(id)
+  const { data, error } = useCorrectionGenreQuery(id)
 
   const renderText = useCallback(() => {
     if (data) return data.name

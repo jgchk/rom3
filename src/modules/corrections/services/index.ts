@@ -1,5 +1,5 @@
 import { GenreType } from '../../../common/model'
-import trpc, { InferMutationInput } from '../../../common/utils/trpc'
+import { InferMutationInput } from '../../../common/utils/trpc'
 
 export type CorrectionGenreApiInput =
   InferMutationInput<'corrections.add'>['create'][number]
@@ -47,6 +47,3 @@ export const makeCorrectionGenreApiInputData = (
   locations: [],
   cultures: [],
 })
-
-export const useAddCorrectionMutation = () =>
-  trpc.useMutation(['corrections.add'])

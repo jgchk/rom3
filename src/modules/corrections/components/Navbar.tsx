@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { FC, useCallback } from 'react'
 import toast from 'react-hot-toast'
 
-import { useAddCorrectionMutation } from '../services'
+import { useAddCorrectionMutation } from '../../../common/services/corrections'
 import useCorrectionStore from '../state/store'
 
 const Navbar: FC = () => {

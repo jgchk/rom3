@@ -2,10 +2,12 @@ import styled from '@emotion/styled'
 import { FC, useMemo } from 'react'
 
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
-import useGenreTreeQuery, { GenreTree } from '../hooks/useGenreTreeQuery'
+import useCorrectionGenreTreeQuery, {
+  GenreTree,
+} from '../hooks/useCorrectionGenreTreeQuery'
 
 const TreeView: FC<{ id: number }> = ({ id }) => {
-  const { data } = useGenreTreeQuery(id)
+  const { data } = useCorrectionGenreTreeQuery(id)
 
   if (data) {
     return <Tree tree={data} />

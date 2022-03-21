@@ -2,15 +2,15 @@ import { useMemo } from 'react'
 
 import { CorrectionGenreApiInputData, CorrectionIdApiInput } from '../services'
 import { toCorrectionIdApiInputKey } from '../utils/keys'
-import useGenresQuery from './useGenresQuery'
+import useCorrectionGenresQuery from './useCorrectionGenresQuery'
 
 export type GenreTree = {
   genres: Record<string, CorrectionGenreApiInputData>
   children: Record<string, CorrectionIdApiInput[]>
 }
 
-const useGenreTreeQuery = () => {
-  const genresQuery = useGenresQuery()
+const useCorrectionGenreTreeQuery = () => {
+  const genresQuery = useCorrectionGenresQuery()
 
   const tree = useMemo(() => {
     if (!genresQuery.data) return
@@ -36,4 +36,4 @@ const useGenreTreeQuery = () => {
   return { ...genresQuery, data: tree }
 }
 
-export default useGenreTreeQuery
+export default useCorrectionGenreTreeQuery

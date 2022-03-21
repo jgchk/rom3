@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 
-import useGenreQuery from '../hooks/useGenreQuery'
+import useCorrectionGenreQuery from '../hooks/useCorrectionGenreQuery'
 import { CorrectionGenreApiInputData, CorrectionIdApiInput } from '../services'
 import useCorrectionStore from '../state/store'
 import { cleanUiData } from '../utils/convert'
@@ -10,7 +10,7 @@ import GenreTypeSelect from './forms/elements/GenreTypeSelect'
 import GenreForm from './forms/GenreForm'
 
 const EditView: FC<{ id: CorrectionIdApiInput }> = ({ id }) => {
-  const { data } = useGenreQuery(id)
+  const { data } = useCorrectionGenreQuery(id)
 
   if (data) {
     return <Loaded id={id} data={data} />
