@@ -15,11 +15,10 @@ import GenreForm from './forms/GenreForm'
 
 const CreateView: FC<{ type?: GenreType; parentId?: CorrectionIdApiInput }> = ({
   type,
-  // TODO
-  // parentId,
+  parentId,
 }) => {
   const [uiState, setUiState] = useState<CorrectionGenreApiInputData>(
-    makeCorrectionGenreApiInputData(type ?? 'META')
+    makeCorrectionGenreApiInputData(type ?? 'META', parentId)
   )
 
   const addCreatedGenre = useCorrectionStore((state) => state.addCreatedGenre)
@@ -41,7 +40,8 @@ const CreateView: FC<{ type?: GenreType; parentId?: CorrectionIdApiInput }> = ({
         <GenreTypeSelect
           value={uiState.type}
           onChange={(type) => {
-            // TODO
+            // TODO: limit parent/influence types & location/culture fields. run conversion
+            //
             // const [newData, dataLost] = makeUiState(val, uiState)
             // const shouldRun = dataLost
             //   ? confirm(
@@ -49,6 +49,7 @@ const CreateView: FC<{ type?: GenreType; parentId?: CorrectionIdApiInput }> = ({
             //     )
             //   : true
             // if (shouldRun) setUiState(newData)
+
             setUiState((s) => ({ ...s, type }))
           }}
         />

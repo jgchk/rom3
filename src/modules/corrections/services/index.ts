@@ -34,14 +34,15 @@ export const isCorrectionIdApiInput = (o: any): o is CorrectionIdApiInput =>
 /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 
 export const makeCorrectionGenreApiInputData = (
-  type: GenreType
+  type: GenreType,
+  parentId?: CorrectionIdApiInput
 ): CorrectionGenreApiInputData => ({
   type,
   name: '',
   alternateNames: [],
   shortDesc: '',
   longDesc: '',
-  parents: [],
+  parents: parentId ? [parentId] : [],
   influencedBy: [],
   locations: [],
   cultures: [],
