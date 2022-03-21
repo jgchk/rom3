@@ -6,7 +6,7 @@ import { genreParentTypes } from '../../../../../common/model/parents'
 import useGenre from '../../../hooks/useGenre'
 import useGenres from '../../../hooks/useGenres'
 import { CorrectionIdApiInput } from '../../../services'
-import { getCorrectionIdApiInputKey } from '../../../utils/keys'
+import { toCorrectionIdApiInputKey } from '../../../utils/keys'
 
 const ParentMultiselect: FC<{
   value: CorrectionIdApiInput[]
@@ -23,8 +23,8 @@ const ParentMultiselect: FC<{
       onChange(
         value.filter(
           (item) =>
-            getCorrectionIdApiInputKey(item) !==
-            getCorrectionIdApiInputKey(removeItem)
+            toCorrectionIdApiInputKey(item) !==
+            toCorrectionIdApiInputKey(removeItem)
         )
       ),
     [onChange, value]
@@ -56,17 +56,17 @@ const ParentMultiselect: FC<{
   const self: CorrectionIdApiInput | undefined = undefined
 
   const selectedKeys = useMemo(
-    () => value.map(getCorrectionIdApiInputKey),
+    () => value.map(toCorrectionIdApiInputKey),
     [value]
   )
 
   const filteredData = useMemo(
     () =>
       data?.filter((item) => {
-        const key = getCorrectionIdApiInputKey(item.id)
+        const key = toCorrectionIdApiInputKey(item.id)
         return (
           parentTypes.includes(item.data.type) &&
-          (self ? getCorrectionIdApiInputKey(self) !== key : true) &&
+          (self ? toCorrectionIdApiInputKey(self) !== key : true) &&
           !selectedKeys.includes(key) &&
           item.data.name.toLowerCase().startsWith(inputValue.toLowerCase())
         )
@@ -79,7 +79,7 @@ const ParentMultiselect: FC<{
     if (filteredData.length === 0) return <div>No items</div>
     return filteredData.map((item) => (
       <MenuItem
-        key={getCorrectionIdApiInputKey(item.id)}
+        key={toCorrectionIdApiInputKey(item.id)}
         type='button'
         onClick={() => addSelectedItem(item.id)}
       >
@@ -95,7 +95,7 @@ const ParentMultiselect: FC<{
           <SelectedItems>
             {value.map((selectedItem) => (
               <SelectedItemm
-                key={getCorrectionIdApiInputKey(selectedItem)}
+                key={toCorrectionIdApiInputKey(selectedItem)}
                 id={selectedItem}
                 onRemove={() => removeSelectedItem(selectedItem)}
               />

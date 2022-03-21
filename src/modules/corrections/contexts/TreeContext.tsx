@@ -3,8 +3,8 @@ import { createContext, FC, useContext } from 'react'
 import { GenreTree } from '../hooks/useGenreTree'
 
 const TreeContext = createContext<GenreTree>({
-  genres: new Map(),
-  children: new Map(),
+  genres: {},
+  children: {},
 })
 
 export const TreeProvider: FC<{ tree: GenreTree }> = ({ tree, children }) => (
