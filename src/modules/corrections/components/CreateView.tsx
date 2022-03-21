@@ -8,6 +8,7 @@ import {
   makeCorrectionGenreApiInputData,
 } from '../services'
 import useCorrectionStore from '../state/store'
+import { cleanUiData } from '../utils/convert'
 import FormElement from './forms/elements/FormElement'
 import GenreTypeSelect from './forms/elements/GenreTypeSelect'
 import GenreForm from './forms/GenreForm'
@@ -24,7 +25,7 @@ const CreateView: FC<{ type?: GenreType; parentId?: CorrectionIdApiInput }> = ({
   const addCreatedGenre = useCorrectionStore((state) => state.addCreatedGenre)
   const router = useRouter()
   const handleCreate = useCallback(() => {
-    addCreatedGenre(uiState)
+    addCreatedGenre(cleanUiData(uiState))
     void router.push('/')
   }, [addCreatedGenre, router, uiState])
 

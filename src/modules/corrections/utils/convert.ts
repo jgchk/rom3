@@ -18,3 +18,11 @@ export const toCorrectionGenreApiInputData = (
   locations: data.locations,
   cultures: data.cultures,
 })
+
+export const cleanUiData = (
+  data: CorrectionGenreApiInputData
+): CorrectionGenreApiInputData => ({
+  ...data,
+  alternateNames: data.alternateNames.filter((s) => s.length > 0),
+  cultures: data.cultures.filter((s) => s.length > 0),
+})

@@ -8,7 +8,7 @@ type CorrectionStore = {
 
   create: Record<number, CorrectionGenreApiInputData>
   edit: Record<number, CorrectionGenreApiInputData>
-  delete: Set<number>
+  delete: number[]
 
   addCreatedGenre: (data: CorrectionGenreApiInputData) => void
   removeCreatedGenre: (id: number) => void
@@ -21,7 +21,7 @@ const useCorrectionStore = create<CorrectionStore>(
     (set) => ({
       create: {},
       edit: {},
-      delete: new Set(),
+      delete: [] as number[],
 
       id: 0,
       addCreatedGenre: (data) =>
@@ -38,11 +38,7 @@ const useCorrectionStore = create<CorrectionStore>(
         }),
 
       addGenreDelete: (id) =>
-        set((state) => {
-          const del = state.delete
-          del.delete(id)
-          return { delete: del }
-        }),
+        set((state) => ({ delete: state.delete.filter((i) => i !== id) })),
     }),
     { name: 'correction' }
   )

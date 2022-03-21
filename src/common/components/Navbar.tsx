@@ -1,17 +1,61 @@
 import styled from '@emotion/styled'
 import Link from 'next/link'
-import { FC } from 'react'
+import { FC, useCallback, useEffect } from 'react'
+import toast from 'react-hot-toast'
 
-const Navbar: FC = () => (
-  <Container>
-    <Link href='/'>
-      <a>List</a>
-    </Link>
-    <Link href='/tree'>
-      <a>Tree</a>
-    </Link>
-  </Container>
-)
+import { useAddCorrectionMutation } from '../../modules/corrections/services'
+import useCorrectionStore from '../../modules/corrections/state/store'
+
+const Navbar: FC = () => {
+  const createCorrections = useCorrectionStore((state) => state.create)
+  const editCorrections = useCorrectionStore((state) => state.edit)
+  const deleteCorrections = useCorrectionStore((state) => state.delete)
+
+  useEffect(
+    () =>
+      console.log({ createCorrections, editCorrections, deleteCorrections }),
+    [createCorrections, deleteCorrections, editCorrections]
+  )
+
+  const { mutate } = useAddCorrectionMutation()
+  const handleSubmit = useCallback(
+    () =>
+      mutate(
+        {
+          create: Object.entries(createCorrections).map(([id, data]) => ({
+            id: Number.parseInt(id),
+            data: data,
+          })),
+          edit: Object.entries(editCorrections).map(([id, data]) => ({
+            id: Number.parseInt(id),
+            data: data,
+          })),
+          delete: [...deleteCorrections],
+        },
+        {
+          onSuccess: () => {
+            toast.success('Submitted correction')
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [createCorrections, deleteCorrections, editCorrections, mutate]
+  )
+
+  return (
+    <Container>
+      <Link href='/'>
+        <a>List</a>
+      </Link>
+      <Link href='/tree'>
+        <a>Tree</a>
+      </Link>
+      <button onClick={() => handleSubmit()}>Submit</button>
+    </Container>
+  )
+}
 
 export default Navbar
 

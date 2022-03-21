@@ -23,7 +23,7 @@ const useGenres = () => {
     const existingGenres: GenreData[] = [
       ...genresQuery.data
         // remove deleted genres
-        .filter((genre) => !deleteCorrections.has(genre.id))
+        .filter((genre) => !deleteCorrections.includes(genre.id))
         // update edited genres
         .map((genre) => {
           const correctionId: CorrectionIdApiInput = {
