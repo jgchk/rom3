@@ -31,9 +31,9 @@ const useGenre = (
   )
 
   if (id.type === 'created') {
-    return { data: editedData, error: null, isLoading: false }
-  } else if (editedData) {
     return { data: createdData, error: null, isLoading: false }
+  } else if (editedData) {
+    return { data: editedData, error: null, isLoading: false }
   } else return { ...genreQuery, data: genreQueryData }
 }
 
