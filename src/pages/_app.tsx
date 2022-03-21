@@ -40,5 +40,5 @@ const Layout = styled.div`
 
 const Content = styled.div`
   flex: 1;
-  overflow-y: auto;
+  overflow: auto;
 `

@@ -26,7 +26,7 @@ const CreateView: FC<{ type?: GenreType; parentId?: CorrectionIdApiInput }> = ({
   const router = useRouter()
   const handleCreate = useCallback(() => {
     addCreatedGenre(cleanUiData(uiState))
-    void router.push('/')
+    void router.push('/corrections/edit/tree')
   }, [addCreatedGenre, router, uiState])
 
   return (

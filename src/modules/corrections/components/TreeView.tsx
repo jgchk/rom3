@@ -46,7 +46,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
               <Link
                 key={genreType}
                 href={{
-                  pathname: '/create',
+                  pathname: '/corrections/edit/create',
                   query: { type: genreType },
                 }}
               >
@@ -99,7 +99,7 @@ const Node: FC<{ idKey: string }> = ({ idKey }) => {
                 <Link
                   key={childType}
                   href={{
-                    pathname: '/create',
+                    pathname: '/corrections/edit/create',
                     query: {
                       type: childType,
                       parentKey: idKey,
