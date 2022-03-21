@@ -34,7 +34,7 @@ const useCorrectionStore = create<CorrectionStore>(
         set((state) => {
           const create = state.create
           delete create[id]
-          return { create }
+          return { create: { ...create } }
         }),
 
       addGenreDelete: (id) =>

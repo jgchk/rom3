@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import Link from 'next/link'
-import { FC, useCallback, useMemo } from 'react'
+import { FC, useCallback, useEffect, useMemo } from 'react'
 
 import { genreTypes } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
@@ -15,6 +15,7 @@ import {
 
 const TreeView: FC = () => {
   const { data } = useGenreTreeQuery()
+  useEffect(() => console.log(data), [data])
 
   if (data) {
     return <Tree tree={data} />
