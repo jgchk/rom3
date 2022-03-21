@@ -117,7 +117,7 @@ model GenreCreate {
   correctionId Int
 
   createdGenre   Genre @relation(fields: [createdGenreId], references: [id], onDelete: Cascade)
-  createdGenreId Int   @unique @map("genreId")
+  createdGenreId Int   @unique
 
   @@id([correctionId, createdGenreId])
 }

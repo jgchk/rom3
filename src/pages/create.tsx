@@ -1,83 +1,29 @@
-import styled from '@emotion/styled'
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { useCallback, useState } from 'react'
-import toast from 'react-hot-toast'
+import { useMemo } from 'react'
 
-import FormElement from '../modules/genres/components/FormElement'
-import GenreForm from '../modules/genres/components/forms/GenreForm'
-import GenreNameSelect from '../modules/genres/components/GenreNameSelect'
-import { GenreUiState, makeUiState } from '../modules/genres/model'
-import { makeSceneUiState } from '../modules/genres/model/scenes'
-import { useAddGenreMutation } from '../modules/genres/services'
-import { toAddApi } from '../modules/genres/utils/convert'
+import { isGenreType } from '../common/model'
+import { getFirstOrValue } from '../common/utils/array'
+import CreateView from '../modules/corrections/components/CreateView'
+import { isCorrectionIdApiInput } from '../modules/corrections/services'
 
 const Create: NextPage = () => {
-  const [data, setData] = useState<GenreUiState>(makeSceneUiState()[0])
-
   const router = useRouter()
 
-  const { mutate, isLoading: isSubmitting } = useAddGenreMutation()
-  const handleCreate = useCallback(
-    () =>
-      mutate(toAddApi(data), {
-        onError: (error) => {
-          toast.error(error.message)
-        },
-        onSuccess: async (res) => {
-          toast.success(`Created ${res.name}!`)
-          await router.push({
-            pathname: '/edit',
-            query: { type: res.type, id: res.id },
-          })
-        },
-      }),
-    [data, mutate, router]
-  )
+  const type = useMemo(() => {
+    const type = getFirstOrValue(router.query.type)
+    if (type && isGenreType(type)) return type
+  }, [router.query.type])
 
-  return (
-    <Layout>
-      <Form>
-        <FormElement>
-          <label>Type</label>
-          <GenreNameSelect
-            value={data.type}
-            onChange={(val) => {
-              const [newData, dataLost] = makeUiState(val, data)
-              const shouldRun = dataLost
-                ? confirm(
-                    'Some data may be lost in the conversion. Are you sure you want to continue?'
-                  )
-                : true
-              if (shouldRun) setData(newData)
-            }}
-          />
-        </FormElement>
-        <GenreForm data={data} onChange={setData} />
-        <button
-          type='submit'
-          disabled={isSubmitting}
-          onClick={() => handleCreate()}
-        >
-          {isSubmitting ? 'Submitting...' : 'Submit'}
-        </button>
-      </Form>
-    </Layout>
-  )
+  const parentId = useMemo(() => {
+    const parentIdStr = getFirstOrValue(router.query.parentId)
+    if (!parentIdStr) return
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const parentId = JSON.parse(parentIdStr)
+    if (isCorrectionIdApiInput(parentId)) return parentId
+  }, [router.query.parentId])
+
+  return <CreateView type={type} parentId={parentId} />
 }
 
 export default Create
-
-const Layout = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-`
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 500px;
-`

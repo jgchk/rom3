@@ -4,5 +4,8 @@
     "stylelint-config-rational-order",
     "stylelint-config-prettier"
   ],
-  "customSyntax": "@stylelint/postcss-css-in-js"
+  "customSyntax": "@stylelint/postcss-css-in-js",
+  "rules": {
+    "function-no-unknown": null
+  }
 }

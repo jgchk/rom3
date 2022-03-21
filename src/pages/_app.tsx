@@ -5,32 +5,26 @@ import { withTRPC } from '@trpc/next'
 import type { AppProps } from 'next/app'
 import { Toaster } from 'react-hot-toast'
 
+import ErrorBoundary from '../common/components/ErrorBoundary'
 import Navbar from '../common/components/Navbar'
 import { isBrowser } from '../common/utils/ssr'
+import { trpcPath, trpcUrl } from '../common/utils/trpc'
 import { AppRouter } from '../modules/server/routers/_app'
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
   <Layout>
     <Navbar />
     <Content>
-      <Component {...pageProps} />
+      <ErrorBoundary>
+        <Component {...pageProps} />
+      </ErrorBoundary>
     </Content>
     <Toaster />
   </Layout>
 )
 
 export default withTRPC<AppRouter>({
-  config: () => {
-    if (isBrowser) {
-      return { url: '/api/trpc' }
-    }
-
-    const url = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}/api/trpc`
-      : 'http://localhost:3000/api/trpc'
-
-    return { url }
-  },
+  config: () => (isBrowser ? { url: trpcPath } : { url: trpcUrl }),
   ssr: true,
 })(MyApp)
 

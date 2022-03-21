@@ -1,11 +1,7 @@
 import { NextPage } from 'next'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
 
-const Home: NextPage = () => {
-  const router = useRouter()
-  useEffect(() => void router.push('/list'), [router])
-  return <div />
-}
+import ListView from '../modules/corrections/components/ListView'
+
+const Home: NextPage = () => <ListView />
 
 export default Home

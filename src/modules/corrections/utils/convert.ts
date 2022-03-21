@@ -1,21 +1,20 @@
-import { InferMutationInput } from '../../../common/utils/trpc'
-import { GenreName, GenreUiState } from '../../genres/model'
-import { toAddApi } from '../../genres/utils/convert'
+import { InferQueryOutput } from '../../../common/utils/trpc'
+import { CorrectionGenreApiInputData } from '../services'
 
-export const toAddCorrectionApi = (
-  data: GenreUiState
-): InferMutationInput<'corrections.add'> => [
-  { action: 'create', data: toAddApi(data) },
-]
-
-export const toEditCorrectionApi = (
-  targetId: number,
-  data: GenreUiState
-): InferMutationInput<'corrections.add'> => [
-  { action: 'edit', targetId, data: toAddApi(data) },
-]
-
-export const toDeleteCorrectionApi = (
-  type: GenreName,
-  id: number
-): InferMutationInput<'corrections.add'> => [{ action: 'delete', type, id }]
+export const toCorrectionGenreApiInputData = (
+  data: InferQueryOutput<'genres.byId'>
+): CorrectionGenreApiInputData => ({
+  type: data.type,
+  name: data.name,
+  alternateNames: data.alternateNames,
+  shortDesc: data.shortDesc,
+  longDesc: data.longDesc,
+  parents: data.parents.map((id) => ({ id, type: 'exists' })),
+  influencedBy: data.influencedBy.map(({ id, influenceType }) => ({
+    id,
+    influenceType,
+    type: 'exists',
+  })),
+  locations: data.locations,
+  cultures: data.cultures,
+})

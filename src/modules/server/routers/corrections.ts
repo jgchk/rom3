@@ -1,275 +1,199 @@
-import { Correction } from '@prisma/client'
-import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 import createRouter from '../createRouter'
 import prisma from '../prisma'
-import { GenreApiInput } from '../utils/validators'
-import { GenreTypeInput } from '../utils/validators/misc'
-import { createMetaDbInput, MetaApiInput } from './metas'
-import { createSceneDbInput, SceneApiInput } from './scenes'
-import { createStyleDbInput, StyleApiInput } from './styles'
-import { createTrendDbInput, TrendApiInput } from './trends'
+import { ApiCulture, ApiInfluenceType, ApiLocation, GenreType } from './genres'
 
-const CreateCorrectionApiInput = z.object({
-  action: z.literal('create'),
-  data: GenreApiInput,
-})
-type CreateCorrectionApiInput = z.infer<typeof CreateCorrectionApiInput>
-
-const EditCorrectionApiInput = z.object({
-  action: z.literal('edit'),
-  targetId: z.number(),
-  data: GenreApiInput,
-})
-type EditCorrectionApiInput = z.infer<typeof EditCorrectionApiInput>
-
-const DeleteCorrectionApiInput = z.object({
-  action: z.literal('delete'),
-  type: GenreTypeInput,
+const CorrectionIdApiInput = z.object({
   id: z.number(),
-})
-type DeleteCorrectionApiInput = z.infer<typeof DeleteCorrectionApiInput>
-
-const CorrectionApiInput = z.array(
-  z.discriminatedUnion('action', [
-    CreateCorrectionApiInput,
-    EditCorrectionApiInput,
-    DeleteCorrectionApiInput,
-  ])
-)
-export type CorrectionApiInput = z.infer<typeof CorrectionApiInput>
-
-const isCreateOrEditCorrectionApiInput = (
-  o: CorrectionApiInput[number]
-): o is CreateCorrectionApiInput | EditCorrectionApiInput =>
-  o.action === 'create' || o.action === 'edit'
-const isDeleteCorrectionApiInput = (
-  o: CorrectionApiInput[number]
-): o is DeleteCorrectionApiInput => o.action === 'delete'
-
-const isMetaCorrectionApiInput = <T extends { data: GenreApiInput }>(
-  o: T
-): o is T & { data: MetaApiInput } => o.data.type === 'meta'
-const isSceneCorrectionApiInput = <T extends { data: GenreApiInput }>(
-  o: T
-): o is T & { data: SceneApiInput } => o.data.type === 'scene'
-const isStyleCorrectionApiInput = <T extends { data: GenreApiInput }>(
-  o: T
-): o is T & { data: StyleApiInput } => o.data.type === 'style'
-const isTrendCorrectionApiInput = <T extends { data: GenreApiInput }>(
-  o: T
-): o is T & { data: TrendApiInput } => o.data.type === 'trend'
-
-export type CorrectionApiOutput = Correction & {
-  type: 'correction'
-}
-
-const toApiOutput = (correction: Correction): CorrectionApiOutput => ({
-  ...correction,
-  type: 'correction',
+  type: z.union([z.literal('created'), z.literal('exists')]),
 })
 
-export const addCorrection = async (
-  input: CorrectionApiInput
-): Promise<CorrectionApiOutput> => {
-  const correction = await prisma.correction.create({
-    data: {
-      metas: {
-        create: input
-          .filter(isCreateOrEditCorrectionApiInput)
-          .filter(isMetaCorrectionApiInput)
-          .map((i) => ({
-            ...(i.action === 'edit' ? { targetMetaId: i.targetId } : {}),
-            meta: createMetaDbInput(i.data),
-          })),
-      },
-      scenes: {
-        create: input
-          .filter(isCreateOrEditCorrectionApiInput)
-          .filter(isSceneCorrectionApiInput)
-          .map((i) => ({
-            ...(i.action === 'edit' ? { targetSceneId: i.targetId } : {}),
-            scene: createSceneDbInput(i.data),
-          })),
-      },
-      styles: {
-        create: input
-          .filter(isCreateOrEditCorrectionApiInput)
-          .filter(isStyleCorrectionApiInput)
-          .map((i) => ({
-            ...(i.action === 'edit' ? { targetStyleId: i.targetId } : {}),
-            style: createStyleDbInput(i.data),
-          })),
-      },
-      trends: {
-        create: input
-          .filter(isCreateOrEditCorrectionApiInput)
-          .filter(isTrendCorrectionApiInput)
-          .map((i) => ({
-            ...(i.action === 'edit' ? { targetTrendId: i.targetId } : {}),
-            trend: createTrendDbInput(i.data),
-          })),
-      },
-      deleteMetas: {
-        create: input
-          .filter(isDeleteCorrectionApiInput)
-          .filter((i) => i.type === 'meta')
-          .map((i) => ({ targetMetaId: i.id })),
-      },
-      deleteScenes: {
-        create: input
-          .filter(isDeleteCorrectionApiInput)
-          .filter((i) => i.type === 'scene')
-          .map((i) => ({ targetSceneId: i.id })),
-      },
-      deleteStyles: {
-        create: input
-          .filter(isDeleteCorrectionApiInput)
-          .filter((i) => i.type === 'style')
-          .map((i) => ({ targetStyleId: i.id })),
-      },
-      deleteTrends: {
-        create: input
-          .filter(isDeleteCorrectionApiInput)
-          .filter((i) => i.type === 'trend')
-          .map((i) => ({ targetTrendId: i.id })),
-      },
-    },
-  })
-  return toApiOutput(correction)
-}
+const CorrectionGenreInfluenceApiInput = CorrectionIdApiInput.extend({
+  influenceType: ApiInfluenceType.optional(),
+})
 
-export const getCorrection = async (
-  id: number
-): Promise<CorrectionApiOutput> => {
-  const correction = await prisma.correction.findUnique({
-    where: { id },
-  })
-  if (!correction) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: `No correction with id '${id}'`,
+const CorrectionGenreApiInput = z.object({
+  type: GenreType,
+  name: z.string().min(1),
+  alternateNames: z.array(z.string().min(1)),
+  shortDesc: z.string().min(1),
+  longDesc: z.string().min(1),
+  parents: CorrectionIdApiInput.array(),
+  influencedBy: CorrectionGenreInfluenceApiInput.array(),
+  locations: ApiLocation.array(),
+  cultures: ApiCulture.array(),
+})
+
+const GenreCreateApiInput = z.object({
+  id: z.number(),
+  data: CorrectionGenreApiInput,
+})
+
+const GenreEditApiInput = z.object({
+  id: z.number(),
+  data: CorrectionGenreApiInput,
+})
+
+const GenreDeleteApiInput = z.number()
+
+const CorrectionApiInput = z.object({
+  create: GenreCreateApiInput.array(),
+  edit: GenreEditApiInput.array(),
+  delete: GenreDeleteApiInput.array(),
+})
+type CorrectionApiInput = z.infer<typeof CorrectionApiInput>
+
+const addCorrection = async (input: CorrectionApiInput) => {
+  // 1. create without relationships -> make map from input ids to real ids
+  // 2. add relationships using real ids
+
+  const idsMap: { [inputId: number]: number } = {}
+
+  for (const { id: inputId, data } of input.create) {
+    const { id: realId } = await prisma.genre.create({
+      data: {
+        type: data.type,
+        name: data.name,
+        alternateNames: {
+          create: data.alternateNames.map((name) => ({ name })),
+        },
+        shortDesc: data.shortDesc,
+        longDesc: data.longDesc,
+        locations: {
+          create: data.locations.map((loc) => ({
+            location: {
+              connectOrCreate: {
+                where: {
+                  city_region_country: {
+                    city: loc.city,
+                    region: loc.region,
+                    country: loc.country,
+                  },
+                },
+                create: {
+                  city: loc.city,
+                  region: loc.region,
+                  country: loc.country,
+                },
+              },
+            },
+          })),
+        },
+        cultures: {
+          create: data.cultures.map((c) => ({
+            culture: {
+              connectOrCreate: { where: { name: c }, create: { name: c } },
+            },
+          })),
+        },
+      },
+    })
+
+    idsMap[inputId] = realId
+  }
+
+  for (const { id: inputId, data } of input.create) {
+    const realId = idsMap[inputId]
+    await prisma.genre.update({
+      where: { id: realId },
+      data: {
+        parents: {
+          create: data.parents.map((parent) => ({
+            parentId: parent.type === 'exists' ? parent.id : idsMap[parent.id],
+          })),
+        },
+        influencedBy: {
+          create: data.influencedBy.map((influence) => ({
+            influencerId:
+              influence.type === 'exists' ? influence.id : idsMap[influence.id],
+            influenceType: influence.influenceType,
+          })),
+        },
+      },
     })
   }
-  return toApiOutput(correction)
-}
 
-export const getCorrections = async (): Promise<CorrectionApiOutput[]> => {
-  const corrections = await prisma.correction.findMany()
-  return corrections.map(toApiOutput)
-}
-
-export const editCorrection = async (
-  id: number,
-  input: CorrectionApiInput
-): Promise<CorrectionApiOutput> => {
-  const correction = await prisma.correction.update({
-    where: { id: id },
+  const correction = await prisma.correction.create({
     data: {
-      metas: {
-        deleteMany: { correctionId: id },
-        create: input
-          .filter(isCreateOrEditCorrectionApiInput)
-          .filter(isMetaCorrectionApiInput)
-          .map((i) => ({
-            ...(i.action === 'edit' ? { targetMetaId: i.targetId } : {}),
-            meta: createMetaDbInput(i.data),
-          })),
+      create: {
+        create: input.create.map((c) => ({ createdGenreId: idsMap[c.id] })),
       },
-      scenes: {
-        deleteMany: { correctionId: id },
-        create: input
-          .filter(isCreateOrEditCorrectionApiInput)
-          .filter(isSceneCorrectionApiInput)
-          .map((i) => ({
-            ...(i.action === 'edit' ? { targetSceneId: i.targetId } : {}),
-            scene: createSceneDbInput(i.data),
-          })),
+      edit: {
+        create: input.edit.map((e) => ({
+          targetGenre: {
+            connect: e.id,
+          },
+          updatedGenre: {
+            create: {
+              type: e.data.type,
+              name: e.data.name,
+              alternateNames: {
+                create: e.data.alternateNames.map((name) => ({ name })),
+              },
+              shortDesc: e.data.shortDesc,
+              longDesc: e.data.longDesc,
+              parents: {
+                create: e.data.parents.map((parent) => ({
+                  parentId:
+                    parent.type === 'exists' ? parent.id : idsMap[parent.id],
+                })),
+              },
+              influencedBy: {
+                create: e.data.influencedBy.map((influence) => ({
+                  influencerId:
+                    influence.type === 'exists'
+                      ? influence.id
+                      : idsMap[influence.id],
+                  influenceType: influence.influenceType,
+                })),
+              },
+              locations: {
+                create: e.data.locations.map((loc) => ({
+                  location: {
+                    connectOrCreate: {
+                      where: {
+                        city_region_country: {
+                          city: loc.city,
+                          region: loc.region,
+                          country: loc.country,
+                        },
+                      },
+                      create: {
+                        city: loc.city,
+                        region: loc.region,
+                        country: loc.country,
+                      },
+                    },
+                  },
+                })),
+              },
+              cultures: {
+                create: e.data.cultures.map((c) => ({
+                  culture: {
+                    connectOrCreate: {
+                      where: { name: c },
+                      create: { name: c },
+                    },
+                  },
+                })),
+              },
+            },
+          },
+        })),
       },
-      styles: {
-        deleteMany: { correctionId: id },
-        create: input
-          .filter(isCreateOrEditCorrectionApiInput)
-          .filter(isStyleCorrectionApiInput)
-          .map((i) => ({
-            ...(i.action === 'edit' ? { targetStyleId: i.targetId } : {}),
-            style: createStyleDbInput(i.data),
-          })),
-      },
-      trends: {
-        deleteMany: { correctionId: id },
-        create: input
-          .filter(isCreateOrEditCorrectionApiInput)
-          .filter(isTrendCorrectionApiInput)
-          .map((i) => ({
-            ...(i.action === 'edit' ? { targetTrendId: i.targetId } : {}),
-            trend: createTrendDbInput(i.data),
-          })),
-      },
-      deleteMetas: {
-        deleteMany: { correctionId: id },
-        create: input
-          .filter(isDeleteCorrectionApiInput)
-          .filter((i) => i.type === 'meta')
-          .map((i) => ({ targetMetaId: i.id })),
-      },
-      deleteScenes: {
-        deleteMany: { correctionId: id },
-        create: input
-          .filter(isDeleteCorrectionApiInput)
-          .filter((i) => i.type === 'scene')
-          .map((i) => ({ targetSceneId: i.id })),
-      },
-      deleteStyles: {
-        deleteMany: { correctionId: id },
-        create: input
-          .filter(isDeleteCorrectionApiInput)
-          .filter((i) => i.type === 'style')
-          .map((i) => ({ targetStyleId: i.id })),
-      },
-      deleteTrends: {
-        deleteMany: { correctionId: id },
-        create: input
-          .filter(isDeleteCorrectionApiInput)
-          .filter((i) => i.type === 'trend')
-          .map((i) => ({ targetTrendId: i.id })),
+      delete: {
+        create: input.delete.map((id) => ({ targetGenreId: id })),
       },
     },
   })
-  return toApiOutput(correction)
+
+  return correction
 }
 
-export const deleteCorrection = async (id: number): Promise<number> => {
-  await prisma.correction.delete({ where: { id } })
-  return id
-}
-
-const correctionsRouter = createRouter()
-  .mutation('add', {
-    input: CorrectionApiInput,
-    resolve: ({ input }) => addCorrection(input),
-  })
-  .query('all', {
-    resolve: async () => {
-      const styles = await prisma.meta.findMany()
-      return styles
-    },
-  })
-  .query('byId', {
-    input: z.object({ id: z.number() }),
-    resolve: ({ input }) => getCorrection(input.id),
-  })
-  .mutation('edit', {
-    input: z.object({
-      id: z.number(),
-      data: CorrectionApiInput,
-    }),
-    resolve: ({ input }) => editCorrection(input.id, input.data),
-  })
-  .mutation('delete', {
-    input: z.object({ id: z.number() }),
-    resolve: ({ input }) => deleteCorrection(input.id),
-  })
+const correctionsRouter = createRouter().mutation('add', {
+  input: CorrectionApiInput,
+  resolve: ({ input }) => addCorrection(input),
+})
 
 export default correctionsRouter
