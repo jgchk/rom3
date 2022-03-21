@@ -1,32 +1,30 @@
 import { NextPage } from 'next'
+import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
 import ClientOnly from '../../../../common/components/ClientOnly'
-import { isGenreType } from '../../../../common/model'
 import { getFirstOrValue } from '../../../../common/utils/array'
-import CreateView from '../../../../modules/corrections/components/CreateView'
+import EditView from '../../../../modules/corrections/components/EditView'
 import Layout from '../../../../modules/corrections/components/Layout'
 import { fromCorrectionIdApiInputKey } from '../../../../modules/corrections/utils/keys'
 
 const Create: NextPage = () => {
   const router = useRouter()
 
-  const type = useMemo(() => {
-    const type = getFirstOrValue(router.query.type)
-    if (type && isGenreType(type)) return type
-  }, [router.query.type])
+  const id = useMemo(() => {
+    const idStr = getFirstOrValue(router.query.key)
+    if (idStr !== undefined) return fromCorrectionIdApiInputKey(idStr)
+  }, [router.query.key])
 
-  const parentId = useMemo(() => {
-    const parentIdStr = getFirstOrValue(router.query.parentId)
-    if (parentIdStr !== undefined)
-      return fromCorrectionIdApiInputKey(parentIdStr)
-  }, [router.query.parentId])
+  if (id === undefined) {
+    return <ErrorPage statusCode={404} />
+  }
 
   return (
     <Layout>
       <ClientOnly>
-        <CreateView type={type} parentId={parentId} />
+        <EditView id={id} />
       </ClientOnly>
     </Layout>
   )
