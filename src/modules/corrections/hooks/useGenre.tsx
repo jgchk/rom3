@@ -13,11 +13,11 @@ const useGenre = (
   isLoading: boolean
 } => {
   const createdData = useCorrectionStore((state) =>
-    id.type === 'created' ? state.create.get(id.id) : undefined
+    id.type === 'created' ? state.create[id.id] : undefined
   )
 
   const editedData = useCorrectionStore((state) =>
-    id.type === 'exists' ? state.edit.get(id.id) : undefined
+    id.type === 'exists' ? state.edit[id.id] : undefined
   )
 
   const genreQuery = trpc.useQuery(['genres.byId', { id: id.id }], {

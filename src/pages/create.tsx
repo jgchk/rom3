@@ -2,6 +2,7 @@ import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
+import ClientOnly from '../common/components/ClientOnly'
 import { isGenreType } from '../common/model'
 import { getFirstOrValue } from '../common/utils/array'
 import CreateView from '../modules/corrections/components/CreateView'
@@ -21,7 +22,11 @@ const Create: NextPage = () => {
       return fromCorrectionIdApiInputKey(parentIdStr)
   }, [router.query.parentId])
 
-  return <CreateView type={type} parentId={parentId} />
+  return (
+    <ClientOnly>
+      <CreateView type={type} parentId={parentId} />
+    </ClientOnly>
+  )
 }
 
 export default Create

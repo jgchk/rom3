@@ -32,8 +32,7 @@ const useGenres = () => {
           }
 
           const data: CorrectionGenreApiInputData =
-            editCorrections.get(genre.id) ??
-            toCorrectionGenreApiInputData(genre)
+            editCorrections[genre.id] ?? toCorrectionGenreApiInputData(genre)
 
           return {
             id: correctionId,
@@ -41,9 +40,9 @@ const useGenres = () => {
           }
         }),
       // add created genres
-      ...[...createCorrections.entries()].map(
+      ...Object.entries(createCorrections).map(
         ([id, genre]): GenreData => ({
-          id: { id, type: 'created' },
+          id: { id: Number.parseInt(id), type: 'created' },
           data: genre,
         })
       ),
