@@ -59,7 +59,7 @@ const GenreApiInput = z.object({
 })
 type GenreApiInput = z.infer<typeof GenreApiInput>
 
-type GenreApiOutput = Genre & {
+export type GenreApiOutput = Genre & {
   alternateNames: string[]
   parents: ApiGenreParent[]
   influencedBy: ApiGenreInfluence[]
@@ -67,15 +67,22 @@ type GenreApiOutput = Genre & {
   cultures: ApiCulture[]
 }
 
-const toApiOutput = (
-  genre: Genre & {
-    alternateNames: GenreName[]
-    parents: GenreParent[]
-    influencedBy: GenreInfluence[]
-    locations: (GenreLocation & { location: Location })[]
-    cultures: (GenreCulture & { culture: Culture })[]
-  }
-): GenreApiOutput => ({
+export type GenreInclude = Genre & {
+  alternateNames: GenreName[]
+  parents: GenreParent[]
+  influencedBy: GenreInfluence[]
+  locations: (GenreLocation & { location: Location })[]
+  cultures: (GenreCulture & { culture: Culture })[]
+}
+export const genreInclude = {
+  alternateNames: true,
+  parents: true,
+  influencedBy: true,
+  locations: { include: { location: true } },
+  cultures: { include: { culture: true } },
+} as const
+
+export const toGenreApiOutput = (genre: GenreInclude): GenreApiOutput => ({
   ...genre,
   alternateNames: genre.alternateNames.map((an) => an.name),
   parents: genre.parents.map((p) => p.parentId),
@@ -86,14 +93,6 @@ const toApiOutput = (
   locations: genre.locations.map((loc) => loc.location),
   cultures: genre.cultures.map((c) => c.culture.name),
 })
-
-const genreInclude = {
-  alternateNames: true,
-  parents: true,
-  influencedBy: true,
-  locations: { include: { location: true } },
-  cultures: { include: { culture: true } },
-} as const
 
 const addGenre = async (input: GenreApiInput): Promise<GenreApiOutput> => {
   const genre = await prisma.genre.create({
@@ -144,7 +143,7 @@ const addGenre = async (input: GenreApiInput): Promise<GenreApiOutput> => {
     },
     include: genreInclude,
   })
-  return toApiOutput(genre)
+  return toGenreApiOutput(genre)
 }
 
 const getGenre = async (id: number): Promise<GenreApiOutput> => {
@@ -158,14 +157,14 @@ const getGenre = async (id: number): Promise<GenreApiOutput> => {
       message: `No genre with id '${id}'`,
     })
   }
-  return toApiOutput(genre)
+  return toGenreApiOutput(genre)
 }
 
 const getGenres = async (): Promise<GenreApiOutput[]> => {
   const genres = await prisma.genre.findMany({
     include: genreInclude,
   })
-  return genres.map(toApiOutput)
+  return genres.map(toGenreApiOutput)
 }
 
 const editGenre = async (
@@ -226,7 +225,7 @@ const editGenre = async (
     },
     include: genreInclude,
   })
-  return toApiOutput(genre)
+  return toGenreApiOutput(genre)
 }
 
 const deleteGenre = async (id: number): Promise<number> => {

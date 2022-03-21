@@ -5,7 +5,7 @@ import { CorrectionGenreApiInputData, CorrectionIdApiInput } from '../services'
 import useCorrectionStore from '../state/store'
 import { toCorrectionGenreApiInputData } from '../utils/convert'
 
-const useGenre = (
+const useGenreQuery = (
   id: CorrectionIdApiInput
 ): {
   data?: CorrectionGenreApiInputData
@@ -37,4 +37,4 @@ const useGenre = (
   } else return { ...genreQuery, data: genreQueryData }
 }
 
-export default useGenre
+export default useGenreQuery

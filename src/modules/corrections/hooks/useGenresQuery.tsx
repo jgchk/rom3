@@ -10,7 +10,8 @@ export type GenreData = {
   data: CorrectionGenreApiInputData
 }
 
-const useGenres = () => {
+const useGenresQuery = () => {
+  // TODO: extract to its own service hook
   const genresQuery = trpc.useQuery(['genres.all'], { useErrorBoundary: true })
 
   const createCorrections = useCorrectionStore((state) => state.create)
@@ -20,7 +21,7 @@ const useGenres = () => {
   const modifiedData: GenreData[] | undefined = useMemo(() => {
     if (!genresQuery.data) return
 
-    const existingGenres: GenreData[] = [
+    const genres: GenreData[] = [
       ...genresQuery.data
         // remove deleted genres
         .filter((genre) => !deleteCorrections.includes(genre.id))
@@ -48,10 +49,10 @@ const useGenres = () => {
       ),
     ]
 
-    return existingGenres
+    return genres
   }, [createCorrections, deleteCorrections, editCorrections, genresQuery.data])
 
   return { ...genresQuery, data: modifiedData }
 }
 
-export default useGenres
+export default useGenresQuery

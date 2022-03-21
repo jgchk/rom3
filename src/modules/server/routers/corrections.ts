@@ -1,8 +1,19 @@
+import { Correction, GenreCreate, GenreDelete, GenreEdit } from '@prisma/client'
+import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 import createRouter from '../createRouter'
 import prisma from '../prisma'
-import { ApiCulture, ApiInfluenceType, ApiLocation, GenreType } from './genres'
+import {
+  ApiCulture,
+  ApiInfluenceType,
+  ApiLocation,
+  GenreApiOutput,
+  GenreInclude,
+  genreInclude,
+  GenreType,
+  toGenreApiOutput,
+} from './genres'
 
 const CorrectionIdApiInput = z.object({
   id: z.number(),
@@ -44,7 +55,46 @@ const CorrectionApiInput = z.object({
 })
 type CorrectionApiInput = z.infer<typeof CorrectionApiInput>
 
-const addCorrection = async (input: CorrectionApiInput) => {
+type CorrectionApiOutput = Correction & {
+  create: GenreApiOutput[]
+  edit: { updatedGenre: GenreApiOutput; targetGenre: GenreApiOutput }[]
+  delete: GenreApiOutput[]
+}
+
+type CorrectionInclude = Correction & {
+  create: (GenreCreate & { createdGenre: GenreInclude })[]
+  edit: (GenreEdit & {
+    updatedGenre: GenreInclude
+    targetGenre: GenreInclude
+  })[]
+  delete: (GenreDelete & { targetGenre: GenreInclude })[]
+}
+const correctionInclude = {
+  create: { include: { createdGenre: { include: genreInclude } } },
+  edit: {
+    include: {
+      updatedGenre: { include: genreInclude },
+      targetGenre: { include: genreInclude },
+    },
+  },
+  delete: { include: { targetGenre: { include: genreInclude } } },
+} as const
+
+const toCorrectionApiOutput = (
+  correction: CorrectionInclude
+): CorrectionApiOutput => ({
+  ...correction,
+  create: correction.create.map((c) => toGenreApiOutput(c.createdGenre)),
+  edit: correction.edit.map((e) => ({
+    updatedGenre: toGenreApiOutput(e.updatedGenre),
+    targetGenre: toGenreApiOutput(e.targetGenre),
+  })),
+  delete: correction.delete.map((d) => toGenreApiOutput(d.targetGenre)),
+})
+
+const addCorrection = async (
+  input: CorrectionApiInput
+): Promise<CorrectionApiOutput> => {
   // 1. create without relationships -> make map from input ids to real ids
   // 2. add relationships using real ids
 
@@ -186,14 +236,53 @@ const addCorrection = async (input: CorrectionApiInput) => {
         create: input.delete.map((id) => ({ targetGenreId: id })),
       },
     },
+    include: correctionInclude,
   })
 
-  return correction
+  return toCorrectionApiOutput(correction)
 }
 
-const correctionsRouter = createRouter().mutation('add', {
-  input: CorrectionApiInput,
-  resolve: ({ input }) => addCorrection(input),
-})
+const getCorrection = async (id: number): Promise<CorrectionApiOutput> => {
+  const correction = await prisma.correction.findUnique({
+    where: { id },
+    include: correctionInclude,
+  })
+  if (!correction) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: `No correction with id '${id}'`,
+    })
+  }
+  return toCorrectionApiOutput(correction)
+}
+
+const getCorrections = async (): Promise<CorrectionApiOutput[]> => {
+  const corrections = await prisma.correction.findMany({
+    include: correctionInclude,
+  })
+  return corrections.map(toCorrectionApiOutput)
+}
+
+const deleteCorrection = async (id: number): Promise<number> => {
+  await prisma.correction.delete({ where: { id } })
+  return id
+}
+
+const correctionsRouter = createRouter()
+  .mutation('add', {
+    input: CorrectionApiInput,
+    resolve: ({ input }) => addCorrection(input),
+  })
+  .query('all', {
+    resolve: async () => getCorrections(),
+  })
+  .query('byId', {
+    input: z.object({ id: z.number() }),
+    resolve: ({ input }) => getCorrection(input.id),
+  })
+  .mutation('delete', {
+    input: z.object({ id: z.number() }),
+    resolve: ({ input }) => deleteCorrection(input.id),
+  })
 
 export default correctionsRouter

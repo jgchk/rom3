@@ -6,7 +6,7 @@ import { genreTypes } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
 import { capitalize } from '../../../common/utils/string'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
-import { GenreTree, useGenreTreeQuery } from '../hooks/useGenreTree'
+import useGenreTreeQuery, { GenreTree } from '../hooks/useGenreTreeQuery'
 import useCorrectionStore from '../state/store'
 import {
   fromCorrectionIdApiInputKey,
@@ -63,13 +63,11 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
 const Node: FC<{ idKey: string }> = ({ idKey }) => {
   const tree = useGenreTree()
 
-  /* eslint-disable @typescript-eslint/no-non-null-assertion */
   const genre = useMemo(() => tree.genres[idKey], [idKey, tree.genres])
   const children = useMemo(
     () => tree.children[idKey] ?? [],
     [idKey, tree.children]
   )
-  /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
   const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
 
