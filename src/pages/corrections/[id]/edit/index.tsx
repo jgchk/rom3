@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import ClientOnly from '../../../../common/components/ClientOnly'
 import { getFirstOrValue } from '../../../../common/utils/array'
 import Layout from '../../../../modules/view-correction/components/Layout'
-import ListView from '../../../../modules/view-correction/ListView'
+import ListView from '../../../../modules/view-correction/components/ListView'
 
 const Home: NextPage = () => {
   const router = useRouter()
