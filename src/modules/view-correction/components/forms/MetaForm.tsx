@@ -10,8 +10,7 @@ import StringArrayEditor from './elements/StringArrayEditor'
 const MetaForm: FC<{
   data: GenreApiInput
   onChange: Dispatch<SetStateAction<GenreApiInput>>
-  correctionId: number
-}> = ({ data, onChange, correctionId }) => (
+}> = ({ data, onChange }) => (
   <>
     <FormElement>
       <label>Name *</label>
@@ -35,7 +34,6 @@ const MetaForm: FC<{
         value={data.parents}
         onChange={(parents) => onChange((d) => ({ ...d, parents }))}
         childType='META'
-        correctionId={correctionId}
       />
     </FormElement>
     <FormElement>

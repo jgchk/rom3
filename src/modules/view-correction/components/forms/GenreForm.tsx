@@ -6,28 +6,19 @@ import MetaForm from './MetaForm'
 const GenreForm: FC<{
   data: GenreApiInput
   onChange: Dispatch<SetStateAction<GenreApiInput>>
-  correctionId: number
-}> = ({ data, onChange, correctionId }) => {
+}> = ({ data, onChange }) => {
   switch (data.type) {
     case 'META':
-      return (
-        <MetaForm data={data} onChange={onChange} correctionId={correctionId} />
-      )
+      return <MetaForm data={data} onChange={onChange} />
     case 'SCENE':
       // TODO
-      return (
-        <MetaForm data={data} onChange={onChange} correctionId={correctionId} />
-      )
+      return <MetaForm data={data} onChange={onChange} />
     case 'STYLE':
       // TODO
-      return (
-        <MetaForm data={data} onChange={onChange} correctionId={correctionId} />
-      )
+      return <MetaForm data={data} onChange={onChange} />
     case 'TREND':
       // TODO
-      return (
-        <MetaForm data={data} onChange={onChange} correctionId={correctionId} />
-      )
+      return <MetaForm data={data} onChange={onChange} />
   }
 }
 

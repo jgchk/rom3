@@ -7,6 +7,7 @@ import { genreTypes } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
 import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
 import { capitalize } from '../../../common/utils/string'
+import { useCorrectionContext } from '../contexts/CorrectionContext'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
 import useCorrectionGenreTreeQuery, {
   GenreTree,
@@ -16,16 +17,15 @@ const TreeView: FC<{ id: number }> = ({ id }) => {
   const { data } = useCorrectionGenreTreeQuery(id)
 
   if (data) {
-    return <Tree tree={data} correctionId={id} />
+    return <Tree tree={data} />
   }
 
   return <div>Loading...</div>
 }
 
-const Tree: FC<{ tree: GenreTree; correctionId: number }> = ({
-  tree,
-  correctionId,
-}) => {
+const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
+  const { id: correctionId } = useCorrectionContext()
+
   const topLevelGenres = useMemo(
     () =>
       Object.values(tree.genres).filter((genre) => genre.parents.length === 0),
@@ -38,7 +38,7 @@ const Tree: FC<{ tree: GenreTree; correctionId: number }> = ({
         <NodeList>
           {topLevelGenres.map((genre) => (
             <NodeListItem key={genre.id} root>
-              <Node id={genre.id} correctionId={correctionId} />
+              <Node id={genre.id} />
             </NodeListItem>
           ))}
           <ButtonContainer>
@@ -60,10 +60,8 @@ const Tree: FC<{ tree: GenreTree; correctionId: number }> = ({
   )
 }
 
-const Node: FC<{ id: number; correctionId: number }> = ({
-  id,
-  correctionId,
-}) => {
+const Node: FC<{ id: number }> = ({ id }) => {
+  const { id: correctionId } = useCorrectionContext()
   const tree = useGenreTree()
 
   const genre = useMemo(() => tree.genres[id], [id, tree.genres])
@@ -126,7 +124,7 @@ const Node: FC<{ id: number; correctionId: number }> = ({
         <NodeList>
           {children.map((id) => (
             <NodeListItem key={id}>
-              <Node id={id} correctionId={correctionId} />
+              <Node id={id} />
             </NodeListItem>
           ))}
         </NodeList>

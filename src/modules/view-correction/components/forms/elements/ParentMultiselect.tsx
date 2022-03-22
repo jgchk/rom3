@@ -3,6 +3,7 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { GenreType } from '../../../../../common/model'
 import { genreParentTypes } from '../../../../../common/model/parents'
+import { useCorrectionContext } from '../../../contexts/CorrectionContext'
 import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
 
@@ -10,8 +11,9 @@ const ParentMultiselect: FC<{
   value: number[]
   onChange: (value: number[]) => void
   childType: GenreType
-  correctionId: number
-}> = ({ value, onChange, childType, correctionId }) => {
+}> = ({ value, onChange, childType }) => {
+  const { id: correctionId } = useCorrectionContext()
+
   const [inputValue, setInputValue] = useState('')
   const [open, setOpen] = useState(false)
 
@@ -84,7 +86,6 @@ const ParentMultiselect: FC<{
               <SelectedItemm
                 key={selectedItem}
                 id={selectedItem}
-                correctionId={correctionId}
                 onRemove={() => removeSelectedItem(selectedItem)}
               />
             ))}
@@ -106,9 +107,9 @@ const ParentMultiselect: FC<{
 
 const SelectedItemm: FC<{
   id: number
-  correctionId: number
   onRemove: () => void
-}> = ({ id, correctionId, onRemove }) => {
+}> = ({ id, onRemove }) => {
+  const { id: correctionId } = useCorrectionContext()
   const { data, error } = useCorrectionGenreQuery(id, correctionId)
 
   const renderText = useCallback(() => {

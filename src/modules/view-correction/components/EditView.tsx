@@ -4,30 +4,29 @@ import toast from 'react-hot-toast'
 
 import { useCorrectGenreMutation } from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
+import { useCorrectionContext } from '../contexts/CorrectionContext'
 import useCorrectionGenreQuery from '../hooks/useCorrectionGenreQuery'
 import { cleanUiData } from '../utils/genre'
 import FormElement from './forms/elements/FormElement'
 import GenreTypeSelect from './forms/elements/GenreTypeSelect'
 import GenreForm from './forms/GenreForm'
 
-const EditView: FC<{ correctionId: number; genreId: number }> = ({
-  correctionId,
-  genreId,
-}) => {
+const EditView: FC<{ genreId: number }> = ({ genreId }) => {
+  const { id: correctionId } = useCorrectionContext()
   const { data } = useCorrectionGenreQuery(genreId, correctionId)
 
   if (data) {
-    return <Loaded correctionId={correctionId} genreId={genreId} data={data} />
+    return <Loaded genreId={genreId} data={data} />
   }
 
   return <div>Loading...</div>
 }
 
 const Loaded: FC<{
-  correctionId: number
   genreId: number
   data: GenreApiInput
-}> = ({ correctionId, genreId, data }) => {
+}> = ({ genreId, data }) => {
+  const { id: correctionId } = useCorrectionContext()
   const [uiState, setUiState] = useState<GenreApiInput>(data)
 
   const { mutate } = useCorrectGenreMutation()
@@ -75,11 +74,7 @@ const Loaded: FC<{
           }}
         />
       </FormElement>
-      <GenreForm
-        data={uiState}
-        onChange={setUiState}
-        correctionId={correctionId}
-      />
+      <GenreForm data={uiState} onChange={setUiState} />
       <button type='submit'>Submit</button>
     </form>
   )

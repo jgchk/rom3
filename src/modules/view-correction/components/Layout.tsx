@@ -1,13 +1,16 @@
 import styled from '@emotion/styled'
 import { FC } from 'react'
 
+import { CorrectionContextProvider } from '../contexts/CorrectionContext'
 import Navbar from './Navbar'
 
 const Layout: FC<{ correctionId: number }> = ({ correctionId, children }) => (
-  <Container>
-    <Navbar correctionId={correctionId} />
-    <Content>{children}</Content>
-  </Container>
+  <CorrectionContextProvider id={correctionId}>
+    <Container>
+      <Navbar />
+      <Content>{children}</Content>
+    </Container>
+  </CorrectionContextProvider>
 )
 
 export default Layout

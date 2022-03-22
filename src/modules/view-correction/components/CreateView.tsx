@@ -5,16 +5,17 @@ import toast from 'react-hot-toast'
 import { GenreType } from '../../../common/model'
 import { useAddCreatedGenreMutation } from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
+import { useCorrectionContext } from '../contexts/CorrectionContext'
 import { cleanUiData, makeUiData } from '../utils/genre'
 import FormElement from './forms/elements/FormElement'
 import GenreTypeSelect from './forms/elements/GenreTypeSelect'
 import GenreForm from './forms/GenreForm'
 
 const CreateView: FC<{
-  correctionId: number
   type?: GenreType
   parentId?: number
-}> = ({ correctionId, type, parentId }) => {
+}> = ({ type, parentId }) => {
+  const { id: correctionId } = useCorrectionContext()
   const [uiState, setUiState] = useState<GenreApiInput>(
     makeUiData(type ?? 'META', parentId)
   )
@@ -64,11 +65,7 @@ const CreateView: FC<{
           }}
         />
       </FormElement>
-      <GenreForm
-        data={uiState}
-        onChange={setUiState}
-        correctionId={correctionId}
-      />
+      <GenreForm data={uiState} onChange={setUiState} />
       <button type='submit'>Submit</button>
     </form>
   )
