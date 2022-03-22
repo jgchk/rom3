@@ -3,9 +3,9 @@ import { FC } from 'react'
 
 import Navbar from './Navbar'
 
-const Layout: FC = ({ children }) => (
+const Layout: FC<{ correctionId: number }> = ({ correctionId, children }) => (
   <Container>
-    <Navbar />
+    <Navbar correctionId={correctionId} />
     <Content>{children}</Content>
   </Container>
 )

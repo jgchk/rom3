@@ -1,32 +1,42 @@
 import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
+import toast from 'react-hot-toast'
 
 import { GenreType } from '../../../common/model'
-import {
-  CorrectionGenreApiInputData,
-  CorrectionIdApiInput,
-  makeCorrectionGenreApiInputData,
-} from '../services'
-import useCorrectionStore from '../state/store'
-import { cleanUiData } from '../utils/convert'
+import { useAddCreatedGenreMutation } from '../../../common/services/corrections'
+import { GenreApiInput } from '../../../common/services/genres'
+import { cleanUiData, makeUiData } from '../utils/genre'
 import FormElement from './forms/elements/FormElement'
 import GenreTypeSelect from './forms/elements/GenreTypeSelect'
 import GenreForm from './forms/GenreForm'
 
-const CreateView: FC<{ type?: GenreType; parentId?: CorrectionIdApiInput }> = ({
-  type,
-  parentId,
-}) => {
-  const [uiState, setUiState] = useState<CorrectionGenreApiInputData>(
-    makeCorrectionGenreApiInputData(type ?? 'META', parentId)
+const CreateView: FC<{
+  correctionId: number
+  type?: GenreType
+  parentId?: number
+}> = ({ correctionId, type, parentId }) => {
+  const [uiState, setUiState] = useState<GenreApiInput>(
+    makeUiData(type ?? 'META', parentId)
   )
 
-  const addCreatedGenre = useCorrectionStore((state) => state.addCreatedGenre)
+  const { mutate } = useAddCreatedGenreMutation()
   const router = useRouter()
-  const handleCreate = useCallback(() => {
-    addCreatedGenre(cleanUiData(uiState))
-    void router.push('/corrections/edit/tree')
-  }, [addCreatedGenre, router, uiState])
+  const handleCreate = useCallback(
+    () =>
+      mutate(
+        { id: correctionId, data: cleanUiData(uiState) },
+        {
+          onSuccess: () => {
+            toast.success(`Added ${uiState.name} to correction`)
+            void router.push(`/corrections/${correctionId}/edit/tree`)
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [correctionId, mutate, router, uiState]
+  )
 
   return (
     <form
@@ -54,7 +64,11 @@ const CreateView: FC<{ type?: GenreType; parentId?: CorrectionIdApiInput }> = ({
           }}
         />
       </FormElement>
-      <GenreForm data={uiState} onChange={setUiState} />
+      <GenreForm
+        data={uiState}
+        onChange={setUiState}
+        correctionId={correctionId}
+      />
       <button type='submit'>Submit</button>
     </form>
   )

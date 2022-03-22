@@ -7,6 +7,7 @@ import {
   GenreName,
   GenreParent,
   Location,
+  Prisma,
 } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
@@ -44,9 +45,9 @@ export const ApiLocation = z
 type ApiLocation = z.infer<typeof ApiLocation>
 
 export const ApiCulture = z.string().min(1)
-type ApiCulture = z.infer<typeof ApiCulture>
+export type ApiCulture = z.infer<typeof ApiCulture>
 
-const GenreApiInput = z.object({
+export const GenreApiInput = z.object({
   type: GenreType,
   name: z.string().min(1),
   alternateNames: z.array(z.string().min(1)),
@@ -57,7 +58,7 @@ const GenreApiInput = z.object({
   locations: ApiLocation.array(),
   cultures: ApiCulture.array(),
 })
-type GenreApiInput = z.infer<typeof GenreApiInput>
+export type GenreApiInput = z.infer<typeof GenreApiInput>
 
 export type GenreApiOutput = Genre & {
   alternateNames: string[]
@@ -82,6 +83,108 @@ export const genreInclude = {
   cultures: { include: { culture: true } },
 } as const
 
+export const dbGenreCreateInput = (
+  input: GenreApiInput
+): Prisma.GenreCreateInput => ({
+  type: input.type,
+  name: input.name,
+  alternateNames: {
+    create: input.alternateNames.map((name) => ({ name })),
+  },
+  shortDesc: input.shortDesc,
+  longDesc: input.longDesc,
+  parents: {
+    create: input.parents.map((parentId) => ({ parentId })),
+  },
+  influencedBy: {
+    create: input.influencedBy.map(({ id, influenceType }) => ({
+      influencerId: id,
+      influenceType,
+    })),
+  },
+  locations: {
+    create: input.locations.map((loc) => ({
+      location: {
+        connectOrCreate: {
+          where: {
+            city_region_country: {
+              city: loc.city,
+              region: loc.region,
+              country: loc.country,
+            },
+          },
+          create: {
+            city: loc.city,
+            region: loc.region,
+            country: loc.country,
+          },
+        },
+      },
+    })),
+  },
+  cultures: {
+    create: input.cultures.map((c) => ({
+      culture: {
+        connectOrCreate: { where: { name: c }, create: { name: c } },
+      },
+    })),
+  },
+})
+
+export const dbGenreUpdateInput = (
+  id: number,
+  input: GenreApiInput
+): Prisma.GenreUpdateInput => ({
+  type: input.type,
+  name: input.name,
+  alternateNames: {
+    deleteMany: { genreId: id },
+    create: input.alternateNames.map((name) => ({ name })),
+  },
+  shortDesc: input.shortDesc,
+  longDesc: input.longDesc,
+  parents: {
+    deleteMany: { childId: id },
+    create: input.parents.map((parentId) => ({ parentId })),
+  },
+  influencedBy: {
+    deleteMany: { influencedId: id },
+    create: input.influencedBy.map(({ id, influenceType }) => ({
+      influencerId: id,
+      influenceType,
+    })),
+  },
+  locations: {
+    deleteMany: { genreId: id },
+    create: input.locations.map((loc) => ({
+      location: {
+        connectOrCreate: {
+          where: {
+            city_region_country: {
+              city: loc.city,
+              region: loc.region,
+              country: loc.country,
+            },
+          },
+          create: {
+            city: loc.city,
+            region: loc.region,
+            country: loc.country,
+          },
+        },
+      },
+    })),
+  },
+  cultures: {
+    deleteMany: { genreId: id },
+    create: input.cultures.map((c) => ({
+      culture: {
+        connectOrCreate: { where: { name: c }, create: { name: c } },
+      },
+    })),
+  },
+})
+
 export const toGenreApiOutput = (genre: GenreInclude): GenreApiOutput => ({
   ...genre,
   alternateNames: genre.alternateNames.map((an) => an.name),
@@ -96,51 +199,7 @@ export const toGenreApiOutput = (genre: GenreInclude): GenreApiOutput => ({
 
 const addGenre = async (input: GenreApiInput): Promise<GenreApiOutput> => {
   const genre = await prisma.genre.create({
-    data: {
-      type: input.type,
-      name: input.name,
-      alternateNames: {
-        create: input.alternateNames.map((name) => ({ name })),
-      },
-      shortDesc: input.shortDesc,
-      longDesc: input.longDesc,
-      parents: {
-        create: input.parents.map((parentId) => ({ parentId })),
-      },
-      influencedBy: {
-        create: input.influencedBy.map(({ id, influenceType }) => ({
-          influencerId: id,
-          influenceType,
-        })),
-      },
-      locations: {
-        create: input.locations.map((loc) => ({
-          location: {
-            connectOrCreate: {
-              where: {
-                city_region_country: {
-                  city: loc.city,
-                  region: loc.region,
-                  country: loc.country,
-                },
-              },
-              create: {
-                city: loc.city,
-                region: loc.region,
-                country: loc.country,
-              },
-            },
-          },
-        })),
-      },
-      cultures: {
-        create: input.cultures.map((c) => ({
-          culture: {
-            connectOrCreate: { where: { name: c }, create: { name: c } },
-          },
-        })),
-      },
-    },
+    data: dbGenreCreateInput(input),
     include: genreInclude,
   })
   return toGenreApiOutput(genre)
@@ -173,56 +232,7 @@ const editGenre = async (
 ): Promise<GenreApiOutput> => {
   const genre = await prisma.genre.update({
     where: { id },
-    data: {
-      type: input.type,
-      name: input.name,
-      alternateNames: {
-        deleteMany: { genreId: id },
-        create: input.alternateNames.map((name) => ({ name })),
-      },
-      shortDesc: input.shortDesc,
-      longDesc: input.longDesc,
-      parents: {
-        deleteMany: { childId: id },
-        create: input.parents.map((parentId) => ({ parentId })),
-      },
-      influencedBy: {
-        deleteMany: { influencedId: id },
-        create: input.influencedBy.map(({ id, influenceType }) => ({
-          influencerId: id,
-          influenceType,
-        })),
-      },
-      locations: {
-        deleteMany: { genreId: id },
-        create: input.locations.map((loc) => ({
-          location: {
-            connectOrCreate: {
-              where: {
-                city_region_country: {
-                  city: loc.city,
-                  region: loc.region,
-                  country: loc.country,
-                },
-              },
-              create: {
-                city: loc.city,
-                region: loc.region,
-                country: loc.country,
-              },
-            },
-          },
-        })),
-      },
-      cultures: {
-        deleteMany: { genreId: id },
-        create: input.cultures.map((c) => ({
-          culture: {
-            connectOrCreate: { where: { name: c }, create: { name: c } },
-          },
-        })),
-      },
-    },
+    data: dbGenreUpdateInput(id, input),
     include: genreInclude,
   })
   return toGenreApiOutput(genre)

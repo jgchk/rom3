@@ -1,43 +1,53 @@
 import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
+import toast from 'react-hot-toast'
 
+import { useCorrectGenreMutation } from '../../../common/services/corrections'
+import { GenreApiInput } from '../../../common/services/genres'
 import useCorrectionGenreQuery from '../hooks/useCorrectionGenreQuery'
-import { CorrectionGenreApiInputData, CorrectionIdApiInput } from '../services'
-import useCorrectionStore from '../state/store'
-import { cleanUiData } from '../utils/convert'
+import { cleanUiData } from '../utils/genre'
 import FormElement from './forms/elements/FormElement'
 import GenreTypeSelect from './forms/elements/GenreTypeSelect'
 import GenreForm from './forms/GenreForm'
 
-const EditView: FC<{ id: CorrectionIdApiInput }> = ({ id }) => {
-  const { data } = useCorrectionGenreQuery(id)
+const EditView: FC<{ correctionId: number; genreId: number }> = ({
+  correctionId,
+  genreId,
+}) => {
+  const { data } = useCorrectionGenreQuery(genreId, correctionId)
 
   if (data) {
-    return <Loaded id={id} data={data} />
+    return <Loaded correctionId={correctionId} genreId={genreId} data={data} />
   }
 
   return <div>Loading...</div>
 }
 
 const Loaded: FC<{
-  id: CorrectionIdApiInput
-  data: CorrectionGenreApiInputData
-}> = ({ id, data }) => {
-  const [uiState, setUiState] = useState<CorrectionGenreApiInputData>(data)
+  correctionId: number
+  genreId: number
+  data: GenreApiInput
+}> = ({ correctionId, genreId, data }) => {
+  const [uiState, setUiState] = useState<GenreApiInput>(data)
 
-  const editCreatedGenre = useCorrectionStore((state) => state.editCreatedGenre)
-  const editExistingGenre = useCorrectionStore(
-    (state) => state.editExistingGenre
-  )
+  const { mutate } = useCorrectGenreMutation()
   const router = useRouter()
-  const handleEdit = useCallback(() => {
-    if (id.type === 'created') {
-      editCreatedGenre(id.id, cleanUiData(uiState))
-    } else {
-      editExistingGenre(id.id, cleanUiData(uiState))
-    }
-    void router.push('/corrections/edit/tree')
-  }, [editCreatedGenre, editExistingGenre, id.id, id.type, router, uiState])
+  const handleEdit = useCallback(
+    () =>
+      mutate(
+        { id: correctionId, genreId, data: cleanUiData(uiState) },
+        {
+          onSuccess: () => {
+            toast.success(`Edited ${uiState.name} in correction`)
+            void router.push(`/corrections/${correctionId}/edit/tree`)
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [correctionId, genreId, mutate, router, uiState]
+  )
 
   return (
     <form
@@ -65,7 +75,11 @@ const Loaded: FC<{
           }}
         />
       </FormElement>
-      <GenreForm data={uiState} onChange={setUiState} />
+      <GenreForm
+        data={uiState}
+        onChange={setUiState}
+        correctionId={correctionId}
+      />
       <button type='submit'>Submit</button>
     </form>
   )

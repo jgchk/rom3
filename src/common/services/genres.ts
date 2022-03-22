@@ -1,5 +1,7 @@
 import trpc, { InferQueryOptions } from '../utils/trpc'
 
+export type { GenreApiInput } from '../../modules/server/routers/genres'
+
 export const useGenresQuery = () =>
   trpc.useQuery(['genres.all'], { useErrorBoundary: true })
 

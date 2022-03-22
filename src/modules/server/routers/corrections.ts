@@ -5,55 +5,14 @@ import { z } from 'zod'
 import createRouter from '../createRouter'
 import prisma from '../prisma'
 import {
-  ApiCulture,
-  ApiInfluenceType,
-  ApiLocation,
+  dbGenreCreateInput,
+  dbGenreUpdateInput,
+  GenreApiInput,
   GenreApiOutput,
   GenreInclude,
   genreInclude,
-  GenreType,
   toGenreApiOutput,
 } from './genres'
-
-const CorrectionIdApiInput = z.object({
-  id: z.number(),
-  type: z.union([z.literal('created'), z.literal('exists')]),
-})
-
-const CorrectionGenreInfluenceApiInput = CorrectionIdApiInput.extend({
-  influenceType: ApiInfluenceType.optional(),
-})
-
-const CorrectionGenreApiInput = z.object({
-  type: GenreType,
-  name: z.string().min(1),
-  alternateNames: z.array(z.string().min(1)),
-  shortDesc: z.string().min(1),
-  longDesc: z.string().min(1),
-  parents: CorrectionIdApiInput.array(),
-  influencedBy: CorrectionGenreInfluenceApiInput.array(),
-  locations: ApiLocation.array(),
-  cultures: ApiCulture.array(),
-})
-
-const GenreCreateApiInput = z.object({
-  id: z.number(),
-  data: CorrectionGenreApiInput,
-})
-
-const GenreEditApiInput = z.object({
-  id: z.number(),
-  data: CorrectionGenreApiInput,
-})
-
-const GenreDeleteApiInput = z.number()
-
-const CorrectionApiInput = z.object({
-  create: GenreCreateApiInput.array(),
-  edit: GenreEditApiInput.array(),
-  delete: GenreDeleteApiInput.array(),
-})
-type CorrectionApiInput = z.infer<typeof CorrectionApiInput>
 
 type CorrectionApiOutput = Correction & {
   create: GenreApiOutput[]
@@ -92,153 +51,207 @@ const toCorrectionApiOutput = (
   delete: correction.delete.map((d) => toGenreApiOutput(d.targetGenre)),
 })
 
-const addCorrection = async (
-  input: CorrectionApiInput
-): Promise<CorrectionApiOutput> => {
-  // 1. create without relationships -> make map from input ids to real ids
-  // 2. add relationships using real ids
-
-  const idsMap: { [inputId: number]: number } = {}
-
-  for (const { id: inputId, data } of input.create) {
-    const { id: realId } = await prisma.genre.create({
-      data: {
-        type: data.type,
-        name: data.name,
-        alternateNames: {
-          create: data.alternateNames.map((name) => ({ name })),
-        },
-        shortDesc: data.shortDesc,
-        longDesc: data.longDesc,
-        locations: {
-          create: data.locations.map((loc) => ({
-            location: {
-              connectOrCreate: {
-                where: {
-                  city_region_country: {
-                    city: loc.city,
-                    region: loc.region,
-                    country: loc.country,
-                  },
-                },
-                create: {
-                  city: loc.city,
-                  region: loc.region,
-                  country: loc.country,
-                },
-              },
-            },
-          })),
-        },
-        cultures: {
-          create: data.cultures.map((c) => ({
-            culture: {
-              connectOrCreate: { where: { name: c }, create: { name: c } },
-            },
-          })),
-        },
-      },
-    })
-
-    idsMap[inputId] = realId
-  }
-
-  for (const { id: inputId, data } of input.create) {
-    const realId = idsMap[inputId]
-    await prisma.genre.update({
-      where: { id: realId },
-      data: {
-        parents: {
-          create: data.parents.map((parent) => ({
-            parentId: parent.type === 'exists' ? parent.id : idsMap[parent.id],
-          })),
-        },
-        influencedBy: {
-          create: data.influencedBy.map((influence) => ({
-            influencerId:
-              influence.type === 'exists' ? influence.id : idsMap[influence.id],
-            influenceType: influence.influenceType,
-          })),
-        },
-      },
-    })
-  }
-
+const addCorrection = async (): Promise<CorrectionApiOutput> => {
   const correction = await prisma.correction.create({
+    data: {},
+    include: correctionInclude,
+  })
+  return toCorrectionApiOutput(correction)
+}
+
+const addCreatedGenre = async (
+  correctionId: number,
+  input: GenreApiInput
+): Promise<CorrectionApiOutput> => {
+  const correction = await prisma.correction.update({
+    where: { id: correctionId },
     data: {
       create: {
-        create: input.create.map((c) => ({ createdGenreId: idsMap[c.id] })),
-      },
-      edit: {
-        create: input.edit.map((e) => ({
-          targetGenre: {
-            connect: e.id,
+        create: {
+          createdGenre: {
+            create: dbGenreCreateInput(input),
           },
-          updatedGenre: {
-            create: {
-              type: e.data.type,
-              name: e.data.name,
-              alternateNames: {
-                create: e.data.alternateNames.map((name) => ({ name })),
-              },
-              shortDesc: e.data.shortDesc,
-              longDesc: e.data.longDesc,
-              parents: {
-                create: e.data.parents.map((parent) => ({
-                  parentId:
-                    parent.type === 'exists' ? parent.id : idsMap[parent.id],
-                })),
-              },
-              influencedBy: {
-                create: e.data.influencedBy.map((influence) => ({
-                  influencerId:
-                    influence.type === 'exists'
-                      ? influence.id
-                      : idsMap[influence.id],
-                  influenceType: influence.influenceType,
-                })),
-              },
-              locations: {
-                create: e.data.locations.map((loc) => ({
-                  location: {
-                    connectOrCreate: {
-                      where: {
-                        city_region_country: {
-                          city: loc.city,
-                          region: loc.region,
-                          country: loc.country,
-                        },
-                      },
-                      create: {
-                        city: loc.city,
-                        region: loc.region,
-                        country: loc.country,
-                      },
-                    },
-                  },
-                })),
-              },
-              cultures: {
-                create: e.data.cultures.map((c) => ({
-                  culture: {
-                    connectOrCreate: {
-                      where: { name: c },
-                      create: { name: c },
-                    },
-                  },
-                })),
-              },
-            },
-          },
-        })),
-      },
-      delete: {
-        create: input.delete.map((id) => ({ targetGenreId: id })),
+        },
       },
     },
     include: correctionInclude,
   })
+  return toCorrectionApiOutput(correction)
+}
 
+const updateCreatedGenre = async (
+  correctionId: number,
+  createdGenreId: number,
+  input: GenreApiInput
+): Promise<CorrectionApiOutput> => {
+  const correction = await prisma.correction.update({
+    where: { id: correctionId },
+    data: {
+      create: {
+        update: {
+          where: { createdGenreId },
+          data: {
+            createdGenre: {
+              update: dbGenreUpdateInput(createdGenreId, input),
+            },
+          },
+        },
+      },
+    },
+    include: correctionInclude,
+  })
+  return toCorrectionApiOutput(correction)
+}
+
+const removeCreatedGenre = async (
+  correctionId: number,
+  createdGenreId: number
+): Promise<CorrectionApiOutput> => {
+  const correction = await prisma.correction.update({
+    where: { id: correctionId },
+    data: {
+      create: {
+        delete: { createdGenreId },
+      },
+    },
+    include: correctionInclude,
+  })
+  return toCorrectionApiOutput(correction)
+}
+
+const addEditedGenre = async (
+  correctionId: number,
+  targetGenreId: number,
+  input: GenreApiInput
+): Promise<CorrectionApiOutput> => {
+  const correction = await prisma.correction.update({
+    where: { id: correctionId },
+    data: {
+      edit: {
+        create: {
+          targetGenre: {
+            connect: {
+              id: targetGenreId,
+            },
+          },
+          updatedGenre: {
+            create: dbGenreCreateInput(input),
+          },
+        },
+      },
+    },
+    include: correctionInclude,
+  })
+  return toCorrectionApiOutput(correction)
+}
+
+const updateGenre = async (
+  correctionId: number,
+  genreId: number,
+  data: GenreApiInput
+): Promise<CorrectionApiOutput> => {
+  await prisma.genre.update({
+    where: { id: genreId },
+    data: dbGenreUpdateInput(genreId, data),
+  })
+  return getCorrection(correctionId)
+}
+
+const updateEditedGenre = async (
+  correctionId: number,
+  targetGenreId: number,
+  updatedGenreId: number,
+  input: GenreApiInput
+): Promise<CorrectionApiOutput> => {
+  const correction = await prisma.correction.update({
+    where: { id: correctionId },
+    data: {
+      edit: {
+        update: {
+          where: {
+            correctionId_targetGenreId: {
+              correctionId,
+              targetGenreId,
+            },
+          },
+          data: {
+            updatedGenre: {
+              update: dbGenreUpdateInput(updatedGenreId, input),
+            },
+          },
+        },
+      },
+    },
+    include: correctionInclude,
+  })
+  return toCorrectionApiOutput(correction)
+}
+
+const removeEditedGenre = async (
+  correctionId: number,
+  targetGenreId: number
+): Promise<CorrectionApiOutput> => {
+  const correction = await prisma.correction.update({
+    where: { id: correctionId },
+    data: {
+      edit: {
+        delete: {
+          correctionId_targetGenreId: {
+            correctionId,
+            targetGenreId,
+          },
+        },
+      },
+    },
+    include: correctionInclude,
+  })
+  return toCorrectionApiOutput(correction)
+}
+
+const removeGenre = async (
+  correctionId: number,
+  targetGenreId: number
+): Promise<CorrectionApiOutput> => {
+  const correction = await getCorrection(correctionId)
+  return correction.create.some((genre) => genre.id === targetGenreId)
+    ? removeCreatedGenre(correctionId, targetGenreId)
+    : addDeletedGenre(correctionId, targetGenreId)
+}
+
+const addDeletedGenre = async (
+  correctionId: number,
+  targetGenreId: number
+): Promise<CorrectionApiOutput> => {
+  const correction = await prisma.correction.update({
+    where: { id: correctionId },
+    data: {
+      delete: {
+        create: { targetGenreId },
+      },
+    },
+    include: correctionInclude,
+  })
+  return toCorrectionApiOutput(correction)
+}
+
+const removeDeletedGenre = async (
+  correctionId: number,
+  targetGenreId: number
+): Promise<CorrectionApiOutput> => {
+  const correction = await prisma.correction.update({
+    where: { id: correctionId },
+    data: {
+      delete: {
+        delete: {
+          correctionId_targetGenreId: {
+            correctionId,
+            targetGenreId,
+          },
+        },
+      },
+    },
+    include: correctionInclude,
+  })
   return toCorrectionApiOutput(correction)
 }
 
@@ -270,8 +283,7 @@ const deleteCorrection = async (id: number): Promise<number> => {
 
 const correctionsRouter = createRouter()
   .mutation('add', {
-    input: CorrectionApiInput,
-    resolve: ({ input }) => addCorrection(input),
+    resolve: () => addCorrection(),
   })
   .query('all', {
     resolve: async () => getCorrections(),
@@ -279,6 +291,66 @@ const correctionsRouter = createRouter()
   .query('byId', {
     input: z.object({ id: z.number() }),
     resolve: ({ input }) => getCorrection(input.id),
+  })
+  .mutation('edit.create.add', {
+    input: z.object({ id: z.number(), data: GenreApiInput }),
+    resolve: ({ input }) => addCreatedGenre(input.id, input.data),
+  })
+  .mutation('edit.edit', {
+    input: z.object({
+      id: z.number(),
+      genreId: z.number(),
+      data: GenreApiInput,
+    }),
+    resolve: ({ input }) => updateGenre(input.id, input.genreId, input.data),
+  })
+  .mutation('edit.create.edit', {
+    input: z.object({
+      id: z.number(),
+      genreId: z.number(),
+      data: GenreApiInput,
+    }),
+    resolve: ({ input }) =>
+      updateCreatedGenre(input.id, input.genreId, input.data),
+  })
+  .mutation('edit.create.remove', {
+    input: z.object({ id: z.number(), genreId: z.number() }),
+    resolve: ({ input }) => removeCreatedGenre(input.id, input.genreId),
+  })
+  .mutation('edit.edit.add', {
+    input: z.object({
+      id: z.number(),
+      targetId: z.number(),
+      data: GenreApiInput,
+    }),
+    resolve: ({ input }) =>
+      addEditedGenre(input.id, input.targetId, input.data),
+  })
+  .mutation('edit.edit.edit', {
+    input: z.object({
+      id: z.number(),
+      targetId: z.number(),
+      genreId: z.number(),
+      data: GenreApiInput,
+    }),
+    resolve: ({ input }) =>
+      updateEditedGenre(input.id, input.targetId, input.genreId, input.data),
+  })
+  .mutation('edit.edit.remove', {
+    input: z.object({ id: z.number(), targetId: z.number() }),
+    resolve: ({ input }) => removeEditedGenre(input.id, input.targetId),
+  })
+  .mutation('edit.delete.add', {
+    input: z.object({ id: z.number(), targetId: z.number() }),
+    resolve: ({ input }) => addDeletedGenre(input.id, input.targetId),
+  })
+  .mutation('edit.delete.remove', {
+    input: z.object({ id: z.number(), targetId: z.number() }),
+    resolve: ({ input }) => removeDeletedGenre(input.id, input.targetId),
+  })
+  .mutation('edit.delete', {
+    input: z.object({ id: z.number(), targetId: z.number() }),
+    resolve: ({ input }) => removeGenre(input.id, input.targetId),
   })
   .mutation('delete', {
     input: z.object({ id: z.number() }),

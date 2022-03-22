@@ -5,33 +5,26 @@ import { GenreType } from '../../../../../common/model'
 import { genreParentTypes } from '../../../../../common/model/parents'
 import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
-import { CorrectionIdApiInput } from '../../../services'
-import { toCorrectionIdApiInputKey } from '../../../utils/keys'
 
 const ParentMultiselect: FC<{
-  value: CorrectionIdApiInput[]
-  onChange: (value: CorrectionIdApiInput[]) => void
+  value: number[]
+  onChange: (value: number[]) => void
   childType: GenreType
-}> = ({ value, onChange, childType }) => {
+  correctionId: number
+}> = ({ value, onChange, childType, correctionId }) => {
   const [inputValue, setInputValue] = useState('')
   const [open, setOpen] = useState(false)
 
   const parentTypes = useMemo(() => genreParentTypes[childType], [childType])
 
   const removeSelectedItem = useCallback(
-    (removeItem: CorrectionIdApiInput) =>
-      onChange(
-        value.filter(
-          (item) =>
-            toCorrectionIdApiInputKey(item) !==
-            toCorrectionIdApiInputKey(removeItem)
-        )
-      ),
+    (removeItem: number) =>
+      onChange(value.filter((item) => item !== removeItem)),
     [onChange, value]
   )
 
   const addSelectedItem = useCallback(
-    (addItem: CorrectionIdApiInput) => onChange([...value, addItem]),
+    (addItem: number) => onChange([...value, addItem]),
     [onChange, value]
   )
 
@@ -50,28 +43,22 @@ const ParentMultiselect: FC<{
     return () => document.removeEventListener('click', listener)
   }, [])
 
-  const { data } = useCorrectionGenresQuery()
+  const { data } = useCorrectionGenresQuery(correctionId)
 
   // TODO
-  const self: CorrectionIdApiInput | undefined = undefined
-
-  const selectedKeys = useMemo(
-    () => value.map(toCorrectionIdApiInputKey),
-    [value]
-  )
+  const self: number | undefined = undefined
 
   const filteredData = useMemo(
     () =>
       data?.filter((item) => {
-        const key = toCorrectionIdApiInputKey(item.id)
         return (
-          parentTypes.includes(item.data.type) &&
-          (self ? toCorrectionIdApiInputKey(self) !== key : true) &&
-          !selectedKeys.includes(key) &&
-          item.data.name.toLowerCase().startsWith(inputValue.toLowerCase())
+          parentTypes.includes(item.type) &&
+          (self ? self !== item.id : true) &&
+          !value.includes(item.id) &&
+          item.name.toLowerCase().startsWith(inputValue.toLowerCase())
         )
       }),
-    [data, inputValue, parentTypes, selectedKeys, self]
+    [data, inputValue, parentTypes, self, value]
   )
 
   const renderFilteredItems = useCallback(() => {
@@ -79,11 +66,11 @@ const ParentMultiselect: FC<{
     if (filteredData.length === 0) return <div>No items</div>
     return filteredData.map((item) => (
       <MenuItem
-        key={toCorrectionIdApiInputKey(item.id)}
+        key={item.id}
         type='button'
         onClick={() => addSelectedItem(item.id)}
       >
-        {item.data.name}
+        {item.name}
       </MenuItem>
     ))
   }, [addSelectedItem, filteredData])
@@ -95,8 +82,9 @@ const ParentMultiselect: FC<{
           <SelectedItems>
             {value.map((selectedItem) => (
               <SelectedItemm
-                key={toCorrectionIdApiInputKey(selectedItem)}
+                key={selectedItem}
                 id={selectedItem}
+                correctionId={correctionId}
                 onRemove={() => removeSelectedItem(selectedItem)}
               />
             ))}
@@ -117,10 +105,11 @@ const ParentMultiselect: FC<{
 }
 
 const SelectedItemm: FC<{
-  id: CorrectionIdApiInput
+  id: number
+  correctionId: number
   onRemove: () => void
-}> = ({ id, onRemove }) => {
-  const { data, error } = useCorrectionGenreQuery(id)
+}> = ({ id, correctionId, onRemove }) => {
+  const { data, error } = useCorrectionGenreQuery(id, correctionId)
 
   const renderText = useCallback(() => {
     if (data) return data.name

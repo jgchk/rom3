@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
-import { CorrectionGenreApiInputData } from '../../services'
+import { GenreApiInput } from '../../../server/routers/genres'
 import FormElement from './elements/FormElement'
 import MarkdownEditor from './elements/MarkdownEditor'
 import ParentMultiselect from './elements/ParentMultiselect'
@@ -8,9 +8,10 @@ import SmallLabel from './elements/SmallLabel'
 import StringArrayEditor from './elements/StringArrayEditor'
 
 const MetaForm: FC<{
-  data: CorrectionGenreApiInputData
-  onChange: Dispatch<SetStateAction<CorrectionGenreApiInputData>>
-}> = ({ data, onChange }) => (
+  data: GenreApiInput
+  onChange: Dispatch<SetStateAction<GenreApiInput>>
+  correctionId: number
+}> = ({ data, onChange, correctionId }) => (
   <>
     <FormElement>
       <label>Name *</label>
@@ -34,6 +35,7 @@ const MetaForm: FC<{
         value={data.parents}
         onChange={(parents) => onChange((d) => ({ ...d, parents }))}
         childType='META'
+        correctionId={correctionId}
       />
     </FormElement>
     <FormElement>

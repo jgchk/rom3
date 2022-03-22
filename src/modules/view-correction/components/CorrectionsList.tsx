@@ -1,21 +1,40 @@
 import Link from 'next/link'
-import { FC } from 'react'
+import { useRouter } from 'next/router'
+import { FC, useCallback } from 'react'
+import toast from 'react-hot-toast'
 
-import { useCorrectionsQuery } from '../../../common/services/corrections'
+import {
+  useCorrectionsQuery,
+  useCreateCorrectionMutation,
+} from '../../../common/services/corrections'
 
 const CorrectionsList: FC = () => {
   const { data } = useCorrectionsQuery()
 
+  const { mutate } = useCreateCorrectionMutation()
+  const router = useRouter()
+  const handleCreate = useCallback(
+    () =>
+      mutate(null, {
+        onSuccess: (res) => {
+          toast.success('Created new correction')
+          void router.push(`/corrections/${res.id}/edit`)
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }),
+    [mutate, router]
+  )
+
   if (data) {
     return (
       <div>
-        <Link href='/corrections/edit'>
-          <a>Create New</a>
-        </Link>
+        <button onClick={() => handleCreate()}>Create New</button>
         <ul>
           {data.map((correction) => (
             <li key={correction.id}>
-              <Link href={`/corrections/${correction.id}`}>
+              <Link href={`/corrections/${correction.id}/edit`}>
                 <a>{correction.id}</a>
               </Link>
             </li>
