@@ -6,8 +6,8 @@ import { useMemo } from 'react'
 import ClientOnly from '../../../../../common/components/ClientOnly'
 import { isGenreType } from '../../../../../common/model'
 import { getFirstOrValue } from '../../../../../common/utils/array'
-import CreateView from '../../../../../modules/view-correction/components/CreateView'
-import Layout from '../../../../../modules/view-correction/components/Layout'
+import CreateView from '../../../../../modules/correction/components/CreateView'
+import Layout from '../../../../../modules/correction/components/Layout'
 
 const Create: NextPage = () => {
   const router = useRouter()
@@ -40,11 +40,7 @@ const Create: NextPage = () => {
   return (
     <Layout correctionId={correctionId}>
       <ClientOnly>
-        <CreateView
-          correctionId={correctionId}
-          type={type}
-          parentId={parentId}
-        />
+        <CreateView type={type} parentId={parentId} />
       </ClientOnly>
     </Layout>
   )

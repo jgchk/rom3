@@ -5,8 +5,8 @@ import { useMemo } from 'react'
 
 import ClientOnly from '../../../../../common/components/ClientOnly'
 import { getFirstOrValue } from '../../../../../common/utils/array'
-import EditView from '../../../../../modules/view-correction/components/EditView'
-import Layout from '../../../../../modules/view-correction/components/Layout'
+import EditView from '../../../../../modules/correction/components/EditView'
+import Layout from '../../../../../modules/correction/components/Layout'
 
 const Create: NextPage = () => {
   const router = useRouter()
@@ -34,7 +34,7 @@ const Create: NextPage = () => {
   return (
     <Layout correctionId={correctionId}>
       <ClientOnly>
-        <EditView correctionId={correctionId} genreId={genreId} />
+        <EditView genreId={genreId} />
       </ClientOnly>
     </Layout>
   )

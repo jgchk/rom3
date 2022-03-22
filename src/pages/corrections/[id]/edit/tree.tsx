@@ -5,8 +5,8 @@ import { useMemo } from 'react'
 
 import ClientOnly from '../../../../common/components/ClientOnly'
 import { getFirstOrValue } from '../../../../common/utils/array'
-import Layout from '../../../../modules/view-correction/components/Layout'
-import TreeView from '../../../../modules/view-correction/components/TreeView'
+import Layout from '../../../../modules/correction/components/Layout'
+import TreeView from '../../../../modules/correction/components/TreeView'
 
 const Tree: NextPage = () => {
   const router = useRouter()
