@@ -30,12 +30,6 @@ const useCorrectionGenreTreeQuery = (correctionId: number) => {
       }
     }
 
-    for (const id of Object.keys(model.children)) {
-      model.children[Number.parseInt(id)] = [
-        ...new Set(model.children[Number.parseInt(id)]),
-      ]
-    }
-
     return model
   }, [genresQuery.data])
 

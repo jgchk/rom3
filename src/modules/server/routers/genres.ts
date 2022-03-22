@@ -221,6 +221,7 @@ const getGenre = async (id: number): Promise<GenreApiOutput> => {
 
 const getGenres = async (): Promise<GenreApiOutput[]> => {
   const genres = await prisma.genre.findMany({
+    where: { createdInCorrection: null, editedInCorrection: null },
     include: genreInclude,
   })
   return genres.map(toGenreApiOutput)
