@@ -4,6 +4,7 @@ import { GenreApiInput } from '../../../server/routers/genres'
 import MetaForm from './MetaForm'
 import SceneForm from './SceneForm'
 import StyleForm from './StyleForm'
+import TrendForm from './TrendForm'
 
 const GenreForm: FC<{
   data: GenreApiInput
@@ -17,8 +18,7 @@ const GenreForm: FC<{
     case 'STYLE':
       return <StyleForm data={data} onChange={onChange} />
     case 'TREND':
-      // TODO
-      return <MetaForm data={data} onChange={onChange} />
+      return <TrendForm data={data} onChange={onChange} />
   }
 }
 
