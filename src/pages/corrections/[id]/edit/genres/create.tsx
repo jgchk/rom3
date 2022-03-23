@@ -3,7 +3,6 @@ import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
-import ClientOnly from '../../../../../common/components/ClientOnly'
 import { isGenreType } from '../../../../../common/model'
 import { getFirstOrValue } from '../../../../../common/utils/array'
 import CreateView from '../../../../../modules/correction/components/CreateView'
@@ -39,9 +38,7 @@ const Create: NextPage = () => {
 
   return (
     <Layout correctionId={correctionId}>
-      <ClientOnly>
-        <CreateView type={type} parentId={parentId} />
-      </ClientOnly>
+      <CreateView type={type} parentId={parentId} />
     </Layout>
   )
 }

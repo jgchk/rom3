@@ -3,7 +3,6 @@ import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
-import ClientOnly from '../../../../common/components/ClientOnly'
 import { getFirstOrValue } from '../../../../common/utils/array'
 import Layout from '../../../../modules/correction/components/Layout'
 import ListView from '../../../../modules/correction/components/ListView'
@@ -25,9 +24,7 @@ const Home: NextPage = () => {
 
   return (
     <Layout correctionId={correctionId}>
-      <ClientOnly>
-        <ListView />
-      </ClientOnly>
+      <ListView />
     </Layout>
   )
 }
