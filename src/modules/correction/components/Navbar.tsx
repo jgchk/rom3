@@ -56,11 +56,11 @@ const Navbar: FC = () => {
   return (
     <Container>
       <Submenu>
-        <Link href={`/corrections/${id}/edit`}>
-          <a>Change List</a>
-        </Link>
         <Link href={`/corrections/${id}/edit/tree`}>
           <a>Tree</a>
+        </Link>
+        <Link href={`/corrections/${id}/edit`}>
+          <a>Change List</a>
         </Link>
       </Submenu>
       <Submenu>

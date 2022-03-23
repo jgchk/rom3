@@ -18,7 +18,7 @@ const CorrectionsList: FC = () => {
       mutate(null, {
         onSuccess: (res) => {
           toast.success('Created new correction')
-          void router.push(`/corrections/${res.id}/edit`)
+          void router.push(`/corrections/${res.id}/edit/tree`)
         },
         onError: (error) => {
           toast.error(error.message)
