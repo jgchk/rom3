@@ -22,17 +22,30 @@ const useCorrectionGenresQuery = (
     const deletedIds = new Set(
       correctionQuery.data.delete.map((genre) => genre.id)
     )
-    const editedIds: Record<number, GenreApiOutput> = Object.fromEntries(
-      correctionQuery.data.edit.map(({ targetGenre, updatedGenre }) => [
-        targetGenre.id,
-        updatedGenre,
-      ])
-    )
+    const editedIds: Record<number, GenreApiOutput | undefined> =
+      Object.fromEntries(
+        correctionQuery.data.edit.map(({ targetGenre, updatedGenre }) => [
+          targetGenre.id,
+          updatedGenre,
+        ])
+      )
 
     const genres = [
       ...genresQuery.data
         .filter((genre) => !deletedIds.has(genre.id))
-        .map((genre) => editedIds[genre.id] ?? genre),
+        // replace edited genres with their real genres
+        .map((genre) => editedIds[genre.id] ?? genre)
+        // replace edited parents/influences with their updated Ids
+        .map((genre) => ({
+          ...genre,
+          parents: genre.parents.map(
+            (parentId) => editedIds[parentId]?.id ?? parentId
+          ),
+          influencedBy: genre.influencedBy.map((inf) => ({
+            ...inf,
+            id: editedIds[inf.id]?.id ?? inf.id,
+          })),
+        })),
       ...Object.values(correctionQuery.data.create),
     ]
 
