@@ -45,3 +45,33 @@ export const useDeleteCorrectionGenreMutation = () => {
     },
   })
 }
+
+export const useUndoCreateGenreMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['corrections.edit.create.remove'], {
+    onSuccess: (res) => {
+      void utils.invalidateQueries('corrections.all')
+      utils.setQueryData(['corrections.byId', { id: res.id }], res)
+    },
+  })
+}
+
+export const useUndoEditGenreMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['corrections.edit.edit.remove'], {
+    onSuccess: (res) => {
+      void utils.invalidateQueries('corrections.all')
+      utils.setQueryData(['corrections.byId', { id: res.id }], res)
+    },
+  })
+}
+
+export const useUndoDeleteGenreMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['corrections.edit.delete.remove'], {
+    onSuccess: (res) => {
+      void utils.invalidateQueries('corrections.all')
+      utils.setQueryData(['corrections.byId', { id: res.id }], res)
+    },
+  })
+}

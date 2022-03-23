@@ -13,8 +13,9 @@ import useCorrectionGenreTreeQuery, {
   GenreTree,
 } from '../hooks/useCorrectionGenreTreeQuery'
 
-const TreeView: FC<{ id: number }> = ({ id }) => {
-  const { data } = useCorrectionGenreTreeQuery(id)
+const TreeView: FC = () => {
+  const { id: correctionId } = useCorrectionContext()
+  const { data } = useCorrectionGenreTreeQuery(correctionId)
 
   if (data) {
     return <Tree tree={data} />

@@ -26,7 +26,7 @@ const Tree: NextPage = () => {
   return (
     <Layout correctionId={correctionId}>
       <ClientOnly>
-        <TreeView id={correctionId} />
+        <TreeView />
       </ClientOnly>
     </Layout>
   )
