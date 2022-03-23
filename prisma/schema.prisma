@@ -113,7 +113,7 @@ model Correction {
 }
 
 model GenreCreate {
-  correction   Correction @relation(fields: [correctionId], references: [id])
+  correction   Correction @relation(fields: [correctionId], references: [id], onDelete: Cascade)
   correctionId Int
 
   createdGenre   Genre @relation(fields: [createdGenreId], references: [id], onDelete: Cascade)
@@ -123,7 +123,7 @@ model GenreCreate {
 }
 
 model GenreEdit {
-  correction   Correction @relation(fields: [correctionId], references: [id])
+  correction   Correction @relation(fields: [correctionId], references: [id], onDelete: Cascade)
   correctionId Int
 
   updatedGenre   Genre @relation("GenreEditUpdated", fields: [updatedGenreId], references: [id], onDelete: Cascade)
@@ -136,10 +136,10 @@ model GenreEdit {
 }
 
 model GenreDelete {
-  correction   Correction @relation(fields: [correctionId], references: [id])
+  correction   Correction @relation(fields: [correctionId], references: [id], onDelete: Cascade)
   correctionId Int
 
-  targetGenre   Genre @relation("GenreDeleteTarget", fields: [targetGenreId], references: [id])
+  targetGenre   Genre @relation("GenreDeleteTarget", fields: [targetGenreId], references: [id], onDelete: Cascade)
   targetGenreId Int
 
   @@id([correctionId, targetGenreId])

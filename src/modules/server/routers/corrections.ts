@@ -260,6 +260,11 @@ const deleteCorrection = async (id: number): Promise<number> => {
   return id
 }
 
+const mergeCorrection = async (id: number) => {
+  await prisma.correction.delete({ where: { id } })
+  return id
+}
+
 const correctionsRouter = createRouter()
   .mutation('add', {
     resolve: () => addCorrection(),
@@ -334,6 +339,10 @@ const correctionsRouter = createRouter()
   .mutation('delete', {
     input: z.object({ id: z.number() }),
     resolve: ({ input }) => deleteCorrection(input.id),
+  })
+  .mutation('merge', {
+    input: z.object({ id: z.number() }),
+    resolve: ({ input }) => mergeCorrection(input.id),
   })
 
 export default correctionsRouter

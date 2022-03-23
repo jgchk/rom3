@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { FC, useCallback } from 'react'
+import toast from 'react-hot-toast'
 
 import { GenreApiOutput } from '../../../common/model'
 import {
@@ -42,7 +43,15 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
 
   const { mutate, isLoading } = useUndoCreateGenreMutation()
   const handleUndoCreate = useCallback(
-    () => mutate({ id: correctionId, genreId: genre.id }),
+    () =>
+      mutate(
+        { id: correctionId, genreId: genre.id },
+        {
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
     [correctionId, genre.id, mutate]
   )
 
@@ -72,7 +81,15 @@ const EditItem: FC<{
 
   const { mutate, isLoading } = useUndoEditGenreMutation()
   const handleUndoEdit = useCallback(
-    () => mutate({ id: correctionId, updatedGenreId: updatedGenre.id }),
+    () =>
+      mutate(
+        { id: correctionId, updatedGenreId: updatedGenre.id },
+        {
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
     [correctionId, mutate, updatedGenre.id]
   )
 
@@ -102,7 +119,15 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
 
   const { mutate, isLoading } = useUndoDeleteGenreMutation()
   const handleUndoDelete = useCallback(
-    () => mutate({ id: correctionId, targetId: genre.id }),
+    () =>
+      mutate(
+        { id: correctionId, targetId: genre.id },
+        {
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
     [correctionId, genre.id, mutate]
   )
 

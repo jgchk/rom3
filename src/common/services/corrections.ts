@@ -75,3 +75,15 @@ export const useUndoDeleteGenreMutation = () => {
     },
   })
 }
+
+export const useMergeCorrectionMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['corrections.merge'], {
+    onSuccess: (_, input) => {
+      void utils.invalidateQueries('corrections.all')
+      void utils.invalidateQueries(['corrections.byId', { id: input.id }])
+      void utils.invalidateQueries('genres.all')
+      void utils.invalidateQueries('genres.byId')
+    },
+  })
+}
