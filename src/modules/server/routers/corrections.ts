@@ -142,11 +142,14 @@ const updateGenre = async (
   genreId: number,
   data: GenreApiInput
 ): Promise<CorrectionApiOutput> => {
-  await prisma.genre.update({
-    where: { id: genreId },
-    data: dbGenreUpdateInput(genreId, data),
-  })
-  return getCorrection(correctionId)
+  const correction = await getCorrection(correctionId)
+
+  const editedId = correction.edit.find((e) => e.targetGenre.id === genreId)
+    ?.updatedGenre.id
+
+  return editedId !== undefined
+    ? updateEditedGenre(correctionId, genreId, editedId, data)
+    : addEditedGenre(correctionId, genreId, data)
 }
 
 const updateEditedGenre = async (
