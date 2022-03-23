@@ -107,16 +107,8 @@ const removeCreatedGenre = async (
   correctionId: number,
   createdGenreId: number
 ): Promise<CorrectionApiOutput> => {
-  const correction = await prisma.correction.update({
-    where: { id: correctionId },
-    data: {
-      create: {
-        delete: { createdGenreId },
-      },
-    },
-    include: correctionInclude,
-  })
-  return toCorrectionApiOutput(correction)
+  await prisma.genre.delete({ where: { id: createdGenreId } })
+  return getCorrection(correctionId)
 }
 
 const addEditedGenre = async (
@@ -189,23 +181,10 @@ const updateEditedGenre = async (
 
 const removeEditedGenre = async (
   correctionId: number,
-  targetGenreId: number
+  updatedGenreId: number
 ): Promise<CorrectionApiOutput> => {
-  const correction = await prisma.correction.update({
-    where: { id: correctionId },
-    data: {
-      edit: {
-        delete: {
-          correctionId_targetGenreId: {
-            correctionId,
-            targetGenreId,
-          },
-        },
-      },
-    },
-    include: correctionInclude,
-  })
-  return toCorrectionApiOutput(correction)
+  await prisma.genre.delete({ where: { id: updatedGenreId } })
+  return getCorrection(correctionId)
 }
 
 const removeGenre = async (
@@ -337,8 +316,8 @@ const correctionsRouter = createRouter()
       updateEditedGenre(input.id, input.targetId, input.genreId, input.data),
   })
   .mutation('edit.edit.remove', {
-    input: z.object({ id: z.number(), targetId: z.number() }),
-    resolve: ({ input }) => removeEditedGenre(input.id, input.targetId),
+    input: z.object({ id: z.number(), updatedGenreId: z.number() }),
+    resolve: ({ input }) => removeEditedGenre(input.id, input.updatedGenreId),
   })
   .mutation('edit.delete.add', {
     input: z.object({ id: z.number(), targetId: z.number() }),

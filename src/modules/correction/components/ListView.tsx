@@ -72,8 +72,8 @@ const EditItem: FC<{
 
   const { mutate, isLoading } = useUndoEditGenreMutation()
   const handleUndoEdit = useCallback(
-    () => mutate({ id: correctionId, targetId: targetGenre.id }),
-    [correctionId, mutate, targetGenre.id]
+    () => mutate({ id: correctionId, updatedGenreId: updatedGenre.id }),
+    [correctionId, mutate, updatedGenre.id]
   )
 
   return (
