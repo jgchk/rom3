@@ -1,11 +1,12 @@
 import { useRouter } from 'next/router'
-import { FC, useCallback, useState } from 'react'
+import { FC, useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import { GenreApiOutput } from '../../../common/model'
 import { useCorrectGenreMutation } from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
-import useCorrectionGenreQuery from '../hooks/useCorrectionGenreQuery'
+import fetchCorrectionGenre from '../services'
 import { cleanUiData } from '../utils/genre'
 import FormElement from './forms/elements/FormElement'
 import GenreTypeSelect from './forms/elements/GenreTypeSelect'
@@ -13,7 +14,13 @@ import GenreForm from './forms/GenreForm'
 
 const EditView: FC<{ genreId: number }> = ({ genreId }) => {
   const { id: correctionId } = useCorrectionContext()
-  const { data } = useCorrectionGenreQuery(genreId, correctionId)
+
+  const [data, setData] = useState<GenreApiOutput>()
+  const fetchData = useCallback(async () => {
+    const data = await fetchCorrectionGenre(genreId, correctionId)
+    setData(data)
+  }, [correctionId, genreId])
+  useEffect(() => void fetchData(), [fetchData])
 
   if (data) {
     return <Loaded genreId={genreId} data={data} />
