@@ -4,11 +4,11 @@ import { FC } from 'react'
 
 const Navbar: FC = () => (
   <Container>
-    <Link href='/corrections'>
-      <a>Corrections</a>
-    </Link>
     <Link href='/genres/tree'>
       <a>Tree</a>
+    </Link>
+    <Link href='/corrections'>
+      <a>Corrections</a>
     </Link>
   </Container>
 )
