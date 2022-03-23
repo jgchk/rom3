@@ -8,10 +8,10 @@ import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
 
 const ParentMultiselect: FC<{
-  value: number[]
+  parents: number[]
   onChange: (value: number[]) => void
   childType: GenreType
-}> = ({ value, onChange, childType }) => {
+}> = ({ parents, onChange, childType }) => {
   const { id: correctionId } = useCorrectionContext()
 
   const [inputValue, setInputValue] = useState('')
@@ -19,15 +19,15 @@ const ParentMultiselect: FC<{
 
   const parentTypes = useMemo(() => genreParentTypes[childType], [childType])
 
-  const removeSelectedItem = useCallback(
-    (removeItem: number) =>
-      onChange(value.filter((item) => item !== removeItem)),
-    [onChange, value]
+  const addParent = useCallback(
+    (addItem: number) => onChange([...parents, addItem]),
+    [onChange, parents]
   )
 
-  const addSelectedItem = useCallback(
-    (addItem: number) => onChange([...value, addItem]),
-    [onChange, value]
+  const removeParent = useCallback(
+    (removeItem: number) =>
+      onChange(parents.filter((item) => item !== removeItem)),
+    [onChange, parents]
   )
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -49,42 +49,38 @@ const ParentMultiselect: FC<{
 
   const { id: self } = useCorrectionContext()
 
-  const filteredData = useMemo(
+  const options = useMemo(
     () =>
       data?.filter(
         (item) =>
           parentTypes.includes(item.type) &&
           (self ? self !== item.id : true) &&
-          !value.includes(item.id) &&
+          !parents.includes(item.id) &&
           item.name.toLowerCase().startsWith(inputValue.toLowerCase())
       ),
-    [data, inputValue, parentTypes, self, value]
+    [data, inputValue, parentTypes, self, parents]
   )
 
-  const renderFilteredItems = useCallback(() => {
-    if (!filteredData) return <div>Loading...</div>
-    if (filteredData.length === 0) return <div>No items</div>
-    return filteredData.map((item) => (
-      <MenuItem
-        key={item.id}
-        type='button'
-        onClick={() => addSelectedItem(item.id)}
-      >
+  const renderOptions = useCallback(() => {
+    if (!options) return <div>Loading...</div>
+    if (options.length === 0) return <div>No items</div>
+    return options.map((item) => (
+      <MenuItem key={item.id} type='button' onClick={() => addParent(item.id)}>
         {item.name}
       </MenuItem>
     ))
-  }, [addSelectedItem, filteredData])
+  }, [addParent, options])
 
   return (
     <Container ref={containerRef}>
       <InputContainer>
-        {value.length > 0 && (
+        {parents.length > 0 && (
           <SelectedItems>
-            {value.map((selectedItem) => (
-              <SelectedItem
+            {parents.map((selectedItem) => (
+              <SelectedParent
                 key={selectedItem}
                 id={selectedItem}
-                onRemove={() => removeSelectedItem(selectedItem)}
+                onRemove={() => removeParent(selectedItem)}
               />
             ))}
           </SelectedItems>
@@ -98,12 +94,12 @@ const ParentMultiselect: FC<{
           &#8595;
         </button>
       </InputContainer>
-      {open && <Menu>{renderFilteredItems()}</Menu>}
+      {open && <Menu>{renderOptions()}</Menu>}
     </Container>
   )
 }
 
-const SelectedItem: FC<{
+const SelectedParent: FC<{
   id: number
   onRemove: () => void
 }> = ({ id, onRemove }) => {

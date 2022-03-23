@@ -14,14 +14,12 @@ import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
 
 type InfluenceUiState = InferMutationInput<'genres.add'>['influencedBy'][number]
-const infEq = (a: InfluenceUiState, b: InfluenceUiState) =>
-  a.id === b.id && a.influenceType === b.influenceType
 
 const InfluenceMultiselect: FC<{
-  value: InfluenceUiState[]
+  influences: InfluenceUiState[]
   onChange: (value: InfluenceUiState[]) => void
   childType: GenreType
-}> = ({ value, onChange, childType }) => {
+}> = ({ influences, onChange, childType }) => {
   const { id: correctionId } = useCorrectionContext()
 
   const [inputValue, setInputValue] = useState('')
@@ -32,23 +30,23 @@ const InfluenceMultiselect: FC<{
     [childType]
   )
 
-  const removeSelectedItem = useCallback(
-    (removeItem: InfluenceUiState) =>
-      onChange(value.filter((item) => !infEq(item, removeItem))),
-    [onChange, value]
+  const addInfluence = useCallback(
+    (add: InfluenceUiState) => onChange([...influences, add]),
+    [onChange, influences]
   )
 
-  const addSelectedItem = useCallback(
-    (addItem: InfluenceUiState) => onChange([...value, addItem]),
-    [onChange, value]
+  const removeInfluence = useCallback(
+    (remove: InfluenceUiState) =>
+      onChange(influences.filter((item) => item.id !== remove.id)),
+    [onChange, influences]
   )
 
-  const updateSelectedItem = useCallback(
-    (updatedItem: InfluenceUiState) =>
+  const updateInfluence = useCallback(
+    (update: InfluenceUiState) =>
       onChange(
-        value.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+        influences.map((item) => (item.id === update.id ? update : item))
       ),
-    [onChange, value]
+    [onChange, influences]
   )
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -70,45 +68,47 @@ const InfluenceMultiselect: FC<{
 
   const { id: self } = useCorrectionContext()
 
-  const filteredData = useMemo(
+  const options = useMemo(
     () =>
       data?.filter(
         (item) =>
           influencedByTypes.includes(item.type) &&
           (self ? self !== item.id : true) &&
-          !value.some((selectedItem) => infEq(selectedItem, item)) &&
+          !influences.some(
+            (selectedInfluence) => item.id !== selectedInfluence.id
+          ) &&
           item.name.toLowerCase().startsWith(inputValue.toLowerCase())
       ),
-    [data, inputValue, influencedByTypes, self, value]
+    [data, inputValue, influencedByTypes, self, influences]
   )
 
-  const renderFilteredItems = useCallback(() => {
-    if (!filteredData) return <div>Loading...</div>
-    if (filteredData.length === 0) return <div>No items</div>
-    return filteredData.map((item) => (
+  const renderOptions = useCallback(() => {
+    if (!options) return <div>Loading...</div>
+    if (options.length === 0) return <div>No items</div>
+    return options.map((item) => (
       <MenuItem
         key={item.id}
         type='button'
         onClick={() =>
-          addSelectedItem({ id: item.id, influenceType: 'HISTORICAL' })
+          addInfluence({ id: item.id, influenceType: 'HISTORICAL' })
         }
       >
         {item.name}
       </MenuItem>
     ))
-  }, [addSelectedItem, filteredData])
+  }, [addInfluence, options])
 
   return (
     <Container ref={containerRef}>
       <InputContainer>
-        {value.length > 0 && (
+        {influences.length > 0 && (
           <SelectedItems>
-            {value.map((selectedItem) => (
-              <SelectedItem
+            {influences.map((selectedItem) => (
+              <SelectedInfluence
                 key={`${selectedItem.id}_${selectedItem.influenceType ?? ''}`}
                 influence={selectedItem}
-                onChange={() => updateSelectedItem(selectedItem)}
-                onRemove={() => removeSelectedItem(selectedItem)}
+                onChange={() => updateInfluence(selectedItem)}
+                onRemove={() => removeInfluence(selectedItem)}
               />
             ))}
           </SelectedItems>
@@ -122,12 +122,12 @@ const InfluenceMultiselect: FC<{
           &#8595;
         </button>
       </InputContainer>
-      {open && <Menu>{renderFilteredItems()}</Menu>}
+      {open && <Menu>{renderOptions()}</Menu>}
     </Container>
   )
 }
 
-const SelectedItem: FC<{
+const SelectedInfluence: FC<{
   influence: InfluenceUiState
   onChange: (value: InfluenceUiState) => void
   onRemove: () => void

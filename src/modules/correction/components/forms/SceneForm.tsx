@@ -33,7 +33,7 @@ const SceneForm: FC<{
     <FormElement>
       <label>Influences</label>
       <InfluenceMultiselect
-        value={data.influencedBy}
+        influences={data.influencedBy}
         onChange={(influencedBy) => onChange((d) => ({ ...d, influencedBy }))}
         childType='SCENE'
       />

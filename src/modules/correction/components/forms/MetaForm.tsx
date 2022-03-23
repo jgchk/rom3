@@ -33,7 +33,7 @@ const MetaForm: FC<{
     <FormElement>
       <label>Parents</label>
       <ParentMultiselect
-        value={data.parents}
+        parents={data.parents}
         onChange={(parents) => onChange((d) => ({ ...d, parents }))}
         childType='META'
       />
