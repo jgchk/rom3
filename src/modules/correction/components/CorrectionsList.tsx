@@ -34,7 +34,7 @@ const CorrectionsList: FC = () => {
         <ul>
           {data.map((correction) => (
             <li key={correction.id}>
-              <Link href={`/corrections/${correction.id}/edit`}>
+              <Link href={`/corrections/${correction.id}/edit/tree`}>
                 <a>{correction.id}</a>
               </Link>
             </li>
