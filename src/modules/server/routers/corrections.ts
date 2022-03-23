@@ -287,6 +287,50 @@ const mergeCorrection = async (id: number) => {
     where: { id: { in: correction.edit.map((e) => e.updatedGenre.id) } },
   })
 
+  const realIds: Record<number, number | undefined> = Object.fromEntries(
+    correction.edit.map((e) => [e.updatedGenre.id, e.targetGenre.id])
+  )
+  const updateCreatedRelationIds = correction.create.map((c) =>
+    prisma.genre.update({
+      where: { id: c.id },
+      data: {
+        parents: {
+          deleteMany: {},
+          create: c.parents.map((parentId) => ({
+            parentId: realIds[parentId] ?? parentId,
+          })),
+        },
+        influencedBy: {
+          deleteMany: {},
+          create: c.influencedBy.map((inf) => ({
+            influencerId: realIds[inf.id] ?? inf.id,
+            influenceType: inf.influenceType,
+          })),
+        },
+      },
+    })
+  )
+  const updateEditedRelationIds = correction.edit.map((e) =>
+    prisma.genre.update({
+      where: { id: e.targetGenre.id },
+      data: {
+        parents: {
+          deleteMany: {},
+          create: e.updatedGenre.parents.map((parentId) => ({
+            parentId: realIds[parentId] ?? parentId,
+          })),
+        },
+        influencedBy: {
+          deleteMany: {},
+          create: e.updatedGenre.influencedBy.map((inf) => ({
+            influencerId: realIds[inf.id] ?? inf.id,
+            influenceType: inf.influenceType,
+          })),
+        },
+      },
+    })
+  )
+
   const deleteGenres = prisma.genre.deleteMany({
     where: { id: { in: correction.delete.map((d) => d.id) } },
   })
@@ -295,6 +339,8 @@ const mergeCorrection = async (id: number) => {
   await prisma.$transaction([
     ...applyEdits,
     deleteEdited,
+    ...updateCreatedRelationIds,
+    ...updateEditedRelationIds,
     deleteGenres,
     deleteCorrection,
   ])
