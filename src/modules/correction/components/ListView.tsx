@@ -16,6 +16,14 @@ const ListView: FC = () => {
   const { data } = useCorrectionQuery(correctionId)
 
   if (data) {
+    if (
+      data.create.length === 0 &&
+      data.edit.length === 0 &&
+      data.delete.length === 0
+    ) {
+      return <div>No changes</div>
+    }
+
     return (
       <ul>
         {data.create.map((genre) => (
