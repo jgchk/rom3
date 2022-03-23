@@ -3,6 +3,7 @@ import { Dispatch, FC, SetStateAction } from 'react'
 import { GenreApiInput } from '../../../server/routers/genres'
 import MetaForm from './MetaForm'
 import SceneForm from './SceneForm'
+import StyleForm from './StyleForm'
 
 const GenreForm: FC<{
   data: GenreApiInput
@@ -14,8 +15,7 @@ const GenreForm: FC<{
     case 'SCENE':
       return <SceneForm data={data} onChange={onChange} />
     case 'STYLE':
-      // TODO
-      return <MetaForm data={data} onChange={onChange} />
+      return <StyleForm data={data} onChange={onChange} />
     case 'TREND':
       // TODO
       return <MetaForm data={data} onChange={onChange} />
