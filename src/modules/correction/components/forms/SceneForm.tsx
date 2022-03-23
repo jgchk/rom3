@@ -2,12 +2,13 @@ import { Dispatch, FC, SetStateAction } from 'react'
 
 import { GenreApiInput } from '../../../server/routers/genres'
 import FormElement from './elements/FormElement'
+import InfluenceMultiselect from './elements/InfluenceMultiselect'
+import LocationInput from './elements/LocationInput'
 import MarkdownEditor from './elements/MarkdownEditor'
-import ParentMultiselect from './elements/ParentMultiselect'
 import SmallLabel from './elements/SmallLabel'
 import StringArrayEditor from './elements/StringArrayEditor'
 
-const MetaForm: FC<{
+const SceneForm: FC<{
   data: GenreApiInput
   onChange: Dispatch<SetStateAction<GenreApiInput>>
 }> = ({ data, onChange }) => (
@@ -17,7 +18,6 @@ const MetaForm: FC<{
       <input
         value={data.name}
         onChange={(e) => onChange((d) => ({ ...d, name: e.target.value }))}
-        required
       />
     </FormElement>
     <FormElement>
@@ -31,11 +31,26 @@ const MetaForm: FC<{
       />
     </FormElement>
     <FormElement>
-      <label>Parents</label>
-      <ParentMultiselect
-        value={data.parents}
-        onChange={(parents) => onChange((d) => ({ ...d, parents }))}
-        childType='META'
+      <label>Influences</label>
+      <InfluenceMultiselect
+        value={data.influencedBy}
+        onChange={(influencedBy) => onChange((d) => ({ ...d, influencedBy }))}
+        childType='SCENE'
+      />
+    </FormElement>
+    <FormElement>
+      <label>Locations</label>
+      <LocationInput
+        value={data.locations}
+        onChange={(locations) => onChange((d) => ({ ...d, locations }))}
+      />
+    </FormElement>
+    <FormElement>
+      <label>Cultures</label>
+      <SmallLabel>comma-separated list</SmallLabel>
+      <StringArrayEditor
+        value={data.cultures}
+        onChange={(cultures) => onChange((d) => ({ ...d, cultures }))}
       />
     </FormElement>
     <FormElement>
@@ -57,4 +72,4 @@ const MetaForm: FC<{
   </>
 )
 
-export default MetaForm
+export default SceneForm

@@ -1,15 +1,25 @@
 import styled from '@emotion/styled'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import Select from '../../../../../common/components/Select'
 import { GenreType } from '../../../../../common/model'
-import { genreParentTypes } from '../../../../../common/model/parents'
+import {
+  genreInfluencedByTypes,
+  influenceTypes,
+} from '../../../../../common/model/influences'
+import { capitalize } from '../../../../../common/utils/string'
+import { InferMutationInput } from '../../../../../common/utils/trpc'
 import { useCorrectionContext } from '../../../contexts/CorrectionContext'
 import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
 
-const ParentMultiselect: FC<{
-  value: number[]
-  onChange: (value: number[]) => void
+type InfluenceUiState = InferMutationInput<'genres.add'>['influencedBy'][number]
+const infEq = (a: InfluenceUiState, b: InfluenceUiState) =>
+  a.id === b.id && a.influenceType === b.influenceType
+
+const InfluenceMultiselect: FC<{
+  value: InfluenceUiState[]
+  onChange: (value: InfluenceUiState[]) => void
   childType: GenreType
 }> = ({ value, onChange, childType }) => {
   const { id: correctionId } = useCorrectionContext()
@@ -17,16 +27,27 @@ const ParentMultiselect: FC<{
   const [inputValue, setInputValue] = useState('')
   const [open, setOpen] = useState(false)
 
-  const parentTypes = useMemo(() => genreParentTypes[childType], [childType])
+  const influencedByTypes = useMemo(
+    () => genreInfluencedByTypes[childType],
+    [childType]
+  )
 
   const removeSelectedItem = useCallback(
-    (removeItem: number) =>
-      onChange(value.filter((item) => item !== removeItem)),
+    (removeItem: InfluenceUiState) =>
+      onChange(value.filter((item) => !infEq(item, removeItem))),
     [onChange, value]
   )
 
   const addSelectedItem = useCallback(
-    (addItem: number) => onChange([...value, addItem]),
+    (addItem: InfluenceUiState) => onChange([...value, addItem]),
+    [onChange, value]
+  )
+
+  const updateSelectedItem = useCallback(
+    (updatedItem: InfluenceUiState) =>
+      onChange(
+        value.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+      ),
     [onChange, value]
   )
 
@@ -53,12 +74,12 @@ const ParentMultiselect: FC<{
     () =>
       data?.filter(
         (item) =>
-          parentTypes.includes(item.type) &&
+          influencedByTypes.includes(item.type) &&
           (self ? self !== item.id : true) &&
-          !value.includes(item.id) &&
+          !value.some((selectedItem) => infEq(selectedItem, item)) &&
           item.name.toLowerCase().startsWith(inputValue.toLowerCase())
       ),
-    [data, inputValue, parentTypes, self, value]
+    [data, inputValue, influencedByTypes, self, value]
   )
 
   const renderFilteredItems = useCallback(() => {
@@ -68,7 +89,9 @@ const ParentMultiselect: FC<{
       <MenuItem
         key={item.id}
         type='button'
-        onClick={() => addSelectedItem(item.id)}
+        onClick={() =>
+          addSelectedItem({ id: item.id, influenceType: 'HISTORICAL' })
+        }
       >
         {item.name}
       </MenuItem>
@@ -82,8 +105,9 @@ const ParentMultiselect: FC<{
           <SelectedItems>
             {value.map((selectedItem) => (
               <SelectedItem
-                key={selectedItem}
-                id={selectedItem}
+                key={`${selectedItem.id}_${selectedItem.influenceType ?? ''}`}
+                influence={selectedItem}
+                onChange={() => updateSelectedItem(selectedItem)}
                 onRemove={() => removeSelectedItem(selectedItem)}
               />
             ))}
@@ -104,20 +128,41 @@ const ParentMultiselect: FC<{
 }
 
 const SelectedItem: FC<{
-  id: number
+  influence: InfluenceUiState
+  onChange: (value: InfluenceUiState) => void
   onRemove: () => void
-}> = ({ id, onRemove }) => {
+}> = ({ influence, onChange, onRemove }) => {
   const { id: correctionId } = useCorrectionContext()
-  const { data } = useCorrectionGenreQuery(id, correctionId)
+  const { data } = useCorrectionGenreQuery(influence.id, correctionId)
 
-  const renderText = useCallback(() => {
-    if (data) return data.name
+  const renderItem = useCallback(() => {
+    if (data) {
+      if (data.type === 'STYLE') {
+        return (
+          <div>
+            <div>{data.name}</div>
+            <Select
+              options={influenceTypes.map((infType) => ({
+                key: infType,
+                value: infType,
+                label: capitalize(infType),
+              }))}
+              value={influence.influenceType ?? 'HISTORICAL'}
+              onChange={(influenceType) =>
+                onChange({ ...influence, influenceType })
+              }
+            />
+          </div>
+        )
+      }
+      return data.name
+    }
     return 'Loading...'
-  }, [data])
+  }, [data, influence, onChange])
 
   return (
     <SelectedItemContainer>
-      {renderText()}
+      {renderItem()}
       <RemoveButton type='button' onClick={() => onRemove()}>
         &#10005;
       </RemoveButton>
@@ -125,7 +170,7 @@ const SelectedItem: FC<{
   )
 }
 
-export default ParentMultiselect
+export default InfluenceMultiselect
 
 const Container = styled.div`
   position: relative;
