@@ -256,7 +256,18 @@ const getCorrections = async (): Promise<CorrectionApiOutput[]> => {
 }
 
 const deleteCorrection = async (id: number): Promise<number> => {
-  await prisma.correction.delete({ where: { id } })
+  const correction = await getCorrection(id)
+
+  const deleteCreated = prisma.genre.deleteMany({
+    where: { id: { in: correction.create.map((c) => c.id) } },
+  })
+  const deleteEdited = prisma.genre.deleteMany({
+    where: { id: { in: correction.edit.map((e) => e.updatedGenre.id) } },
+  })
+  const deleteCorrection = prisma.correction.delete({ where: { id } })
+
+  await prisma.$transaction([deleteCreated, deleteEdited, deleteCorrection])
+
   return id
 }
 

@@ -4,17 +4,21 @@ import { useRouter } from 'next/router'
 import { FC, useCallback } from 'react'
 import toast from 'react-hot-toast'
 
-import { useMergeCorrectionMutation } from '../../../common/services/corrections'
+import {
+  useDeleteCorrectionMutation,
+  useMergeCorrectionMutation,
+} from '../../../common/services/corrections'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 
 const Navbar: FC = () => {
   const { id } = useCorrectionContext()
 
-  const { mutate, isLoading } = useMergeCorrectionMutation()
+  const { mutate: mergeCorrection, isLoading: isMerging } =
+    useMergeCorrectionMutation()
   const router = useRouter()
   const handleMergeCorrection = useCallback(
     () =>
-      mutate(
+      mergeCorrection(
         { id },
         {
           onSuccess: () => {
@@ -26,7 +30,26 @@ const Navbar: FC = () => {
           },
         }
       ),
-    [id, mutate, router]
+    [id, mergeCorrection, router]
+  )
+
+  const { mutate: deleteCorrection, isLoading: isDeleting } =
+    useDeleteCorrectionMutation()
+  const handleDeleteCorrection = useCallback(
+    () =>
+      deleteCorrection(
+        { id },
+        {
+          onSuccess: () => {
+            toast.success('Deleted correction')
+            void router.push('/corrections')
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [deleteCorrection, id, router]
   )
 
   return (
@@ -37,8 +60,11 @@ const Navbar: FC = () => {
       <Link href={`/corrections/${id}/edit/tree`}>
         <a>Tree</a>
       </Link>
-      <button onClick={() => handleMergeCorrection()} disabled={isLoading}>
+      <button onClick={() => handleMergeCorrection()} disabled={isMerging}>
         Merge
+      </button>
+      <button onClick={() => handleDeleteCorrection()} disabled={isDeleting}>
+        Delete
       </button>
     </Container>
   )

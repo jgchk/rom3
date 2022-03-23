@@ -16,6 +16,16 @@ export const useCreateCorrectionMutation = () => {
   })
 }
 
+export const useDeleteCorrectionMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['corrections.delete'], {
+    onSuccess: (_, input) => {
+      void utils.invalidateQueries('corrections.all')
+      void utils.invalidateQueries(['corrections.byId', { id: input.id }])
+    },
+  })
+}
+
 export const useAddCreatedGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['corrections.edit.create.add'], {
