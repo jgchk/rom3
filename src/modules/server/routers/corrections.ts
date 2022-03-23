@@ -277,12 +277,27 @@ const deleteCorrection = async (id: number): Promise<number> => {
 const mergeCorrection = async (id: number) => {
   const correction = await getCorrection(id)
 
+  const applyEdits = correction.edit.map((e) =>
+    prisma.genre.update({
+      where: { id: e.targetGenre.id },
+      data: dbGenreUpdateInput(e.targetGenre.id, e.updatedGenre),
+    })
+  )
+  const deleteEdited = prisma.genre.deleteMany({
+    where: { id: { in: correction.edit.map((e) => e.updatedGenre.id) } },
+  })
+
   const deleteGenres = prisma.genre.deleteMany({
     where: { id: { in: correction.delete.map((d) => d.id) } },
   })
   const deleteCorrection = prisma.correction.delete({ where: { id } })
 
-  await prisma.$transaction([deleteGenres, deleteCorrection])
+  await prisma.$transaction([
+    ...applyEdits,
+    deleteEdited,
+    deleteGenres,
+    deleteCorrection,
+  ])
 
   return id
 }
