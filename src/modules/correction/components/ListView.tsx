@@ -5,9 +5,9 @@ import toast from 'react-hot-toast'
 import { GenreApiOutput } from '../../../common/model'
 import {
   useCorrectionQuery,
-  useUndoCreateGenreMutation,
-  useUndoDeleteGenreMutation,
-  useUndoEditGenreMutation,
+  useRemoveCreateGenreMutation,
+  useRemoveDeleteGenreMutation,
+  useRemoveEditGenreMutation,
 } from '../../../common/services/corrections'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 
@@ -41,19 +41,20 @@ const ListView: FC = () => {
 const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   const { id: correctionId } = useCorrectionContext()
 
-  const { mutate, isLoading } = useUndoCreateGenreMutation()
-  const handleUndoCreate = useCallback(
-    () =>
-      mutate(
-        { id: correctionId, genreId: genre.id },
-        {
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
-    [correctionId, genre.id, mutate]
-  )
+  const { mutate, isLoading } = useRemoveCreateGenreMutation()
+  const handleRemove = useCallback(() => {
+    const conf = confirm('Are you sure? (This action is irreversible)')
+    if (!conf) return
+
+    mutate(
+      { id: correctionId, genreId: genre.id },
+      {
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }
+    )
+  }, [correctionId, genre.id, mutate])
 
   return (
     <li>
@@ -66,8 +67,8 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
       >
         <a>{genre.name}</a>
       </Link>
-      <button onClick={() => handleUndoCreate()} disabled={isLoading}>
-        Undo
+      <button onClick={() => handleRemove()} disabled={isLoading}>
+        Remove
       </button>
     </li>
   )
@@ -79,19 +80,20 @@ const EditItem: FC<{
 }> = ({ targetGenre, updatedGenre }) => {
   const { id: correctionId } = useCorrectionContext()
 
-  const { mutate, isLoading } = useUndoEditGenreMutation()
-  const handleUndoEdit = useCallback(
-    () =>
-      mutate(
-        { id: correctionId, updatedGenreId: updatedGenre.id },
-        {
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
-    [correctionId, mutate, updatedGenre.id]
-  )
+  const { mutate, isLoading } = useRemoveEditGenreMutation()
+  const handleRemove = useCallback(() => {
+    const conf = confirm('Are you sure? (This action is irreversible)')
+    if (!conf) return
+
+    mutate(
+      { id: correctionId, updatedGenreId: updatedGenre.id },
+      {
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }
+    )
+  }, [correctionId, mutate, updatedGenre.id])
 
   return (
     <li>
@@ -107,8 +109,8 @@ const EditItem: FC<{
           <a>{updatedGenre.name}</a>
         </Link>
       </div>
-      <button onClick={() => handleUndoEdit()} disabled={isLoading}>
-        Undo
+      <button onClick={() => handleRemove()} disabled={isLoading}>
+        Remove
       </button>
     </li>
   )
@@ -117,26 +119,27 @@ const EditItem: FC<{
 const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   const { id: correctionId } = useCorrectionContext()
 
-  const { mutate, isLoading } = useUndoDeleteGenreMutation()
-  const handleUndoDelete = useCallback(
-    () =>
-      mutate(
-        { id: correctionId, targetId: genre.id },
-        {
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
-    [correctionId, genre.id, mutate]
-  )
+  const { mutate, isLoading } = useRemoveDeleteGenreMutation()
+  const handleRemove = useCallback(() => {
+    const conf = confirm('Are you sure? (This action is irreversible)')
+    if (!conf) return
+
+    mutate(
+      { id: correctionId, targetId: genre.id },
+      {
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }
+    )
+  }, [correctionId, genre.id, mutate])
 
   return (
     <li>
       <div>Delete</div>
       <div>{genre.name}</div>
-      <button onClick={() => handleUndoDelete()} disabled={isLoading}>
-        Undo
+      <button onClick={() => handleRemove()} disabled={isLoading}>
+        Remove
       </button>
     </li>
   )

@@ -36,7 +36,7 @@ const Navbar: FC = () => {
   const { mutate: deleteCorrection, isLoading: isDeleting } =
     useDeleteCorrectionMutation()
   const handleDeleteCorrection = useCallback(() => {
-    const conf = confirm('Are you sure?')
+    const conf = confirm('Are you sure? (This action is irreversible)')
     if (!conf) return
 
     deleteCorrection(

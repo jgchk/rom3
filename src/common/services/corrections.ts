@@ -56,7 +56,7 @@ export const useDeleteCorrectionGenreMutation = () => {
   })
 }
 
-export const useUndoCreateGenreMutation = () => {
+export const useRemoveCreateGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['corrections.edit.create.remove'], {
     onSuccess: (res) => {
@@ -66,7 +66,7 @@ export const useUndoCreateGenreMutation = () => {
   })
 }
 
-export const useUndoEditGenreMutation = () => {
+export const useRemoveEditGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['corrections.edit.edit.remove'], {
     onSuccess: (res) => {
@@ -76,7 +76,7 @@ export const useUndoEditGenreMutation = () => {
   })
 }
 
-export const useUndoDeleteGenreMutation = () => {
+export const useRemoveDeleteGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['corrections.edit.delete.remove'], {
     onSuccess: (res) => {
