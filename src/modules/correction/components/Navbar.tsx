@@ -35,37 +35,42 @@ const Navbar: FC = () => {
 
   const { mutate: deleteCorrection, isLoading: isDeleting } =
     useDeleteCorrectionMutation()
-  const handleDeleteCorrection = useCallback(
-    () =>
-      deleteCorrection(
-        { id },
-        {
-          onSuccess: () => {
-            toast.success('Deleted correction')
-            void router.push('/corrections')
-          },
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
-    [deleteCorrection, id, router]
-  )
+  const handleDeleteCorrection = useCallback(() => {
+    const conf = confirm('Are you sure?')
+    if (!conf) return
+
+    deleteCorrection(
+      { id },
+      {
+        onSuccess: () => {
+          toast.success('Deleted correction')
+          void router.push('/corrections')
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }
+    )
+  }, [deleteCorrection, id, router])
 
   return (
     <Container>
-      <Link href={`/corrections/${id}/edit`}>
-        <a>List</a>
-      </Link>
-      <Link href={`/corrections/${id}/edit/tree`}>
-        <a>Tree</a>
-      </Link>
-      <button onClick={() => handleMergeCorrection()} disabled={isMerging}>
-        Merge
-      </button>
-      <button onClick={() => handleDeleteCorrection()} disabled={isDeleting}>
-        Delete
-      </button>
+      <Submenu>
+        <Link href={`/corrections/${id}/edit`}>
+          <a>Change List</a>
+        </Link>
+        <Link href={`/corrections/${id}/edit/tree`}>
+          <a>Tree</a>
+        </Link>
+      </Submenu>
+      <Submenu>
+        <button onClick={() => handleDeleteCorrection()} disabled={isDeleting}>
+          Delete
+        </button>
+        <button onClick={() => handleMergeCorrection()} disabled={isMerging}>
+          Merge
+        </button>
+      </Submenu>
     </Container>
   )
 }
@@ -74,20 +79,29 @@ export default Navbar
 
 const Container = styled.nav`
   display: flex;
-  gap: 4px;
+  justify-content: space-between;
   height: 32px;
   background: #eee;
 
-  a {
+  a,
+  button {
     display: flex;
     align-items: center;
     padding: 0 8px;
     color: black;
     text-decoration: none;
+    background: none;
+    border: none;
     cursor: pointer;
 
     &:hover {
       background: #ccc;
     }
   }
+`
+
+const Submenu = styled.div`
+  display: flex;
+  gap: 4px;
+  height: 100%;
 `
