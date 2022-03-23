@@ -107,7 +107,7 @@ const InfluenceMultiselect: FC<{
               <SelectedInfluence
                 key={`${selectedItem.id}_${selectedItem.influenceType ?? ''}`}
                 influence={selectedItem}
-                onChange={() => updateInfluence(selectedItem)}
+                onChange={(update) => updateInfluence(update)}
                 onRemove={() => removeInfluence(selectedItem)}
               />
             ))}
