@@ -282,9 +282,10 @@ const editGenre = async (
   id: number,
   input: GenreApiInput
 ): Promise<GenreApiOutput> => {
+  const data = await dbGenreUpdateInput(id, input)
   const genre = await prisma.genre.update({
     where: { id },
-    data: dbGenreUpdateInput(id, input),
+    data,
     include: genreInclude,
   })
   return toGenreApiOutput(genre)

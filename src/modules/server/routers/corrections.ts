@@ -97,6 +97,7 @@ const updateCreatedGenre = async (
   createdGenreId: number,
   input: GenreApiInput
 ): Promise<CorrectionApiOutput> => {
+  const createdGenreData = await dbGenreUpdateInput(createdGenreId, input)
   const correction = await prisma.correction.update({
     where: { id: correctionId },
     data: {
@@ -105,7 +106,7 @@ const updateCreatedGenre = async (
           where: { createdGenreId },
           data: {
             createdGenre: {
-              update: dbGenreUpdateInput(createdGenreId, input),
+              update: createdGenreData,
             },
           },
         },
@@ -160,6 +161,7 @@ const updateGenre = async (
 
   const editedId = correction.edit.find((e) => e.targetGenre.id === genreId)
     ?.updatedGenre.id
+  console.log({ editedId, correction })
 
   return editedId !== undefined
     ? updateEditedGenre(correctionId, genreId, editedId, data)
@@ -172,6 +174,7 @@ const updateEditedGenre = async (
   updatedGenreId: number,
   input: GenreApiInput
 ): Promise<CorrectionApiOutput> => {
+  const updatedGenreData = await dbGenreUpdateInput(updatedGenreId, input)
   const correction = await prisma.correction.update({
     where: { id: correctionId },
     data: {
@@ -185,7 +188,7 @@ const updateEditedGenre = async (
           },
           data: {
             updatedGenre: {
-              update: dbGenreUpdateInput(updatedGenreId, input),
+              update: updatedGenreData,
             },
           },
         },
@@ -291,10 +294,16 @@ const deleteCorrection = async (id: number): Promise<number> => {
 const mergeCorrection = async (id: number) => {
   const correction = await getCorrection(id)
 
-  const applyEdits = correction.edit.map((e) =>
+  const applyEditsData = await Promise.all(
+    correction.edit.map(async (e) => ({
+      ...e,
+      data: await dbGenreUpdateInput(e.targetGenre.id, e.updatedGenre),
+    }))
+  )
+  const applyEdits = applyEditsData.map((e) =>
     prisma.genre.update({
       where: { id: e.targetGenre.id },
-      data: dbGenreUpdateInput(e.targetGenre.id, e.updatedGenre),
+      data: e.data,
     })
   )
   const deleteEdited = prisma.genre.deleteMany({
