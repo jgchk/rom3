@@ -1,4 +1,6 @@
-import trpc, { InferQueryOptions } from '../utils/trpc'
+import trpc, { InferQueryOptions, InferQueryOutput } from '../utils/trpc'
+
+export type CorrectionApiOutput = InferQueryOutput<'corrections.byId'>
 
 export const useCorrectionsQuery = (
   opts?: InferQueryOptions<'corrections.all'>
@@ -105,6 +107,16 @@ export const useMergeCorrectionMutation = () => {
       void utils.invalidateQueries(['corrections.byId', { id: input.id }])
       void utils.invalidateQueries('genres.all')
       void utils.invalidateQueries('genres.byId')
+    },
+  })
+}
+
+export const useUpdateCorrectionNameMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['corrections.edit.name'], {
+    onSuccess: (res) => {
+      void utils.invalidateQueries('corrections.all')
+      utils.setQueryData(['corrections.byId', { id: res.id }], res)
     },
   })
 }

@@ -1,17 +1,29 @@
 import styled from '@emotion/styled'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback } from 'react'
+import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import {
+  useCorrectionQuery,
   useDeleteCorrectionMutation,
   useMergeCorrectionMutation,
 } from '../../../common/services/corrections'
+import { defaultCorrectionName } from '../constants'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
+import UpdateNameDialog from './UpdateNameDialog'
 
 const Navbar: FC = () => {
   const { id } = useCorrectionContext()
+
+  const { data } = useCorrectionQuery(id)
+
+  const renderCorrectionName = useCallback(() => {
+    if (data) return data.name ?? defaultCorrectionName
+    return 'Loading...'
+  }, [data])
+
+  const [showNameDialog, setShowNameDialog] = useState(false)
 
   const { mutate: mergeCorrection, isLoading: isMerging } =
     useMergeCorrectionMutation()
@@ -54,24 +66,34 @@ const Navbar: FC = () => {
   }, [deleteCorrection, id, router])
 
   return (
-    <Container>
-      <Submenu>
-        <Link href={`/corrections/${id}/edit/tree`}>
-          <a>Tree</a>
-        </Link>
-        <Link href={`/corrections/${id}/edit`}>
-          <a>Change List</a>
-        </Link>
-      </Submenu>
-      <Submenu>
-        <button onClick={() => handleDeleteCorrection()} disabled={isDeleting}>
-          Delete
-        </button>
-        <button onClick={() => handleMergeCorrection()} disabled={isMerging}>
-          Merge
-        </button>
-      </Submenu>
-    </Container>
+    <>
+      <Container>
+        <Submenu>
+          <div>{renderCorrectionName()}</div>
+          <button onClick={() => setShowNameDialog(true)}>Edit Name</button>
+          <Link href={`/corrections/${id}/edit/tree`}>
+            <a>Tree</a>
+          </Link>
+          <Link href={`/corrections/${id}/edit`}>
+            <a>Change List</a>
+          </Link>
+        </Submenu>
+        <Submenu>
+          <button
+            onClick={() => handleDeleteCorrection()}
+            disabled={isDeleting}
+          >
+            Delete
+          </button>
+          <button onClick={() => handleMergeCorrection()} disabled={isMerging}>
+            Merge
+          </button>
+        </Submenu>
+      </Container>
+      {showNameDialog && (
+        <UpdateNameDialog onClose={() => setShowNameDialog(false)} />
+      )}
+    </>
   )
 }
 
@@ -82,12 +104,23 @@ const Container = styled.nav`
   justify-content: space-between;
   height: 32px;
   background: #eee;
+`
+
+const Submenu = styled.div`
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  height: 100%;
+
+  & > * {
+    padding: 0 8px;
+  }
 
   a,
   button {
     display: flex;
     align-items: center;
-    padding: 0 8px;
+    height: 100%;
     color: black;
     text-decoration: none;
     background: none;
@@ -98,10 +131,4 @@ const Container = styled.nav`
       background: #ccc;
     }
   }
-`
-
-const Submenu = styled.div`
-  display: flex;
-  gap: 4px;
-  height: 100%;
 `
