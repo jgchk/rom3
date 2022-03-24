@@ -1,10 +1,21 @@
-import trpc from '../utils/trpc'
+import trpc, { InferQueryOptions } from '../utils/trpc'
 
-export const useCorrectionsQuery = () =>
-  trpc.useQuery(['corrections.all'], { useErrorBoundary: true })
+export const useCorrectionsQuery = (
+  opts?: InferQueryOptions<'corrections.all'>
+) =>
+  trpc.useQuery(['corrections.all'], {
+    ...opts,
+    useErrorBoundary: opts?.useErrorBoundary ?? true,
+  })
 
-export const useCorrectionQuery = (id: number) =>
-  trpc.useQuery(['corrections.byId', { id }], { useErrorBoundary: true })
+export const useCorrectionQuery = (
+  id: number,
+  opts?: InferQueryOptions<'corrections.byId'>
+) =>
+  trpc.useQuery(['corrections.byId', { id }], {
+    ...opts,
+    useErrorBoundary: opts?.useErrorBoundary ?? true,
+  })
 
 export const useCreateCorrectionMutation = () => {
   const utils = trpc.useContext()
