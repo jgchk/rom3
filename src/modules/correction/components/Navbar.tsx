@@ -2,8 +2,8 @@ import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
-import { Edit3 } from 'react-feather'
 import toast from 'react-hot-toast'
+import { RiEditFill } from 'react-icons/ri'
 
 import {
   useCorrectionQuery,
@@ -72,16 +72,16 @@ const Navbar: FC = () => {
       <div className='bg-red-600 flex justify-center h-9 shadow'>
         <div className='flex-1 max-w-screen-lg flex justify-between text-white text-sm'>
           <div className='flex items-center'>
-            <div className='flex space-x-1 mr-5'>
+            <div className='flex items-center space-x-2 mr-5'>
               <div className='font-mackinac font-extrabold text-xl'>
                 {renderCorrectionName()}
               </div>
               <button
-                className='rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-700'
+                className='rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700'
                 onClick={() => setShowNameDialog(true)}
                 disabled={showNameDialog}
               >
-                <Edit3 size={18} />
+                <RiEditFill />
               </button>
             </div>
             <Link href={`/corrections/${id}/edit/tree`}>
