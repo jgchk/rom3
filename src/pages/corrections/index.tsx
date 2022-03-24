@@ -1,19 +1,13 @@
-import styled from '@emotion/styled'
 import { NextPage } from 'next'
 
 import CorrectionsList from '../../modules/correction/components/CorrectionsList'
 
 const CorrectionsPage: NextPage = () => (
-  <Layout>
-    <CorrectionsList />
-  </Layout>
+  <div className='flex justify-center p-3'>
+    <div className='flex-1 max-w-screen-lg'>
+      <CorrectionsList />
+    </div>
+  </div>
 )
 
 export default CorrectionsPage
-
-const Layout = styled.div`
-  width: 100%;
-  height: 100%;
-  padding: 24px;
-  overflow: auto;
-`
