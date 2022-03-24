@@ -1,5 +1,6 @@
 import '../common/styles/globals.css'
 
+import { ThemeProvider } from '@emotion/react'
 import styled from '@emotion/styled'
 import { withTRPC } from '@trpc/next'
 import type { AppProps } from 'next/app'
@@ -7,20 +8,23 @@ import { Toaster } from 'react-hot-toast'
 
 import ErrorBoundary from '../common/components/ErrorBoundary'
 import Navbar from '../common/components/Navbar'
+import { darkTheme } from '../common/themes'
 import { isBrowser } from '../common/utils/ssr'
 import { trpcPath, trpcUrl } from '../common/utils/trpc'
 import { AppRouter } from '../modules/server/routers/_app'
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
-  <Layout>
-    <Navbar />
-    <Content>
-      <ErrorBoundary>
-        <Component {...pageProps} />
-      </ErrorBoundary>
-    </Content>
-    <Toaster />
-  </Layout>
+  <ThemeProvider theme={darkTheme}>
+    <Layout>
+      <Navbar />
+      <Content>
+        <ErrorBoundary>
+          <Component {...pageProps} />
+        </ErrorBoundary>
+      </Content>
+      <Toaster />
+    </Layout>
+  </ThemeProvider>
 )
 
 export default withTRPC<AppRouter>({
@@ -36,6 +40,8 @@ const Layout = styled.div`
   flex-direction: column;
   width: 100vw;
   height: 100vh;
+  color: ${({ theme }) => theme.color.text['700']};
+  background: ${({ theme }) => theme.color.background};
 `
 
 const Content = styled.div`
