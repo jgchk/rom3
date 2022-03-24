@@ -16,3 +16,10 @@
   src: url('/fonts/P22Mackinac/P22Mackinac-Bold.otf');
   font-display: swap;
 }
+@font-face {
+  font-weight: 800;
+  font-family: 'P22 Mackinac';
+  font-style: normal;
+  src: url('/fonts/P22Mackinac/P22Mackinac-ExtraBold.otf');
+  font-display: swap;
+}

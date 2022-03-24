@@ -70,10 +70,10 @@ const Navbar: FC = () => {
   return (
     <>
       <div className='bg-red-600 flex justify-center h-9 shadow'>
-        <div className='flex-1 max-w-screen-lg flex justify-between text-white'>
+        <div className='flex-1 max-w-screen-lg flex justify-between text-white text-sm'>
           <div className='flex items-center'>
             <div className='flex space-x-1 mr-5'>
-              <div className='font-mackinac font-bold text-xl'>
+              <div className='font-mackinac font-extrabold text-xl'>
                 {renderCorrectionName()}
               </div>
               <button
@@ -87,7 +87,7 @@ const Navbar: FC = () => {
             <Link href={`/corrections/${id}/edit/tree`}>
               <a
                 className={clsx(
-                  'h-full flex items-center border-b-2 px-2 font-medium hover:bg-red-700',
+                  'h-full flex items-center border-b-2 px-2 font-bold hover:bg-red-700',
                   router.pathname === '/corrections/[id]/edit/tree'
                     ? 'border-white'
                     : 'border-transparent'
@@ -99,7 +99,7 @@ const Navbar: FC = () => {
             <Link href={`/corrections/${id}/edit`}>
               <a
                 className={clsx(
-                  'h-full flex items-center border-b-2 px-2 font-medium hover:bg-red-700',
+                  'h-full flex items-center border-b-2 px-2 font-bold hover:bg-red-700',
                   router.pathname === '/corrections/[id]/edit'
                     ? 'border-white'
                     : 'border-transparent'
@@ -111,14 +111,14 @@ const Navbar: FC = () => {
           </div>
           <div className='flex'>
             <button
-              className='h-full flex items-center px-2 font-medium hover:bg-red-700'
+              className='h-full flex items-center px-2 font-bold hover:bg-red-700'
               onClick={() => handleDeleteCorrection()}
               disabled={isDeleting}
             >
               Delete
             </button>
             <button
-              className='h-full flex items-center px-2 font-medium hover:bg-red-700'
+              className='h-full flex items-center px-2 font-bold hover:bg-red-700'
               onClick={() => handleMergeCorrection()}
               disabled={isMerging}
             >

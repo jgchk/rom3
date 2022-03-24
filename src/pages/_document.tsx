@@ -17,6 +17,12 @@ const Document: FC = () => (
         crossOrigin=''
       />
       <link
+        rel='preload'
+        href='/fonts/P22Mackinac/P22Mackinac-ExtraBold.otf'
+        as='font'
+        crossOrigin=''
+      />
+      <link
         href='https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap'
         rel='stylesheet'
       />
