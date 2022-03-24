@@ -13,7 +13,11 @@ import { useCorrectionContext } from '../contexts/CorrectionContext'
 
 const ListView: FC = () => {
   const { id: correctionId } = useCorrectionContext()
-  const { data } = useCorrectionQuery(correctionId)
+  const { data } = useCorrectionQuery(correctionId, {
+    // TODO: Temporarily fixes a race condition where this query would refetch after clicking the confirm
+    // button for removing a change. Ideally we build some sort of confirm dialog so focus is not lost.
+    refetchOnWindowFocus: false,
+  })
 
   if (data) {
     if (
