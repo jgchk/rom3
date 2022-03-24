@@ -37,6 +37,11 @@ const CreateView: FC<{
     [correctionId, mutate, router, uiState]
   )
 
+  const handleCancel = useCallback(
+    () => void router.push(`/corrections/${correctionId}/edit/tree`),
+    [correctionId, router]
+  )
+
   return (
     <form
       onSubmit={(e) => {
@@ -46,6 +51,9 @@ const CreateView: FC<{
     >
       <GenreForm data={uiState} onChange={setUiState} />
       <button type='submit'>Submit</button>
+      <button type='button' onClick={() => handleCancel()}>
+        Cancel
+      </button>
     </form>
   )
 }

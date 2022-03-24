@@ -52,6 +52,11 @@ const Loaded: FC<{
     [correctionId, genreId, mutate, router, uiState]
   )
 
+  const handleCancel = useCallback(
+    () => void router.push(`/corrections/${correctionId}/edit/tree`),
+    [correctionId, router]
+  )
+
   return (
     <form
       onSubmit={(e) => {
@@ -61,6 +66,9 @@ const Loaded: FC<{
     >
       <GenreForm data={uiState} onChange={setUiState} />
       <button type='submit'>Submit</button>
+      <button type='button' onClick={() => handleCancel()}>
+        Cancel
+      </button>
     </form>
   )
 }
