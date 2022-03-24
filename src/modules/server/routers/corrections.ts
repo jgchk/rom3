@@ -159,13 +159,16 @@ const updateGenre = async (
 ): Promise<CorrectionApiOutput> => {
   const correction = await getCorrection(correctionId)
 
+  const createdId = correction.create.find((e) => e.id === genreId)?.id
+  if (createdId !== undefined)
+    return updateCreatedGenre(correctionId, createdId, data)
+
   const editedId = correction.edit.find((e) => e.targetGenre.id === genreId)
     ?.updatedGenre.id
-  console.log({ editedId, correction })
+  if (editedId !== undefined)
+    return updateEditedGenre(correctionId, genreId, editedId, data)
 
-  return editedId !== undefined
-    ? updateEditedGenre(correctionId, genreId, editedId, data)
-    : addEditedGenre(correctionId, genreId, data)
+  return addEditedGenre(correctionId, genreId, data)
 }
 
 const updateEditedGenre = async (
