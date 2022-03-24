@@ -100,25 +100,23 @@ const Node: FC<{ id: number }> = ({ id }) => {
             <a className='big'>{genre.name}</a>
           </Link>
           <NodeDesc>{genre.shortDesc}</NodeDesc>
-          {childTypes.length > 0 && (
-            <ButtonContainer>
-              <button onClick={() => handleDelete()}>Delete</button>
-              {childTypes.map((childType) => (
-                <Link
-                  key={childType}
-                  href={{
-                    pathname: `/corrections/${correctionId}/edit/genres/create`,
-                    query: {
-                      type: childType,
-                      parentId: id,
-                    },
-                  }}
-                >
-                  <a>Add Child {capitalize(childType)}</a>
-                </Link>
-              ))}
-            </ButtonContainer>
-          )}
+          <ButtonContainer>
+            <button onClick={() => handleDelete()}>Delete</button>
+            {childTypes.map((childType) => (
+              <Link
+                key={childType}
+                href={{
+                  pathname: `/corrections/${correctionId}/edit/genres/create`,
+                  query: {
+                    type: childType,
+                    parentId: id,
+                  },
+                }}
+              >
+                <a>Add Child {capitalize(childType)}</a>
+              </Link>
+            ))}
+          </ButtonContainer>
         </NodeHeader>
       </NodeContent>
       {children.length > 0 && (
