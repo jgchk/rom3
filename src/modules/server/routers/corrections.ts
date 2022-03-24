@@ -51,9 +51,9 @@ const toCorrectionApiOutput = (
   delete: correction.delete.map((d) => toGenreApiOutput(d.targetGenre)),
 })
 
-const addCorrection = async (): Promise<CorrectionApiOutput> => {
+const addCorrection = async (name?: string): Promise<CorrectionApiOutput> => {
   const correction = await prisma.correction.create({
-    data: {},
+    data: { name },
     include: correctionInclude,
   })
   return toCorrectionApiOutput(correction)
@@ -74,6 +74,18 @@ const addCreatedGenre = async (
         },
       },
     },
+    include: correctionInclude,
+  })
+  return toCorrectionApiOutput(correction)
+}
+
+const updateCorrectionName = async (
+  id: number,
+  name?: string
+): Promise<CorrectionApiOutput> => {
+  const correction = await prisma.correction.update({
+    where: { id },
+    data: { name },
     include: correctionInclude,
   })
   return toCorrectionApiOutput(correction)
@@ -350,7 +362,8 @@ const mergeCorrection = async (id: number) => {
 
 const correctionsRouter = createRouter()
   .mutation('add', {
-    resolve: () => addCorrection(),
+    input: z.object({ name: z.string().min(1).optional() }),
+    resolve: ({ input }) => addCorrection(input.name),
   })
   .query('all', {
     resolve: async () => getCorrections(),
@@ -358,6 +371,10 @@ const correctionsRouter = createRouter()
   .query('byId', {
     input: z.object({ id: z.number() }),
     resolve: ({ input }) => getCorrection(input.id),
+  })
+  .mutation('edit.name', {
+    input: z.object({ id: z.number(), name: z.string().min(1).optional() }),
+    resolve: ({ input }) => updateCorrectionName(input.id, input.name),
   })
   .mutation('edit.create.add', {
     input: z.object({ id: z.number(), data: GenreApiInput }),

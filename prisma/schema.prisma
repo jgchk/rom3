@@ -105,7 +105,8 @@ model Culture {
 }
 
 model Correction {
-  id Int @id @default(autoincrement())
+  id   Int     @id @default(autoincrement())
+  name String? @db.VarChar(255)
 
   create GenreCreate[]
   edit   GenreEdit[]
