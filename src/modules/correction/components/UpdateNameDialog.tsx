@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router'
 import { FC, useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -8,14 +7,13 @@ import {
   useUpdateCorrectionNameMutation,
 } from '../../../common/services/corrections'
 import { trpcClient } from '../../../common/utils/trpc'
-import { useCorrectionContext } from '../contexts/CorrectionContext'
+import { defaultCorrectionName } from '../constants'
 import FormElement from './forms/elements/FormElement'
 
 const UpdateNameDialog: FC<{
+  id: number
   onClose: () => void
-}> = ({ onClose }) => {
-  const { id } = useCorrectionContext()
-
+}> = ({ id, onClose }) => {
   const [correction, setCorrection] = useState<CorrectionApiOutput>()
   const fetchCorrection = useCallback(async () => {
     const data = await trpcClient.query('corrections.byId', { id })
@@ -25,22 +23,20 @@ const UpdateNameDialog: FC<{
 
   const renderContents = useCallback(() => {
     if (correction)
-      return <Loaded initialName={correction.name} onClose={onClose} />
+      return <Loaded id={id} initialName={correction.name} onClose={onClose} />
 
     // TODO: better loading state. maybe show input but disabled with placeholder cached data
     return <div>Loading...</div>
-  }, [correction, onClose])
+  }, [correction, id, onClose])
 
   return <Dialog>{renderContents()}</Dialog>
 }
 
-const Loaded: FC<{ initialName: string | null; onClose: () => void }> = ({
-  initialName,
-  onClose,
-}) => {
-  const { id } = useCorrectionContext()
-  const router = useRouter()
-
+const Loaded: FC<{
+  id: number
+  initialName: string | null
+  onClose: () => void
+}> = ({ id, initialName, onClose }) => {
   const [name, setName] = useState(initialName ?? '')
 
   const { mutate, isLoading } = useUpdateCorrectionNameMutation()
@@ -50,8 +46,9 @@ const Loaded: FC<{ initialName: string | null; onClose: () => void }> = ({
         { id, name },
         {
           onSuccess: (res) => {
-            toast.success('Created new correction')
-            void router.push(`/corrections/${res.id}/edit/tree`)
+            toast.success(
+              `Renamed correction to ${res.name ?? defaultCorrectionName}`
+            )
             onClose()
           },
           onError: (error) => {
@@ -59,7 +56,7 @@ const Loaded: FC<{ initialName: string | null; onClose: () => void }> = ({
           },
         }
       ),
-    [id, mutate, onClose, router]
+    [id, mutate, onClose]
   )
 
   return (
@@ -71,7 +68,11 @@ const Loaded: FC<{ initialName: string | null; onClose: () => void }> = ({
     >
       <FormElement>
         <label>Name</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} />
+        <input
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
       </FormElement>
       <div>
         <button type='submit' disabled={isLoading}>

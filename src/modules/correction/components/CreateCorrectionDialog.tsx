@@ -41,7 +41,11 @@ const CreateCorrectionDialog: FC<{
       >
         <FormElement>
           <label>Name</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} />
+          <input
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </FormElement>
         <div>
           <button type='submit' disabled={isLoading}>

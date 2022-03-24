@@ -70,7 +70,12 @@ const Navbar: FC = () => {
       <Container>
         <Submenu>
           <div>{renderCorrectionName()}</div>
-          <button onClick={() => setShowNameDialog(true)}>Edit Name</button>
+          <button
+            onClick={() => setShowNameDialog(true)}
+            disabled={showNameDialog}
+          >
+            Rename
+          </button>
           <Link href={`/corrections/${id}/edit/tree`}>
             <a>Tree</a>
           </Link>
@@ -91,7 +96,7 @@ const Navbar: FC = () => {
         </Submenu>
       </Container>
       {showNameDialog && (
-        <UpdateNameDialog onClose={() => setShowNameDialog(false)} />
+        <UpdateNameDialog id={id} onClose={() => setShowNameDialog(false)} />
       )}
     </>
   )
