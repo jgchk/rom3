@@ -69,7 +69,7 @@ const Navbar: FC = () => {
 
   return (
     <>
-      <div className='bg-red-600 flex justify-center h-9 shadow'>
+      <div className='flex justify-center bg-red-600 px-2 h-9 shadow'>
         <div className='flex-1 max-w-screen-lg flex justify-between text-white text-sm'>
           <div className='flex items-center'>
             <div className='flex items-center space-x-2 mr-5'>
