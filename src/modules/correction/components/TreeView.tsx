@@ -159,7 +159,7 @@ const NodeHeader = styled.div`
 `
 
 const NodeDesc = styled.div`
-  color: #161515;
+  color: ${({ theme }) => theme.color.text['500']};
 `
 
 const NodeList = styled.ul`

@@ -24,5 +24,6 @@ const Container = styled.div`
 
 const Content = styled.div`
   flex: 1;
+  padding: 24px;
   overflow: auto;
 `
