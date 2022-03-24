@@ -12,6 +12,9 @@ import {
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
+import { genreInfluencedByTypes } from '../../../common/model/influences'
+import { genreParentTypes } from '../../../common/model/parents'
+import { isNotNull } from '../../../common/utils/types'
 import createRouter from '../createRouter'
 import prisma from '../prisma'
 
@@ -44,19 +47,16 @@ export const ApiLocation = z
   )
 type ApiLocation = z.infer<typeof ApiLocation>
 
-export const ApiCulture = z.string().min(1)
-export type ApiCulture = z.infer<typeof ApiCulture>
-
 export const GenreApiInput = z.object({
   type: GenreType,
   name: z.string().min(1),
-  alternateNames: z.array(z.string().min(1)),
+  alternateNames: z.array(z.string()),
   shortDesc: z.string().min(1),
   longDesc: z.string().min(1),
   parents: z.number().array(),
   influencedBy: ApiGenreInfluence.array(),
   locations: ApiLocation.array(),
-  cultures: ApiCulture.array(),
+  cultures: z.string().array(),
 })
 export type GenreApiInput = z.infer<typeof GenreApiInput>
 
@@ -65,7 +65,7 @@ export type GenreApiOutput = Genre & {
   parents: ApiGenreParent[]
   influencedBy: ApiGenreInfluence[]
   locations: ApiLocation[]
-  cultures: ApiCulture[]
+  cultures: string[]
 }
 
 export type GenreInclude = Genre & {
@@ -83,107 +83,157 @@ export const genreInclude = {
   cultures: { include: { culture: true } },
 } as const
 
-export const dbGenreCreateInput = (
-  input: GenreApiInput
-): Prisma.GenreCreateInput => ({
-  type: input.type,
-  name: input.name,
-  alternateNames: {
-    create: input.alternateNames.map((name) => ({ name })),
-  },
-  shortDesc: input.shortDesc,
-  longDesc: input.longDesc,
-  parents: {
-    create: input.parents.map((parentId) => ({ parentId })),
-  },
-  influencedBy: {
-    create: input.influencedBy.map(({ id, influenceType }) => ({
-      influencerId: id,
-      influenceType,
-    })),
-  },
-  locations: {
-    create: input.locations.map((loc) => ({
-      location: {
-        connectOrCreate: {
-          where: {
-            city_region_country: {
-              city: loc.city,
-              region: loc.region,
-              country: loc.country,
-            },
-          },
-          create: {
-            city: loc.city,
-            region: loc.region,
-            country: loc.country,
-          },
-        },
-      },
-    })),
-  },
-  cultures: {
-    create: input.cultures.map((c) => ({
-      culture: {
-        connectOrCreate: { where: { name: c }, create: { name: c } },
-      },
-    })),
-  },
-})
+const cleanInput = async (input: GenreApiInput): Promise<GenreApiInput> => {
+  const parentTypes = genreParentTypes[input.type]
+  const dbParents = await prisma.genre.findMany({
+    where: { id: { in: input.parents } },
+  })
+  const parents = dbParents
+    .filter((parent) => parentTypes.includes(parent.type))
+    .map((parent) => parent.id)
 
-export const dbGenreUpdateInput = (
-  id: number,
-  input: GenreApiInput
-): Prisma.GenreUpdateInput => ({
-  type: input.type,
-  name: input.name,
-  alternateNames: {
-    deleteMany: { genreId: id },
-    create: input.alternateNames.map((name) => ({ name })),
-  },
-  shortDesc: input.shortDesc,
-  longDesc: input.longDesc,
-  parents: {
-    deleteMany: { childId: id },
-    create: input.parents.map((parentId) => ({ parentId })),
-  },
-  influencedBy: {
-    deleteMany: { influencedId: id },
-    create: input.influencedBy.map(({ id, influenceType }) => ({
-      influencerId: id,
-      influenceType,
-    })),
-  },
-  locations: {
-    deleteMany: { genreId: id },
-    create: input.locations.map((loc) => ({
-      location: {
-        connectOrCreate: {
-          where: {
-            city_region_country: {
+  const influenceTypes = genreInfluencedByTypes[input.type]
+  const dbInfluences = await Promise.all(
+    input.influencedBy.map(async (inf) => {
+      const influencer = await prisma.genre.findUnique({
+        where: { id: inf.id },
+      })
+      if (influencer === null) return null
+      return { influencer, influenceType: inf.influenceType }
+    })
+  )
+  const influencedBy = dbInfluences
+    .filter(isNotNull)
+    .filter((inf) => influenceTypes.includes(inf.influencer.type))
+    .map((inf) => ({
+      id: inf.influencer.id,
+      influenceType:
+        inf.influencer.type === 'STYLE'
+          ? inf.influenceType ?? 'HISTORICAL'
+          : undefined,
+    }))
+
+  const cultures =
+    input.type === 'META' ? [] : input.cultures.filter((s) => s.length > 0)
+  const locations = input.type === 'META' ? [] : input.locations
+
+  return {
+    ...input,
+    parents,
+    influencedBy,
+    alternateNames: input.alternateNames.filter((s) => s.length > 0),
+    cultures,
+    locations,
+  }
+}
+
+export const dbGenreCreateInput = async (
+  data: GenreApiInput
+): Promise<Prisma.GenreCreateInput> => {
+  const input = await cleanInput(data)
+  return {
+    type: input.type,
+    name: input.name,
+    alternateNames: {
+      create: input.alternateNames.map((name) => ({ name })),
+    },
+    shortDesc: input.shortDesc,
+    longDesc: input.longDesc,
+    parents: {
+      create: input.parents.map((parentId) => ({ parentId })),
+    },
+    influencedBy: {
+      create: input.influencedBy.map(({ id, influenceType }) => ({
+        influencerId: id,
+        influenceType,
+      })),
+    },
+    locations: {
+      create: input.locations.map((loc) => ({
+        location: {
+          connectOrCreate: {
+            where: {
+              city_region_country: {
+                city: loc.city,
+                region: loc.region,
+                country: loc.country,
+              },
+            },
+            create: {
               city: loc.city,
               region: loc.region,
               country: loc.country,
             },
           },
-          create: {
-            city: loc.city,
-            region: loc.region,
-            country: loc.country,
+        },
+      })),
+    },
+    cultures: {
+      create: input.cultures.map((c) => ({
+        culture: {
+          connectOrCreate: { where: { name: c }, create: { name: c } },
+        },
+      })),
+    },
+  }
+}
+
+export const dbGenreUpdateInput = async (
+  id: number,
+  data: GenreApiInput
+): Promise<Prisma.GenreUpdateInput> => {
+  const input = await cleanInput(data)
+  return {
+    type: input.type,
+    name: input.name,
+    alternateNames: {
+      deleteMany: { genreId: id },
+      create: input.alternateNames.map((name) => ({ name })),
+    },
+    shortDesc: input.shortDesc,
+    longDesc: input.longDesc,
+    parents: {
+      deleteMany: { childId: id },
+      create: input.parents.map((parentId) => ({ parentId })),
+    },
+    influencedBy: {
+      deleteMany: { influencedId: id },
+      create: input.influencedBy.map(({ id, influenceType }) => ({
+        influencerId: id,
+        influenceType,
+      })),
+    },
+    locations: {
+      deleteMany: { genreId: id },
+      create: input.locations.map((loc) => ({
+        location: {
+          connectOrCreate: {
+            where: {
+              city_region_country: {
+                city: loc.city,
+                region: loc.region,
+                country: loc.country,
+              },
+            },
+            create: {
+              city: loc.city,
+              region: loc.region,
+              country: loc.country,
+            },
           },
         },
-      },
-    })),
-  },
-  cultures: {
-    deleteMany: { genreId: id },
-    create: input.cultures.map((c) => ({
-      culture: {
-        connectOrCreate: { where: { name: c }, create: { name: c } },
-      },
-    })),
-  },
-})
+      })),
+    },
+    cultures: {
+      deleteMany: { genreId: id },
+      create: input.cultures.map((c) => ({
+        culture: {
+          connectOrCreate: { where: { name: c }, create: { name: c } },
+        },
+      })),
+    },
+  }
+}
 
 export const toGenreApiOutput = (genre: GenreInclude): GenreApiOutput => ({
   ...genre,
@@ -198,8 +248,9 @@ export const toGenreApiOutput = (genre: GenreInclude): GenreApiOutput => ({
 })
 
 const addGenre = async (input: GenreApiInput): Promise<GenreApiOutput> => {
+  const data = await dbGenreCreateInput(input)
   const genre = await prisma.genre.create({
-    data: dbGenreCreateInput(input),
+    data,
     include: genreInclude,
   })
   return toGenreApiOutput(genre)

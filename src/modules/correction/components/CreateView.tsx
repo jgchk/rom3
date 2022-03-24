@@ -6,9 +6,7 @@ import { GenreType } from '../../../common/model'
 import { useAddCreatedGenreMutation } from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
-import { cleanUiData, makeUiData } from '../utils/genre'
-import FormElement from './forms/elements/FormElement'
-import GenreTypeSelect from './forms/elements/GenreTypeSelect'
+import { makeUiData } from '../utils/genre'
 import GenreForm from './forms/GenreForm'
 
 const CreateView: FC<{
@@ -25,7 +23,7 @@ const CreateView: FC<{
   const handleCreate = useCallback(
     () =>
       mutate(
-        { id: correctionId, data: cleanUiData(uiState) },
+        { id: correctionId, data: uiState },
         {
           onSuccess: () => {
             toast.success(`Added ${uiState.name} to correction`)
@@ -46,25 +44,6 @@ const CreateView: FC<{
         handleCreate()
       }}
     >
-      <FormElement>
-        <label>Type</label>
-        <GenreTypeSelect
-          value={uiState.type}
-          onChange={(type) => {
-            // TODO: limit parent/influence types & location/culture fields. run conversion
-            //
-            // const [newData, dataLost] = makeUiState(val, uiState)
-            // const shouldRun = dataLost
-            //   ? confirm(
-            //       'Some data may be lost in the conversion. Are you sure you want to continue?'
-            //     )
-            //   : true
-            // if (shouldRun) setUiState(newData)
-
-            setUiState((s) => ({ ...s, type }))
-          }}
-        />
-      </FormElement>
       <GenreForm data={uiState} onChange={setUiState} />
       <button type='submit'>Submit</button>
     </form>

@@ -16,9 +16,3 @@ export const makeUiData = (
   locations: [],
   cultures: [],
 })
-
-export const cleanUiData = (data: GenreApiInput): GenreApiInput => ({
-  ...data,
-  alternateNames: data.alternateNames.filter((s) => s.length > 0),
-  cultures: data.cultures.filter((s) => s.length > 0),
-})

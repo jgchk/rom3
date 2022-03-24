@@ -63,13 +63,14 @@ const addCreatedGenre = async (
   correctionId: number,
   input: GenreApiInput
 ): Promise<CorrectionApiOutput> => {
+  const createdGenreData = await dbGenreCreateInput(input)
   const correction = await prisma.correction.update({
     where: { id: correctionId },
     data: {
       create: {
         create: {
           createdGenre: {
-            create: dbGenreCreateInput(input),
+            create: createdGenreData,
           },
         },
       },
@@ -128,6 +129,7 @@ const addEditedGenre = async (
   targetGenreId: number,
   input: GenreApiInput
 ): Promise<CorrectionApiOutput> => {
+  const updatedGenreData = await dbGenreCreateInput(input)
   const correction = await prisma.correction.update({
     where: { id: correctionId },
     data: {
@@ -139,7 +141,7 @@ const addEditedGenre = async (
             },
           },
           updatedGenre: {
-            create: dbGenreCreateInput(input),
+            create: updatedGenreData,
           },
         },
       },
