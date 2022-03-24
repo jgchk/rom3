@@ -1,4 +1,4 @@
-import styled from '@emotion/styled'
+import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC } from 'react'
@@ -7,60 +7,38 @@ const Navbar: FC = () => {
   const router = useRouter()
 
   return (
-    <Container>
-      <Logo>Romulus</Logo>
-      <Links>
-        <Link href='/genres/tree' passHref>
-          <NavAnchor active={router.pathname === '/genres/tree'}>
-            Tree
-          </NavAnchor>
-        </Link>
-        <Link href='/corrections' passHref>
-          <NavAnchor active={router.pathname.startsWith('/corrections')}>
-            Corrections
-          </NavAnchor>
-        </Link>
-      </Links>
-    </Container>
+    <nav className='flex justify-center bg-gray-100 px-2 h-10 shadow z-10'>
+      <div className='flex-1 max-w-screen-lg flex items-center space-x-4'>
+        <div className='font-mackinac font-bold text-2xl'>Romulus</div>
+        <div className='h-full flex'>
+          <Link href='/genres/tree'>
+            <a
+              className={clsx(
+                'flex items-center border-b-2 px-2 font-medium hover:bg-gray-200',
+                router.pathname === '/genres/tree'
+                  ? 'border-red-600'
+                  : 'border-transparent'
+              )}
+            >
+              Tree
+            </a>
+          </Link>
+          <Link href='/corrections'>
+            <a
+              className={clsx(
+                'flex items-center border-b-2 px-2 font-medium hover:bg-gray-200',
+                router.pathname.startsWith('/corrections')
+                  ? 'border-red-600'
+                  : 'border-transparent'
+              )}
+            >
+              Corrections
+            </a>
+          </Link>
+        </div>
+      </div>
+    </nav>
   )
 }
 
 export default Navbar
-
-const Container = styled.nav`
-  display: flex;
-  gap: 24px;
-  align-items: center;
-  padding-left: 24px;
-`
-
-const Logo = styled.div`
-  margin-top: 8px;
-  font-weight: bold;
-  font-size: 32px;
-  font-family: 'P22 Mackinac', serif;
-`
-
-const Links = styled.div`
-  display: flex;
-  padding-bottom: 0;
-`
-
-const NavAnchor = styled.a<{ active?: boolean }>`
-  display: flex;
-  align-items: center;
-  height: 100%;
-  padding: 0 8px;
-  padding: 2px 8px;
-  color: ${({ active, theme }) =>
-    active ? theme.color.text['700'] : theme.color.text['300']};
-  font-weight: 500;
-  text-decoration: none;
-  border-bottom: 1px solid;
-  cursor: pointer;
-
-  &:hover {
-    color: ${({ active, theme }) =>
-      active ? theme.color.text['900'] : theme.color.text['500']};
-  }
-`

@@ -99,7 +99,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
           >
             <a className='big'>{genre.name}</a>
           </Link>
-          <NodeDesc>{genre.shortDesc}</NodeDesc>
+          <div className='text-gray-800'>{genre.shortDesc}</div>
           <ButtonContainer>
             <button onClick={() => handleDelete()}>Delete</button>
             {childTypes.map((childType) => (
@@ -156,10 +156,6 @@ const NodeHeader = styled.div`
     font-weight: bold;
     font-size: 1.3em;
   }
-`
-
-const NodeDesc = styled.div`
-  color: ${({ theme }) => theme.color.text['500']};
 `
 
 const NodeList = styled.ul`
