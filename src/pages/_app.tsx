@@ -41,6 +41,7 @@ const Layout = styled.div`
   width: 100vw;
   height: 100vh;
   color: ${({ theme }) => theme.color.text['700']};
+  font-family: 'Open Sans', sans-serif;
   background: ${({ theme }) => theme.color.background};
 `
 

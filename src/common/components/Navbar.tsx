@@ -8,6 +8,7 @@ const Navbar: FC = () => {
 
   return (
     <Container>
+      <Logo>Romulus</Logo>
       <Links>
         <Link href='/genres/tree' passHref>
           <NavAnchor active={router.pathname === '/genres/tree'}>
@@ -15,12 +16,11 @@ const Navbar: FC = () => {
           </NavAnchor>
         </Link>
         <Link href='/corrections' passHref>
-          <NavAnchor active={router.pathname === '/corrections'}>
+          <NavAnchor active={router.pathname.startsWith('/corrections')}>
             Corrections
           </NavAnchor>
         </Link>
       </Links>
-      <Logo>Romulus</Logo>
     </Container>
   )
 }
@@ -29,12 +29,13 @@ export default Navbar
 
 const Container = styled.nav`
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+  padding-left: 24px;
 `
 
 const Logo = styled.div`
-  padding: 8px 16px;
+  margin-top: 8px;
   font-weight: bold;
   font-size: 32px;
   font-family: 'P22 Mackinac', serif;
@@ -42,7 +43,7 @@ const Logo = styled.div`
 
 const Links = styled.div`
   display: flex;
-  padding: 14px 24px;
+  padding-bottom: 0;
 `
 
 const NavAnchor = styled.a<{ active?: boolean }>`
@@ -54,7 +55,6 @@ const NavAnchor = styled.a<{ active?: boolean }>`
   color: ${({ active, theme }) =>
     active ? theme.color.text['700'] : theme.color.text['300']};
   font-weight: 500;
-  font-family: 'Open Sans', sans-serif;
   text-decoration: none;
   border-bottom: 1px solid;
   cursor: pointer;
