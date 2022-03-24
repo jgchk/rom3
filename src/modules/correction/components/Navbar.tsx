@@ -28,22 +28,23 @@ const Navbar: FC = () => {
   const { mutate: mergeCorrection, isLoading: isMerging } =
     useMergeCorrectionMutation()
   const router = useRouter()
-  const handleMergeCorrection = useCallback(
-    () =>
-      mergeCorrection(
-        { id },
-        {
-          onSuccess: () => {
-            toast.success('Merged correction!')
-            void router.push('/corrections')
-          },
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
-    [id, mergeCorrection, router]
-  )
+  const handleMergeCorrection = useCallback(() => {
+    const conf = confirm('Are you sure? (This action is irreversible)')
+    if (!conf) return
+
+    mergeCorrection(
+      { id },
+      {
+        onSuccess: () => {
+          toast.success('Merged correction!')
+          void router.push('/corrections')
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }
+    )
+  }, [id, mergeCorrection, router])
 
   const { mutate: deleteCorrection, isLoading: isDeleting } =
     useDeleteCorrectionMutation()
