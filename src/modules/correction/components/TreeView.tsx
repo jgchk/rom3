@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import Link from 'next/link'
 import { FC, useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
@@ -35,14 +34,9 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
 
   return (
     <TreeProvider tree={tree}>
-      <Layout>
-        <NodeList>
-          {topLevelGenres.map((genre) => (
-            <NodeListItem key={genre.id} root>
-              <Node id={genre.id} />
-            </NodeListItem>
-          ))}
-          <ButtonContainer>
+      <div>
+        <ul>
+          <div className='flex space-x-1'>
             {genreTypes.map((genreType) => (
               <Link
                 key={genreType}
@@ -54,9 +48,14 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
                 <a>Add {capitalize(genreType)}</a>
               </Link>
             ))}
-          </ButtonContainer>
-        </NodeList>
-      </Layout>
+          </div>
+          {topLevelGenres.map((genre) => (
+            <li key={genre.id}>
+              <Node id={genre.id} />
+            </li>
+          ))}
+        </ul>
+      </div>
     </TreeProvider>
   )
 }
@@ -89,18 +88,18 @@ const Node: FC<{ id: number }> = ({ id }) => {
 
   return (
     <div>
-      <NodeContent>
-        <NodeHeader>
+      <div className='border border-gray-200 -mb-px'>
+        <div className='px-3 py-1'>
           <Link
             href={{
               pathname: `/corrections/${correctionId}/edit/genres/edit`,
               query: { genreId: id },
             }}
           >
-            <a className='big'>{genre.name}</a>
+            <a className='font-bold text-lg'>{genre.name}</a>
           </Link>
           <div className='text-gray-800'>{genre.shortDesc}</div>
-          <ButtonContainer>
+          <div className='flex space-x-1'>
             <button onClick={() => handleDelete()}>Delete</button>
             {childTypes.map((childType) => (
               <Link
@@ -116,53 +115,20 @@ const Node: FC<{ id: number }> = ({ id }) => {
                 <a>Add Child {capitalize(childType)}</a>
               </Link>
             ))}
-          </ButtonContainer>
-        </NodeHeader>
-      </NodeContent>
+          </div>
+        </div>
+      </div>
       {children.length > 0 && (
-        <NodeList>
+        <ul>
           {children.map((id) => (
-            <NodeListItem key={id}>
+            <li className='pl-8' key={id}>
               <Node id={id} />
-            </NodeListItem>
+            </li>
           ))}
-        </NodeList>
+        </ul>
       )}
     </div>
   )
 }
 
 export default TreeView
-
-const Layout = styled.div`
-  padding: 0 12px;
-`
-
-const ButtonContainer = styled.div`
-  display: flex;
-  gap: 8px;
-  margin-top: 4px;
-`
-
-const NodeContent = styled.div`
-  margin-bottom: -1px;
-  border: 1px solid gray;
-`
-
-const NodeHeader = styled.div`
-  padding: 6px 12px;
-
-  a.big {
-    font-weight: bold;
-    font-size: 1.3em;
-  }
-`
-
-const NodeList = styled.ul`
-  padding-left: 0;
-`
-
-const NodeListItem = styled.li<{ root?: boolean }>`
-  display: block;
-  padding-left: ${({ root }) => (root ? 0 : 48)}px;
-`
