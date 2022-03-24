@@ -135,39 +135,3 @@ const Navbar: FC = () => {
 }
 
 export default Navbar
-
-// const Container = styled.nav`
-//   display: flex;
-//   justify-content: space-between;
-//   height: 32px;
-//   padding: 0 16px;
-// `
-
-// const Submenu = styled.div`
-//   display: flex;
-//   align-items: center;
-//   height: 100%;
-
-//   & > * {
-//     padding: 0 8px;
-//   }
-// `
-
-// const NavAnchor = styled.a<{ active?: boolean }>`
-//   display: flex;
-//   align-items: center;
-//   height: 100%;
-//   padding: 0 8px;
-//   padding: 2px 8px;
-//   color: ${({ active, theme }) =>
-//     active ? theme.color.text['700'] : theme.color.text['300']};
-//   font-weight: 500;
-//   text-decoration: none;
-//   border-bottom: 1px solid;
-//   cursor: pointer;
-
-//   &:hover {
-//     color: ${({ active, theme }) =>
-//       active ? theme.color.text['900'] : theme.color.text['500']};
-//   }
-// `
