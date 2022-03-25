@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { RiCloseFill } from 'react-icons/ri'
+import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
 import { GenreType } from '../../../../../common/model'
 import { genreParentTypes } from '../../../../../common/model/parents'
@@ -101,8 +101,16 @@ const ParentMultiselect: FC<{
           onChange={(e) => setInputValue(e.target.value)}
           onFocus={() => setOpen(true)}
         />
-        <button type='button' onClick={() => setOpen(!open)}>
-          &#8595;
+        <button
+          className='px-1 border-l text-gray-400 border-gray-200 hover:bg-gray-100'
+          type='button'
+          onClick={() => setOpen(!open)}
+        >
+          {open ? (
+            <RiArrowUpSLine className='pointer-events-none' />
+          ) : (
+            <RiArrowDownSLine className='pointer-events-none' />
+          )}
         </button>
       </div>
       {open && (
