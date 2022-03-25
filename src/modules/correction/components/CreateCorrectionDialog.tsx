@@ -33,6 +33,7 @@ const CreateCorrectionDialog: FC<{
   return (
     <Dialog>
       <form
+        className='bg-white p-2 space-y-2'
         onSubmit={(e) => {
           e.preventDefault()
           handleCreate(name.length === 0 ? undefined : name)
@@ -41,16 +42,25 @@ const CreateCorrectionDialog: FC<{
         <div>
           <label className='block'>Name</label>
           <input
-            autoFocus
+            className='border border-gray-300'
             value={name}
             onChange={(e) => setName(e.target.value)}
+            autoFocus
           />
         </div>
-        <div>
-          <button type='submit' disabled={isLoading}>
+        <div className='space-x-2'>
+          <button
+            className='bg-primary-600 text-white uppercase text-sm font-bold px-2 py-1 rounded-sm'
+            type='submit'
+            disabled={isLoading}
+          >
             Create
           </button>
-          <button type='button' onClick={() => onClose()}>
+          <button
+            className='text-gray-500 uppercase text-sm font-bold px-1 py-1'
+            type='button'
+            onClick={() => onClose()}
+          >
             Cancel
           </button>
         </div>
