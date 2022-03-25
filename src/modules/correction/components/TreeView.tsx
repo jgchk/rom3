@@ -34,28 +34,26 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
 
   return (
     <TreeProvider tree={tree}>
-      <div>
-        <ul>
-          <div className='flex space-x-1'>
-            {genreTypes.map((genreType) => (
-              <Link
-                key={genreType}
-                href={{
-                  pathname: `/corrections/${correctionId}/edit/genres/create`,
-                  query: { type: genreType },
-                }}
-              >
-                <a>Add {capitalize(genreType)}</a>
-              </Link>
-            ))}
-          </div>
-          {topLevelGenres.map((genre) => (
-            <li key={genre.id}>
-              <Node id={genre.id} />
-            </li>
-          ))}
-        </ul>
+      <div className='flex space-x-1'>
+        {genreTypes.map((genreType) => (
+          <Link
+            key={genreType}
+            href={{
+              pathname: `/corrections/${correctionId}/edit/genres/create`,
+              query: { type: genreType },
+            }}
+          >
+            <a>Add {capitalize(genreType)}</a>
+          </Link>
+        ))}
       </div>
+      <ul>
+        {topLevelGenres.map((genre) => (
+          <li key={genre.id}>
+            <Node id={genre.id} />
+          </li>
+        ))}
+      </ul>
     </TreeProvider>
   )
 }

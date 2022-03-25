@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { FC, useMemo } from 'react'
 
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
@@ -23,15 +22,13 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
 
   return (
     <TreeProvider tree={tree}>
-      <Layout>
-        <NodeList>
-          {topLevelGenres.map((genre) => (
-            <NodeListItem key={genre.id} root>
-              <Node id={genre.id} />
-            </NodeListItem>
-          ))}
-        </NodeList>
-      </Layout>
+      <ul>
+        {topLevelGenres.map((genre) => (
+          <li key={genre.id}>
+            <Node id={genre.id} />
+          </li>
+        ))}
+      </ul>
     </TreeProvider>
   )
 }
@@ -44,50 +41,23 @@ const Node: FC<{ id: number }> = ({ id }) => {
 
   return (
     <div>
-      <NodeContent>
-        <NodeHeader>
-          <div>{genre.name}</div>
+      <div className='border border-gray-200 -mb-px'>
+        <div className='px-3 py-1'>
+          <div className='font-bold text-lg'>{genre.name}</div>
           <div className='text-gray-800'>{genre.shortDesc}</div>
-        </NodeHeader>
-      </NodeContent>
+        </div>
+      </div>
       {children.length > 0 && (
-        <NodeList>
+        <ul>
           {children.map((id) => (
-            <NodeListItem key={id}>
+            <li className='pl-8' key={id}>
               <Node id={id} />
-            </NodeListItem>
+            </li>
           ))}
-        </NodeList>
+        </ul>
       )}
     </div>
   )
 }
 
 export default TreeView
-
-const Layout = styled.div`
-  padding: 0 12px;
-`
-
-const NodeContent = styled.div`
-  margin-bottom: -1px;
-  border: 1px solid gray;
-`
-
-const NodeHeader = styled.div`
-  padding: 6px 12px;
-
-  a.big {
-    font-weight: bold;
-    font-size: 1.3em;
-  }
-`
-
-const NodeList = styled.ul`
-  padding-left: 0;
-`
-
-const NodeListItem = styled.li<{ root?: boolean }>`
-  display: block;
-  padding-left: ${({ root }) => (root ? 0 : 48)}px;
-`
