@@ -8,6 +8,7 @@ export type SelectProps<
   options: { key: K; value: V; label: L }[]
   value: V
   onChange: (value: V) => void
+  className?: string
 }
 
 const Select = <
@@ -18,8 +19,13 @@ const Select = <
   options,
   value,
   onChange,
+  className,
 }: SelectProps<K, V, L>) => (
-  <select value={value} onChange={(e) => onChange(e.target.value as V)}>
+  <select
+    value={value}
+    onChange={(e) => onChange(e.target.value as V)}
+    className={className}
+  >
     {options.map(({ key, value, label }) => (
       <option key={key} value={value}>
         {label}

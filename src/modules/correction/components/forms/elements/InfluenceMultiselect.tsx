@@ -164,13 +164,17 @@ const SelectedInfluence: FC<{
     if (data) {
       if (data.type === 'STYLE') {
         return (
-          <div>
-            <div>{data.name}</div>
+          <div className='flex text-sm font-medium'>
+            <div className='px-2 py-0.5'>{data.name}</div>
             <Select
+              className={clsx(
+                'px-1 bg-gray-300 border-l',
+                isInvalid ? 'border-red-300' : 'border-gray-300'
+              )}
               options={influenceTypes.map((infType) => ({
                 key: infType,
                 value: infType,
-                label: capitalize(infType),
+                label: capitalize(infType.toLowerCase()),
               }))}
               value={influence.influenceType ?? 'HISTORICAL'}
               onChange={(influenceType) =>
@@ -180,10 +184,12 @@ const SelectedInfluence: FC<{
           </div>
         )
       }
-      return data.name
+
+      return <div className='px-2 py-0.5 text-sm font-medium'>{data.name}</div>
     }
-    return 'Loading...'
-  }, [data, influence, onChange])
+
+    return <div className='px-2 py-0.5 text-sm font-medium'>Loading...</div>
+  }, [data, influence, isInvalid, onChange])
 
   return (
     <div
@@ -194,7 +200,7 @@ const SelectedInfluence: FC<{
           : 'border-gray-400 bg-gray-200 text-gray-600'
       )}
     >
-      <div className='px-2 py-0.5 text-sm font-medium'>{renderItem()}</div>
+      {renderItem()}
       <button
         className={clsx(
           'border-l h-full px-1',
