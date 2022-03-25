@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { FC, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
@@ -13,7 +14,7 @@ const MarkdownEditor: FC<{
   const [tab, setTab] = useState<Tab>(Tab.EDIT)
 
   return (
-    <div className='flex flex-col h-72 overflow-auto resize'>
+    <div className='flex flex-col h-72 overflow-auto resize border border-gray-300'>
       {tab === Tab.EDIT && (
         <textarea
           className='flex-1 resize-none'
@@ -27,18 +28,24 @@ const MarkdownEditor: FC<{
           <ReactMarkdown>{value}</ReactMarkdown>
         </div>
       )}
-      <div>
+      <div className='border-t border-gray-200 flex'>
         <button
+          className={clsx(
+            'border-r border-gray-200 px-2 py-1 uppercase text-xs text-gray-400 hover:bg-gray-100',
+            tab === Tab.EDIT ? 'font-bold' : 'font-medium'
+          )}
           type='button'
           onClick={() => setTab(Tab.EDIT)}
-          disabled={tab === Tab.EDIT}
         >
           Edit
         </button>
         <button
+          className={clsx(
+            'border-r border-gray-200 px-2 py-1 uppercase text-xs text-gray-400 hover:bg-gray-100',
+            tab === Tab.VIEW ? 'font-bold' : 'font-medium'
+          )}
           type='button'
           onClick={() => setTab(Tab.VIEW)}
-          disabled={tab === Tab.VIEW}
         >
           View
         </button>

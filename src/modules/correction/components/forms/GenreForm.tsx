@@ -11,6 +11,7 @@ const GenreForm: FC<{
   data: GenreApiInput
   onChange: Dispatch<SetStateAction<GenreApiInput>>
 }> = ({ data, onChange }) => {
+  // TODO: unify forms
   const renderForm = useCallback(() => {
     switch (data.type) {
       case 'META':
@@ -25,7 +26,7 @@ const GenreForm: FC<{
   }, [data, onChange])
 
   return (
-    <>
+    <div className='space-y-2'>
       <div>
         <label className='block'>Type</label>
         <GenreTypeSelect
@@ -46,7 +47,7 @@ const GenreForm: FC<{
         />
       </div>
       {renderForm()}
-    </>
+    </div>
   )
 }
 

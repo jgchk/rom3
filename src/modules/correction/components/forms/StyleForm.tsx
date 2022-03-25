@@ -15,6 +15,7 @@ const StyleForm: FC<{
     <div>
       <label className='block'>Name *</label>
       <input
+        className='border border-gray-300'
         value={data.name}
         onChange={(e) => onChange((d) => ({ ...d, name: e.target.value }))}
       />
@@ -67,9 +68,9 @@ const StyleForm: FC<{
     <div>
       <label className='block'>Short Description *</label>
       <textarea
+        className='border border-gray-300 w-full'
         value={data.shortDesc}
         onChange={(e) => onChange((d) => ({ ...d, shortDesc: e.target.value }))}
-        style={{ width: '100%' }}
         required
       />
     </div>

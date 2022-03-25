@@ -78,7 +78,7 @@ const ParentMultiselect: FC<{
 
   return (
     <div className='relative' ref={containerRef}>
-      <div className='flex space-x-1 w-full border border-gray-200'>
+      <div className='flex space-x-1 w-full border border-gray-300'>
         {parents.length > 0 && (
           <div className='flex space-x-1 p-1'>
             {parents.map((selectedItem) => (

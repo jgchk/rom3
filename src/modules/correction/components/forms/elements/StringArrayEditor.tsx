@@ -14,7 +14,13 @@ const StringArrayEditor: FC<{
     }
   }, [onChange, strVal, value])
 
-  return <input value={strVal} onChange={(e) => setStrVal(e.target.value)} />
+  return (
+    <input
+      className='border border-gray-300'
+      value={strVal}
+      onChange={(e) => setStrVal(e.target.value)}
+    />
+  )
 }
 
 export default StringArrayEditor
