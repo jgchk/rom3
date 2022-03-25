@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FaExclamationTriangle } from 'react-icons/fa'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
 import Select from '../../../../../common/components/Select'
@@ -172,13 +173,21 @@ const SelectedInfluence: FC<{
       if (data.type === 'STYLE') {
         return (
           <div className='flex text-sm font-medium'>
-            <div className='px-2 py-0.5' ref={setReferenceElement}>
+            <div
+              className='flex items-center px-2 py-0.5'
+              ref={setReferenceElement}
+            >
+              {isInvalid && (
+                <FaExclamationTriangle className='text-base mr-1' />
+              )}
               {data.name}
             </div>
             <Select
               className={clsx(
-                'px-1 bg-gray-300 border-l',
-                isInvalid ? 'border-red-300' : 'border-gray-300'
+                'px-1 border-l',
+                isInvalid
+                  ? 'border-red-300 bg-red-300'
+                  : 'border-gray-300 bg-gray-300'
               )}
               options={influenceTypes.map((infType) => ({
                 key: infType,
@@ -196,9 +205,10 @@ const SelectedInfluence: FC<{
 
       return (
         <div
-          className='px-2 py-0.5 text-sm font-medium'
+          className='flex items-center px-2 py-0.5 text-sm font-medium'
           ref={setReferenceElement}
         >
+          {isInvalid && <FaExclamationTriangle className='text-base mr-1' />}
           {data.name}
         </div>
       )

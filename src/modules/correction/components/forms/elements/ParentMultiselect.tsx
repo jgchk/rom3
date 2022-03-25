@@ -1,6 +1,12 @@
 import clsx from 'clsx'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
+import { FaExclamationTriangle } from 'react-icons/fa'
+import {
+  RiArrowDownSLine,
+  RiArrowUpSLine,
+  RiCloseFill,
+  RiErrorWarningFill,
+} from 'react-icons/ri'
 
 import Tooltip from '../../../../../common/components/Tooltip'
 import { GenreType } from '../../../../../common/model'
@@ -162,8 +168,9 @@ const SelectedParent: FC<{
       >
         <div
           ref={setReferenceElement}
-          className='px-2 py-0.5 text-sm font-medium'
+          className='flex items-center px-2 py-0.5 text-sm font-medium'
         >
+          {isInvalid && <FaExclamationTriangle className='text-base mr-1' />}
           {renderText()}
         </div>
         <button
