@@ -44,16 +44,28 @@ const CreateView: FC<{
 
   return (
     <form
+      className='space-y-2'
       onSubmit={(e) => {
         e.preventDefault()
         handleCreate()
       }}
     >
       <GenreForm data={uiState} onChange={setUiState} />
-      <button type='submit'>Submit</button>
-      <button type='button' onClick={() => handleCancel()}>
-        Cancel
-      </button>
+      <div className='space-x-2'>
+        <button
+          className='bg-primary-600 text-white uppercase text-sm font-bold px-2 py-1 rounded-sm'
+          type='submit'
+        >
+          Submit
+        </button>
+        <button
+          className='text-gray-500 uppercase text-sm font-bold px-1 py-1'
+          type='button'
+          onClick={() => handleCancel()}
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   )
 }
