@@ -75,7 +75,7 @@ const InfluenceMultiselect: FC<{
           influencedByTypes.includes(item.type) &&
           (self ? self !== item.id : true) &&
           !influences.some(
-            (selectedInfluence) => item.id !== selectedInfluence.id
+            (selectedInfluence) => item.id === selectedInfluence.id
           ) &&
           item.name.toLowerCase().startsWith(inputValue.toLowerCase())
       ),
