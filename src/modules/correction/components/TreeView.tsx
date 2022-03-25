@@ -34,7 +34,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
 
   const renderToolbar = useCallback(
     () => (
-      <div className={'flex border border-gray-300'}>
+      <div className={'flex border border-gray-300 w-fit'}>
         {genreTypes.map((genreType) => (
           <Link
             key={genreType}
@@ -43,7 +43,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
               query: { type: genreType },
             }}
           >
-            <a className='border-r border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'>
+            <a className='border-r last:border-0 border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'>
               Add {capitalize(genreType)}
             </a>
           </Link>
