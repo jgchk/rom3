@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { GenreType } from '../../../../../common/model'
@@ -65,17 +64,23 @@ const ParentMultiselect: FC<{
     if (!options) return <div>Loading...</div>
     if (options.length === 0) return <div>No items</div>
     return options.map((item) => (
-      <MenuItem key={item.id} type='button' onClick={() => addParent(item.id)}>
-        {item.name}
-      </MenuItem>
+      <li key={item.id}>
+        <button
+          className='w-full text-left'
+          type='button'
+          onClick={() => addParent(item.id)}
+        >
+          {item.name}
+        </button>
+      </li>
     ))
   }, [addParent, options])
 
   return (
-    <Container ref={containerRef}>
-      <InputContainer>
+    <div className='relative' ref={containerRef}>
+      <div className='flex space-x-1 w-full border border-gray-200'>
         {parents.length > 0 && (
-          <SelectedItems>
+          <div className='flex space-x-1 p-1'>
             {parents.map((selectedItem) => (
               <SelectedParent
                 key={selectedItem}
@@ -83,9 +88,10 @@ const ParentMultiselect: FC<{
                 onRemove={() => removeParent(selectedItem)}
               />
             ))}
-          </SelectedItems>
+          </div>
         )}
-        <Input
+        <input
+          className='flex-1'
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onFocus={() => setOpen(true)}
@@ -93,9 +99,13 @@ const ParentMultiselect: FC<{
         <button type='button' onClick={() => setOpen(!open)}>
           &#8595;
         </button>
-      </InputContainer>
-      {open && <Menu>{renderOptions()}</Menu>}
-    </Container>
+      </div>
+      {open && (
+        <ul className='absolute z-10 w-full bg-white border border-t-0 border-gray-200'>
+          {renderOptions()}
+        </ul>
+      )}
+    </div>
   )
 }
 
@@ -112,66 +122,17 @@ const SelectedParent: FC<{
   }, [data])
 
   return (
-    <SelectedItemContainer>
+    <div className='flex space-x-2 items-center pl-2 bg-gray-200 border border-gray-300'>
       {renderText()}
-      <RemoveButton type='button' onClick={() => onRemove()}>
+      <button
+        className='border-l border-gray-300'
+        type='button'
+        onClick={() => onRemove()}
+      >
         &#10005;
-      </RemoveButton>
-    </SelectedItemContainer>
+      </button>
+    </div>
   )
 }
 
 export default ParentMultiselect
-
-const Container = styled.div`
-  position: relative;
-`
-
-const InputContainer = styled.div`
-  display: flex;
-  gap: 2px;
-  width: 100%;
-  border: 1px solid black;
-  border-radius: 2px;
-`
-
-const SelectedItems = styled.div`
-  display: flex;
-  gap: 2px;
-  padding: 2px;
-`
-
-const SelectedItemContainer = styled.div`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  padding-left: 4px;
-  background: #eee;
-  border: 1px solid black;
-  border-radius: 2px;
-`
-
-const RemoveButton = styled.button`
-  border: none;
-  border-left: 1px solid black;
-`
-
-const Input = styled.input`
-  flex: 1;
-  border: none;
-`
-
-const Menu = styled.ul`
-  position: absolute;
-  z-index: 100;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  background: white;
-  border: 1px solid black;
-`
-
-const MenuItem = styled.button`
-  width: 100%;
-  text-align: left;
-`
