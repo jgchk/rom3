@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import Link from 'next/link'
 import { FC, useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
@@ -93,20 +94,36 @@ const Node: FC<{ id: number }> = ({ id }) => {
     [correctionId, id, mutate]
   )
 
+  const color = useMemo(() => {
+    switch (genre.type) {
+      case 'META':
+        return 'text-orange-600'
+      case 'SCENE':
+        return 'text-teal-600'
+      case 'STYLE':
+        return 'text-blue-600'
+      case 'TREND':
+        return 'text-fuchsia-600'
+    }
+  }, [genre.type])
+
   return (
     <div>
       <div className='border border-gray-300'>
         <div>
-          <div className='px-2 py-1'>
-            <Link
-              href={{
-                pathname: `/corrections/${correctionId}/edit/genres/edit`,
-                query: { genreId: id },
-              }}
-            >
-              <a className='font-bold text-lg hover:underline'>{genre.name}</a>
-            </Link>
-            <div className='text-gray-800'>{genre.shortDesc}</div>
+          <div className='px-2 py-2'>
+            <div className={clsx('text-xs font-bold', color)}>{genre.type}</div>
+            <div className='text-lg font-medium mt-0.5'>
+              <Link
+                href={{
+                  pathname: `/corrections/${correctionId}/edit/genres/edit`,
+                  query: { genreId: id },
+                }}
+              >
+                <a className='hover:underline'>{genre.name}</a>
+              </Link>
+            </div>
+            <div className='text-sm text-gray-700 mt-1'>{genre.shortDesc}</div>
           </div>
           <div className='flex justify-between border-t border-gray-200'>
             <div className='flex'>
