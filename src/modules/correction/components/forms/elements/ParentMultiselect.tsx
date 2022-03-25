@@ -2,8 +2,10 @@ import clsx from 'clsx'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
+import Tooltip from '../../../../../common/components/Tooltip'
 import { GenreType } from '../../../../../common/model'
 import { genreParentTypes } from '../../../../../common/model/parents'
+import { capitalize } from '../../../../../common/utils/string'
 import { useCorrectionContext } from '../../../contexts/CorrectionContext'
 import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
@@ -145,29 +147,52 @@ const SelectedParent: FC<{
     return 'Loading...'
   }, [data])
 
+  const [referenceElement, setReferenceElement] =
+    useState<HTMLDivElement | null>(null)
+
   return (
-    <div
-      className={clsx(
-        'flex border',
-        isInvalid
-          ? 'border-red-400 bg-red-200 text-red-600'
-          : 'border-gray-400 bg-gray-200 text-gray-600'
-      )}
-    >
-      <div className='px-2 py-0.5 text-sm font-medium'>{renderText()}</div>
-      <button
+    <>
+      <div
         className={clsx(
-          'border-l h-full px-1',
+          'flex border',
           isInvalid
-            ? 'border-red-300 hover:bg-red-300'
-            : 'border-gray-300 hover:bg-gray-300'
+            ? 'border-red-400 bg-red-200 text-red-600'
+            : 'border-gray-400 bg-gray-200 text-gray-600'
         )}
-        type='button'
-        onClick={() => onRemove()}
       >
-        <RiCloseFill />
-      </button>
-    </div>
+        <div
+          ref={setReferenceElement}
+          className='px-2 py-0.5 text-sm font-medium'
+        >
+          {renderText()}
+        </div>
+        <button
+          className={clsx(
+            'border-l h-full px-1',
+            isInvalid
+              ? 'border-red-300 hover:bg-red-300'
+              : 'border-gray-300 hover:bg-gray-300'
+          )}
+          type='button'
+          onClick={() => onRemove()}
+        >
+          <RiCloseFill />
+        </button>
+      </div>
+
+      {isInvalid && (
+        <Tooltip referenceElement={referenceElement}>
+          <span className='font-semibold'>
+            {capitalize(childType.toLowerCase())}s
+          </span>{' '}
+          cannot have{' '}
+          <span className='font-semibold'>
+            {capitalize(data?.type.toLowerCase() ?? '')}
+          </span>{' '}
+          parents
+        </Tooltip>
+      )}
+    </>
   )
 }
 

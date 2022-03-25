@@ -3,6 +3,7 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
 import Select from '../../../../../common/components/Select'
+import Tooltip from '../../../../../common/components/Tooltip'
 import { GenreType } from '../../../../../common/model'
 import {
   genreInfluencedByTypes,
@@ -163,12 +164,17 @@ const SelectedInfluence: FC<{
     return !influencedByTypes.includes(data.type)
   }, [childType, data])
 
+  const [referenceElement, setReferenceElement] =
+    useState<HTMLDivElement | null>(null)
+
   const renderItem = useCallback(() => {
     if (data) {
       if (data.type === 'STYLE') {
         return (
           <div className='flex text-sm font-medium'>
-            <div className='px-2 py-0.5'>{data.name}</div>
+            <div className='px-2 py-0.5' ref={setReferenceElement}>
+              {data.name}
+            </div>
             <Select
               className={clsx(
                 'px-1 bg-gray-300 border-l',
@@ -188,35 +194,57 @@ const SelectedInfluence: FC<{
         )
       }
 
-      return <div className='px-2 py-0.5 text-sm font-medium'>{data.name}</div>
+      return (
+        <div
+          className='px-2 py-0.5 text-sm font-medium'
+          ref={setReferenceElement}
+        >
+          {data.name}
+        </div>
+      )
     }
 
     return <div className='px-2 py-0.5 text-sm font-medium'>Loading...</div>
   }, [data, influence, isInvalid, onChange])
 
   return (
-    <div
-      className={clsx(
-        'flex border',
-        isInvalid
-          ? 'border-red-400 bg-red-200 text-red-600'
-          : 'border-gray-400 bg-gray-200 text-gray-600'
-      )}
-    >
-      {renderItem()}
-      <button
+    <>
+      <div
         className={clsx(
-          'border-l h-full px-1',
+          'flex border',
           isInvalid
-            ? 'border-red-300 hover:bg-red-300'
-            : 'border-gray-300 hover:bg-gray-300'
+            ? 'border-red-400 bg-red-200 text-red-600'
+            : 'border-gray-400 bg-gray-200 text-gray-600'
         )}
-        type='button'
-        onClick={() => onRemove()}
       >
-        <RiCloseFill />
-      </button>
-    </div>
+        {renderItem()}
+        <button
+          className={clsx(
+            'border-l h-full px-1',
+            isInvalid
+              ? 'border-red-300 hover:bg-red-300'
+              : 'border-gray-300 hover:bg-gray-300'
+          )}
+          type='button'
+          onClick={() => onRemove()}
+        >
+          <RiCloseFill />
+        </button>
+      </div>
+
+      {isInvalid && (
+        <Tooltip referenceElement={referenceElement}>
+          <span className='font-semibold'>
+            {capitalize(childType.toLowerCase())}s
+          </span>{' '}
+          cannot have{' '}
+          <span className='font-semibold'>
+            {capitalize(data?.type.toLowerCase() ?? '')}
+          </span>{' '}
+          influences
+        </Tooltip>
+      )}
+    </>
   )
 }
 
