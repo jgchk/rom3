@@ -68,7 +68,10 @@ const ParentMultiselect: FC<{
         <button
           className='w-full text-left'
           type='button'
-          onClick={() => addParent(item.id)}
+          onClick={() => {
+            addParent(item.id)
+            setInputValue('')
+          }}
         >
           {item.name}
         </button>

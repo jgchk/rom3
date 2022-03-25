@@ -90,9 +90,10 @@ const InfluenceMultiselect: FC<{
         <button
           className='w-full text-left'
           type='button'
-          onClick={() =>
+          onClick={() => {
             addInfluence({ id: item.id, influenceType: 'HISTORICAL' })
-          }
+            setInputValue('')
+          }}
         >
           {item.name}
         </button>
