@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { FC, useMemo } from 'react'
 
 import { InferMutationInput } from '../../../../../common/utils/trpc'
@@ -23,8 +22,9 @@ const LocationInput: FC<{
   return (
     <div>
       {value.map((location, i) => (
-        <Container key={i}>
+        <div className='flex space-x-1' key={i}>
           <input
+            className='flex-1'
             placeholder='City'
             value={location.city}
             onChange={(e) =>
@@ -36,6 +36,7 @@ const LocationInput: FC<{
             }
           />
           <input
+            className='flex-1'
             placeholder='Region'
             value={location.region}
             onChange={(e) =>
@@ -47,6 +48,7 @@ const LocationInput: FC<{
             }
           />
           <input
+            className='flex-1'
             placeholder='Country'
             value={location.country}
             onChange={(e) =>
@@ -75,20 +77,10 @@ const LocationInput: FC<{
           >
             +
           </button>
-        </Container>
+        </div>
       ))}
     </div>
   )
 }
 
 export default LocationInput
-
-const Container = styled.div`
-  display: flex;
-  gap: 2px;
-
-  input {
-    flex: 1;
-    min-width: 0;
-  }
-`
