@@ -11,7 +11,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@prisma/client": "^3.11.0",
+    "@prisma/client": "^3.11.1",
     "@trpc/client": "^9.20.1",
     "@trpc/next": "^9.20.1",
     "@trpc/react": "^9.20.1",
@@ -50,7 +50,7 @@
     "postcss": "^8.4.12",
     "postcss-syntax": "^0.36.2",
     "prettier": "^2.5.1",
-    "prisma": "^3.11.0",
+    "prisma": "^3.11.1",
     "stylelint": "^14.5.3",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-rational-order": "^0.1.2",
