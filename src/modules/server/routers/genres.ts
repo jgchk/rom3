@@ -38,13 +38,11 @@ const ApiGenreInfluence = z.object({
 })
 type ApiGenreInfluence = z.infer<typeof ApiGenreInfluence>
 
-export const ApiLocation = z
-  .object({ city: z.string(), region: z.string(), country: z.string() })
-  .refine(
-    (val) =>
-      val.city.length > 0 || val.region.length > 0 || val.country.length > 0,
-    { message: "Location can't be empty" }
-  )
+export const ApiLocation = z.object({
+  city: z.string(),
+  region: z.string(),
+  country: z.string(),
+})
 type ApiLocation = z.infer<typeof ApiLocation>
 
 export const GenreApiInput = z.object({
@@ -115,7 +113,18 @@ const cleanInput = async (input: GenreApiInput): Promise<GenreApiInput> => {
 
   const cultures =
     input.type === 'META' ? [] : input.cultures.filter((s) => s.length > 0)
-  const locations = input.type === 'META' ? [] : input.locations
+  const locations =
+    input.type === 'META'
+      ? []
+      : // filter out empty locations
+        input.locations.filter(
+          (loc) =>
+            !(
+              loc.city.length === 0 &&
+              loc.region.length === 0 &&
+              loc.country.length === 0
+            )
+        )
 
   return {
     ...input,
