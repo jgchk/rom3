@@ -65,7 +65,7 @@ const Loaded: FC<{
         handleEdit()
       }}
     >
-      <GenreForm data={uiState} onChange={setUiState} />
+      <GenreForm data={uiState} onChange={setUiState} selfId={genreId} />
       <div className='space-x-2'>
         <button
           className='bg-primary-600 text-white uppercase text-sm font-bold px-2 py-1 rounded-sm'

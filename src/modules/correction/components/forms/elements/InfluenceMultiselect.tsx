@@ -18,7 +18,8 @@ const InfluenceMultiselect: FC<{
   influences: InfluenceUiState[]
   onChange: (value: InfluenceUiState[]) => void
   childType: GenreType
-}> = ({ influences, onChange, childType }) => {
+  selfId?: number
+}> = ({ influences, onChange, childType, selfId }) => {
   const { id: correctionId } = useCorrectionContext()
 
   const [inputValue, setInputValue] = useState('')
@@ -65,21 +66,18 @@ const InfluenceMultiselect: FC<{
 
   const { data } = useCorrectionGenresQuery(correctionId)
 
-  // TODO: use genre id not correction id
-  const { id: self } = useCorrectionContext()
-
   const options = useMemo(
     () =>
       data?.filter(
         (item) =>
           influencedByTypes.includes(item.type) &&
-          (self ? self !== item.id : true) &&
+          (selfId !== undefined ? selfId !== item.id : true) &&
           !influences.some(
             (selectedInfluence) => item.id === selectedInfluence.id
           ) &&
           item.name.toLowerCase().startsWith(inputValue.toLowerCase())
       ),
-    [data, inputValue, influencedByTypes, self, influences]
+    [data, influencedByTypes, selfId, influences, inputValue]
   )
 
   const renderOptions = useCallback(() => {

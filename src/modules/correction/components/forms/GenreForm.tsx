@@ -13,7 +13,8 @@ import StringArrayEditor from './elements/StringArrayEditor'
 const GenreForm: FC<{
   data: GenreApiInput
   onChange: Dispatch<SetStateAction<GenreApiInput>>
-}> = ({ data, onChange }) => {
+  selfId?: number
+}> = ({ data, onChange, selfId }) => {
   return (
     <div className='space-y-2'>
       <div>
@@ -63,6 +64,7 @@ const GenreForm: FC<{
             parents={data.parents}
             onChange={(parents) => onChange((d) => ({ ...d, parents }))}
             childType={data.type}
+            selfId={selfId}
           />
         </div>
       )}
@@ -75,6 +77,7 @@ const GenreForm: FC<{
               onChange((d) => ({ ...d, influencedBy }))
             }
             childType={data.type}
+            selfId={selfId}
           />
         </div>
       )}

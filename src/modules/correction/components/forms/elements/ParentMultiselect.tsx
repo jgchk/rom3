@@ -10,7 +10,8 @@ const ParentMultiselect: FC<{
   parents: number[]
   onChange: (value: number[]) => void
   childType: GenreType
-}> = ({ parents, onChange, childType }) => {
+  selfId?: number
+}> = ({ parents, onChange, childType, selfId }) => {
   const { id: correctionId } = useCorrectionContext()
 
   const [inputValue, setInputValue] = useState('')
@@ -46,18 +47,16 @@ const ParentMultiselect: FC<{
 
   const { data } = useCorrectionGenresQuery(correctionId)
 
-  const { id: self } = useCorrectionContext()
-
   const options = useMemo(
     () =>
       data?.filter(
         (item) =>
           parentTypes.includes(item.type) &&
-          (self ? self !== item.id : true) &&
+          (selfId !== undefined ? selfId !== item.id : true) &&
           !parents.includes(item.id) &&
           item.name.toLowerCase().startsWith(inputValue.toLowerCase())
       ),
-    [data, inputValue, parentTypes, self, parents]
+    [data, parentTypes, selfId, parents, inputValue]
   )
 
   const renderOptions = useCallback(() => {
