@@ -84,15 +84,12 @@ const Node: FC<{ id: number }> = ({ id }) => {
       mutate(
         { id: correctionId, targetId: id },
         {
-          onSuccess: () => {
-            toast.success(`Deleted ${genre.name} in correction`)
-          },
           onError: (error) => {
             toast.error(error.message)
           },
         }
       ),
-    [correctionId, genre.name, id, mutate]
+    [correctionId, id, mutate]
   )
 
   return (
