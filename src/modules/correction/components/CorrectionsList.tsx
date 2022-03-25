@@ -24,21 +24,35 @@ const CorrectionsList: FC = () => {
 
   const [showNameDialog, setShowNameDialog] = useState(false)
 
+  const renderCreateButton = useCallback(
+    () => (
+      <button
+        className='border border-gray-300 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'
+        type='button'
+        onClick={() => setShowNameDialog(true)}
+      >
+        New Correction
+      </button>
+    ),
+    []
+  )
+
   const render = useCallback(() => {
     if (data)
       return (
-        <div>
-          <button onClick={() => setShowNameDialog(true)}>Create New</button>
-          <ul>
+        <div className='space-y-4'>
+          {renderCreateButton()}
+          <ul className='space-y-2'>
             {data.map((correction) => (
               <Correction key={correction.id} correction={correction} />
             ))}
           </ul>
+          {data.length > 0 && renderCreateButton()}
         </div>
       )
 
     return <div>Loading...</div>
-  }, [data])
+  }, [data, renderCreateButton])
 
   return (
     <>
@@ -80,19 +94,36 @@ const Correction: FC<{ correction: CorrectionApiOutput }> = ({
 
   return (
     <>
-      <li>
+      <li className='border border-gray-300'>
         <Link href={`/corrections/${correction.id}/edit/tree`}>
-          <a>{correction.name ?? defaultCorrectionName}</a>
+          <a className='font-bold text-lg hover:underline px-2 py-1'>
+            {correction.name ?? defaultCorrectionName}
+          </a>
         </Link>
-        <button
-          onClick={() => setShowNameDialog(true)}
-          disabled={showNameDialog}
-        >
-          Rename
-        </button>
-        <button onClick={() => handleDeleteCorrection()} disabled={isLoading}>
-          Delete
-        </button>
+        {/* TODO: add small preview of create/edit/delete actions */}
+        <div className='flex justify-between border-t border-gray-200'>
+          <div className='flex'>
+            <Link href={`/corrections/${correction.id}/edit/tree`}>
+              <a className='border-r border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'>
+                Edit
+              </a>
+            </Link>
+            <button
+              className='border-r border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'
+              onClick={() => setShowNameDialog(true)}
+              disabled={showNameDialog}
+            >
+              Rename
+            </button>
+          </div>
+          <button
+            className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100 -ml-px'
+            onClick={() => handleDeleteCorrection()}
+            disabled={isLoading}
+          >
+            Delete
+          </button>
+        </div>
       </li>
       {showNameDialog && (
         <UpdateNameDialog

@@ -1,4 +1,3 @@
-import clsx from 'clsx'
 import Link from 'next/link'
 import { FC, useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
@@ -34,8 +33,8 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
   )
 
   const renderToolbar = useCallback(
-    (className: string) => (
-      <div className={clsx('flex border border-gray-300', className)}>
+    () => (
+      <div className={'flex border border-gray-300'}>
         {genreTypes.map((genreType) => (
           <Link
             key={genreType}
@@ -56,15 +55,17 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
 
   return (
     <TreeProvider tree={tree}>
-      {renderToolbar('mb-4')}
-      <ul className='space-y-4'>
-        {topLevelGenres.map((genre) => (
-          <li key={genre.id}>
-            <Node id={genre.id} />
-          </li>
-        ))}
-      </ul>
-      {topLevelGenres.length > 0 && renderToolbar('mt-4')}
+      <div className='space-y-4'>
+        {renderToolbar()}
+        <ul className='space-y-2'>
+          {topLevelGenres.map((genre) => (
+            <li key={genre.id}>
+              <Node id={genre.id} />
+            </li>
+          ))}
+        </ul>
+        {topLevelGenres.length > 0 && renderToolbar()}
+      </div>
     </TreeProvider>
   )
 }
