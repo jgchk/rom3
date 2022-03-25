@@ -1,12 +1,7 @@
 import clsx from 'clsx'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaExclamationTriangle } from 'react-icons/fa'
-import {
-  RiArrowDownSLine,
-  RiArrowUpSLine,
-  RiCloseFill,
-  RiErrorWarningFill,
-} from 'react-icons/ri'
+import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
 import Tooltip from '../../../../../common/components/Tooltip'
 import { GenreType } from '../../../../../common/model'
