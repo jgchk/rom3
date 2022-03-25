@@ -29,7 +29,7 @@ const ListView: FC = () => {
     }
 
     return (
-      <ul>
+      <ul className='space-y-2'>
         {data.create.map((genre) => (
           <CreateItem key={genre.id} genre={genre} />
         ))}
@@ -69,19 +69,40 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   }, [correctionId, genre.id, mutate])
 
   return (
-    <li>
-      <div>Create</div>
+    <li className='border border-gray-300'>
+      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-semibold text-white bg-green-600'>
+        Create
+      </div>
       <Link
         href={{
           pathname: `/corrections/${correctionId}/edit/genres/edit`,
           query: { genreId: genre.id },
         }}
       >
-        <a>{genre.name}</a>
+        <a className='font-bold text-lg hover:underline px-2 py-1'>
+          {genre.name}
+        </a>
       </Link>
-      <button onClick={() => handleRemove()} disabled={isLoading}>
-        Remove
-      </button>
+      <div className='flex justify-between border-t border-gray-200'>
+        <Link
+          href={{
+            pathname: `/corrections/${correctionId}/edit/genres/edit`,
+            query: { genreId: genre.id },
+          }}
+        >
+          <a className='border-r border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'>
+            Edit
+          </a>
+        </Link>
+        <button
+          className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100 -ml-px'
+          type='button'
+          onClick={() => handleRemove()}
+          disabled={isLoading}
+        >
+          Remove
+        </button>
+      </div>
     </li>
   )
 }
@@ -107,23 +128,49 @@ const EditItem: FC<{
     )
   }, [correctionId, mutate, updatedGenre.id])
 
+  const renderName = useCallback(
+    () =>
+      targetGenre.name !== updatedGenre.name
+        ? `${targetGenre.name} -> ${updatedGenre.name}`
+        : updatedGenre.name,
+    [targetGenre.name, updatedGenre.name]
+  )
+
   return (
-    <li>
-      <div>Edit</div>
-      <div>
-        {targetGenre.name} {'-> '}
+    <li className='border border-gray-300'>
+      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-semibold text-white bg-blue-600'>
+        Edit
+      </div>
+      <Link
+        href={{
+          pathname: `/corrections/${correctionId}/edit/genres/edit`,
+          query: { genreId: targetGenre.id },
+        }}
+      >
+        <a className='font-bold text-lg hover:underline px-2 py-1'>
+          {renderName()}
+        </a>
+      </Link>
+      <div className='flex justify-between border-t border-gray-200'>
         <Link
           href={{
             pathname: `/corrections/${correctionId}/edit/genres/edit`,
             query: { genreId: targetGenre.id },
           }}
         >
-          <a>{updatedGenre.name}</a>
+          <a className='border-r border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'>
+            Edit
+          </a>
         </Link>
+        <button
+          className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100 -ml-px'
+          type='button'
+          onClick={() => handleRemove()}
+          disabled={isLoading}
+        >
+          Remove
+        </button>
       </div>
-      <button onClick={() => handleRemove()} disabled={isLoading}>
-        Remove
-      </button>
     </li>
   )
 }
@@ -147,12 +194,21 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   }, [correctionId, genre.id, mutate])
 
   return (
-    <li>
-      <div>Delete</div>
-      <div>{genre.name}</div>
-      <button onClick={() => handleRemove()} disabled={isLoading}>
-        Remove
-      </button>
+    <li className='border border-gray-300'>
+      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-semibold text-white bg-red-600'>
+        Delete
+      </div>
+      <div className='font-medium text-lg px-2'>{genre.name}</div>
+      <div className='flex justify-end border-t border-gray-200'>
+        <button
+          className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100 -ml-px'
+          type='button'
+          onClick={() => handleRemove()}
+          disabled={isLoading}
+        >
+          Remove
+        </button>
+      </div>
     </li>
   )
 }

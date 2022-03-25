@@ -103,7 +103,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
                 query: { genreId: id },
               }}
             >
-              <a className='font-bold text-lg'>{genre.name}</a>
+              <a className='font-bold text-lg hover:underline'>{genre.name}</a>
             </Link>
             <div className='text-gray-800'>{genre.shortDesc}</div>
           </div>
