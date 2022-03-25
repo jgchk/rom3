@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import Select from '../../../../../common/components/Select'
@@ -66,6 +65,7 @@ const InfluenceMultiselect: FC<{
 
   const { data } = useCorrectionGenresQuery(correctionId)
 
+  // TODO: use genre id not correction id
   const { id: self } = useCorrectionContext()
 
   const options = useMemo(
@@ -86,23 +86,25 @@ const InfluenceMultiselect: FC<{
     if (!options) return <div>Loading...</div>
     if (options.length === 0) return <div>No items</div>
     return options.map((item) => (
-      <MenuItem
-        key={item.id}
-        type='button'
-        onClick={() =>
-          addInfluence({ id: item.id, influenceType: 'HISTORICAL' })
-        }
-      >
-        {item.name}
-      </MenuItem>
+      <li key={item.id}>
+        <button
+          className='w-full text-left'
+          type='button'
+          onClick={() =>
+            addInfluence({ id: item.id, influenceType: 'HISTORICAL' })
+          }
+        >
+          {item.name}
+        </button>
+      </li>
     ))
   }, [addInfluence, options])
 
   return (
-    <Container ref={containerRef}>
-      <InputContainer>
+    <div className='relative' ref={containerRef}>
+      <div className='flex space-x-1 w-full border border-gray-200'>
         {influences.length > 0 && (
-          <SelectedItems>
+          <div className='flex space-x-1 p-1'>
             {influences.map((selectedItem) => (
               <SelectedInfluence
                 key={`${selectedItem.id}_${selectedItem.influenceType ?? ''}`}
@@ -111,9 +113,10 @@ const InfluenceMultiselect: FC<{
                 onRemove={() => removeInfluence(selectedItem)}
               />
             ))}
-          </SelectedItems>
+          </div>
         )}
-        <Input
+        <input
+          className='flex-1'
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onFocus={() => setOpen(true)}
@@ -121,9 +124,13 @@ const InfluenceMultiselect: FC<{
         <button type='button' onClick={() => setOpen(!open)}>
           &#8595;
         </button>
-      </InputContainer>
-      {open && <Menu>{renderOptions()}</Menu>}
-    </Container>
+      </div>
+      {open && (
+        <ul className='absolute z-10 w-full bg-white border border-t-0 border-gray-200'>
+          {renderOptions()}
+        </ul>
+      )}
+    </div>
   )
 }
 
@@ -161,66 +168,17 @@ const SelectedInfluence: FC<{
   }, [data, influence, onChange])
 
   return (
-    <SelectedItemContainer>
+    <div className='flex space-x-2 items-center pl-2 bg-gray-200 border border-gray-300'>
       {renderItem()}
-      <RemoveButton type='button' onClick={() => onRemove()}>
+      <button
+        className='border-l border-gray-300'
+        type='button'
+        onClick={() => onRemove()}
+      >
         &#10005;
-      </RemoveButton>
-    </SelectedItemContainer>
+      </button>
+    </div>
   )
 }
 
 export default InfluenceMultiselect
-
-const Container = styled.div`
-  position: relative;
-`
-
-const InputContainer = styled.div`
-  display: flex;
-  gap: 2px;
-  width: 100%;
-  border: 1px solid black;
-  border-radius: 2px;
-`
-
-const SelectedItems = styled.div`
-  display: flex;
-  gap: 2px;
-  padding: 2px;
-`
-
-const SelectedItemContainer = styled.div`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  padding-left: 4px;
-  background: #eee;
-  border: 1px solid black;
-  border-radius: 2px;
-`
-
-const RemoveButton = styled.button`
-  border: none;
-  border-left: 1px solid black;
-`
-
-const Input = styled.input`
-  flex: 1;
-  border: none;
-`
-
-const Menu = styled.ul`
-  position: absolute;
-  z-index: 100;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  background: white;
-  border: 1px solid black;
-`
-
-const MenuItem = styled.button`
-  width: 100%;
-  text-align: left;
-`
