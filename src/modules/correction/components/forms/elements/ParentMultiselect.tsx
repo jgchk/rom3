@@ -82,25 +82,24 @@ const ParentMultiselect: FC<{
 
   return (
     <div className='relative' ref={containerRef}>
-      <div className='flex space-x-1 w-full border border-gray-300'>
-        {parents.length > 0 && (
-          <div className='flex space-x-1 p-1'>
-            {parents.map((selectedItem) => (
-              <SelectedParent
-                key={selectedItem}
-                id={selectedItem}
-                onRemove={() => removeParent(selectedItem)}
-                childType={childType}
-              />
-            ))}
-          </div>
-        )}
-        <input
-          className='flex-1'
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onFocus={() => setOpen(true)}
-        />
+      <div className='flex border border-gray-300'>
+        <div className='flex-1 flex flex-wrap gap-1 w-full p-1'>
+          {parents.map((selectedItem) => (
+            <SelectedParent
+              key={selectedItem}
+              id={selectedItem}
+              onRemove={() => removeParent(selectedItem)}
+              childType={childType}
+            />
+          ))}
+          <input
+            className='flex-1 px-1 py-0.5 border border-transparent text-sm'
+            placeholder='Search...'
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onFocus={() => setOpen(true)}
+          />
+        </div>
         <button
           className='px-1 border-l text-gray-400 border-gray-200 hover:bg-gray-100'
           type='button'
