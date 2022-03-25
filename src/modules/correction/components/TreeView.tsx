@@ -140,7 +140,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
               ))}
             </div>
             <button
-              className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'
+              className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100 -ml-px'
               onClick={() => handleDelete()}
             >
               Delete
