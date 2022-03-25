@@ -16,7 +16,7 @@ const Navbar: FC = () => {
               className={clsx(
                 'flex items-center border-b-2 px-2 font-medium hover:bg-gray-200',
                 router.pathname === '/genres/tree'
-                  ? 'border-red-600'
+                  ? 'border-primary-600'
                   : 'border-transparent'
               )}
             >
@@ -28,7 +28,7 @@ const Navbar: FC = () => {
               className={clsx(
                 'flex items-center border-b-2 px-2 font-medium hover:bg-gray-200',
                 router.pathname.startsWith('/corrections')
-                  ? 'border-red-600'
+                  ? 'border-primary-600'
                   : 'border-transparent'
               )}
             >
