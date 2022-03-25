@@ -4,5 +4,32 @@
     "stylelint-config-rational-order",
     "stylelint-config-prettier"
   ],
-  "customSyntax": "@stylelint/postcss-css-in-js"
+  "overrides": [
+    {
+      "files": ["**/*.js", "**/*.ts", "**/*.tsx"],
+      "customSyntax": "@stylelint/postcss-css-in-js",
+      "rules": {
+        "function-no-unknown": null
+      }
+    },
+    {
+      "files": ["**/globals.css"],
+      "rules": {
+        "at-rule-no-unknown": [
+          true,
+          {
+            "ignoreAtRules": [
+              "tailwind",
+              "apply",
+              "variants",
+              "responsive",
+              "screen"
+            ]
+          }
+        ],
+        "declaration-block-trailing-semicolon": null,
+        "no-descending-specificity": null
+      }
+    }
+  ]
 }

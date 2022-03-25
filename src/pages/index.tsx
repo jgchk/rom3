@@ -4,7 +4,9 @@ import { useEffect } from 'react'
 
 const Home: NextPage = () => {
   const router = useRouter()
-  useEffect(() => void router.push('/list'), [router])
+
+  useEffect(() => void router.push('/genres/tree'), [router])
+
   return <div />
 }
 

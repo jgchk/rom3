@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,256 +7,81 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Meta {
-  id             Int               @id @default(autoincrement())
+enum GenreType {
+  META
+  SCENE
+  STYLE
+  TREND
+}
+
+model Genre {
+  id             Int              @id @default(autoincrement())
+  type           GenreType
   name           String
-  alternateNames MetaName[]
-  shortDesc      String            @db.VarChar(255)
-  longDesc       String            @db.Text
-  parentMetas    MetaParent[]      @relation("MetaChild")
-  childMetas     MetaParent[]      @relation("MetaParent")
-  childStyles    StyleMetaParent[] @relation("StyleMetaParent")
-  childTrends    TrendMetaParent[] @relation("TrendMetaParent")
+  alternateNames GenreName[]
+  shortDesc      String           @db.VarChar(255)
+  longDesc       String           @db.Text
+  parents        GenreParent[]    @relation("GenreChild")
+  children       GenreParent[]    @relation("GenreParent")
+  influences     GenreInfluence[] @relation("GenreInfluencer")
+  influencedBy   GenreInfluence[] @relation("GenreInfluenced")
+  locations      GenreLocation[]
+  cultures       GenreCulture[]
 
-  includedInCorrections MetaCorrection[] @relation("MetaCorrectionData")
-  targetedByCorrections MetaCorrection[] @relation("MetaCorrectionTarget")
-  targetedByDeletions   MetaDeletion[]
+  createdInCorrection GenreCreate?
+  editedInCorrection  GenreEdit?    @relation("GenreEditUpdated")
+  editedByCorrection  GenreEdit[]   @relation("GenreEditTarget")
+  deletedByCorrection GenreDelete[] @relation("GenreDeleteTarget")
 }
 
-model MetaName {
-  meta   Meta   @relation(fields: [metaId], references: [id], onDelete: Cascade)
-  metaId Int
-  name   String
-
-  @@id([metaId, name])
-}
-
-model MetaParent {
-  parent   Meta @relation("MetaParent", fields: [parentId], references: [id], onDelete: Cascade)
-  parentId Int
-  child    Meta @relation("MetaChild", fields: [childId], references: [id], onDelete: Cascade)
-  childId  Int
-
-  @@id([parentId, childId])
-}
-
-model Scene {
-  id                 Int              @id @default(autoincrement())
-  name               String
-  alternateNames     SceneName[]
-  shortDesc          String           @db.VarChar(255)
-  longDesc           String           @db.Text
-  influencesScenes   SceneInfluence[] @relation("SceneInfluencer")
-  influencedByScenes SceneInfluence[] @relation("SceneInfluenced")
-  locations          SceneLocation[]
-  cultures           SceneCulture[]
-
-  includedInCorrections SceneCorrection[] @relation("SceneCorrectionData")
-  targetedByCorrections SceneCorrection[] @relation("SceneCorrectionTarget")
-  targetedByDeletions   SceneDeletion[]
-}
-
-model SceneName {
-  scene   Scene  @relation(fields: [sceneId], references: [id], onDelete: Cascade)
-  sceneId Int
+model GenreName {
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId Int
   name    String
 
-  @@id([sceneId, name])
+  @@id([genreId, name])
 }
 
-model SceneInfluence {
-  influencer   Scene @relation("SceneInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
-  influencerId Int
-  influenced   Scene @relation("SceneInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
-  influencedId Int
-
-  @@id([influencerId, influencedId])
-}
-
-model SceneLocation {
-  scene      Scene    @relation(fields: [sceneId], references: [id], onDelete: Cascade)
-  sceneId    Int
-  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  locationId Int
-
-  @@id([sceneId, locationId])
-}
-
-model SceneCulture {
-  scene     Scene   @relation(fields: [sceneId], references: [id], onDelete: Cascade)
-  sceneId   Int
-  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
-  cultureId Int
-
-  @@id([sceneId, cultureId])
-}
-
-model Style {
-  id                 Int                   @id @default(autoincrement())
-  name               String
-  alternateNames     StyleName[]
-  shortDesc          String                @db.VarChar(255)
-  longDesc           String                @db.Text
-  parentStyles       StyleStyleParent[]    @relation("StyleStyleChild")
-  childStyles        StyleStyleParent[]    @relation("StyleStyleParent")
-  childTrends        TrendStyleParent[]    @relation("TrendStyleParent")
-  parentMetas        StyleMetaParent[]     @relation("StyleMetaChild")
-  influencedByStyles StyleInfluence[]      @relation("StyleInfluenced")
-  influencesStyles   StyleInfluence[]      @relation("StyleInfluencer")
-  influencesTrends   TrendStyleInfluence[] @relation("TrendStyleInfluencer")
-  locations          StyleLocation[]
-  cultures           StyleCulture[]
-
-  includedInCorrections StyleCorrection[] @relation("StyleCorrectionData")
-  targetedByCorrections StyleCorrection[] @relation("StyleCorrectionTarget")
-  targetedByDeletions   StyleDeletion[]
-}
-
-model StyleName {
-  style   Style  @relation(fields: [styleId], references: [id], onDelete: Cascade)
-  styleId Int
-  name    String
-
-  @@id([styleId, name])
-}
-
-model StyleStyleParent {
-  parent   Style @relation("StyleStyleParent", fields: [parentId], references: [id], onDelete: Cascade)
+model GenreParent {
+  parent   Genre @relation("GenreParent", fields: [parentId], references: [id], onDelete: Cascade)
   parentId Int
-  child    Style @relation("StyleStyleChild", fields: [childId], references: [id], onDelete: Cascade)
+  child    Genre @relation("GenreChild", fields: [childId], references: [id], onDelete: Cascade)
   childId  Int
 
   @@id([parentId, childId])
 }
 
-model StyleMetaParent {
-  parent   Meta  @relation("StyleMetaParent", fields: [parentId], references: [id], onDelete: Cascade)
-  parentId Int
-  child    Style @relation("StyleMetaChild", fields: [childId], references: [id], onDelete: Cascade)
-  childId  Int
-
-  @@id([parentId, childId])
+enum InfluenceType {
+  HISTORICAL
+  SONIC
 }
 
-model StyleInfluence {
-  influencer    Style         @relation("StyleInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
+model GenreInfluence {
+  influencer    Genre          @relation("GenreInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
   influencerId  Int
-  influenced    Style         @relation("StyleInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
+  influenced    Genre          @relation("GenreInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
   influencedId  Int
-  influenceType InfluenceType
+  influenceType InfluenceType?
 
   @@id([influencerId, influencedId])
 }
 
-model StyleLocation {
-  style      Style    @relation(fields: [styleId], references: [id], onDelete: Cascade)
-  styleId    Int
+model GenreLocation {
+  genre      Genre    @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId    Int
   location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
   locationId Int
 
-  @@id([styleId, locationId])
+  @@id([genreId, locationId])
 }
 
-model StyleCulture {
-  style     Style   @relation(fields: [styleId], references: [id], onDelete: Cascade)
-  styleId   Int
+model GenreCulture {
+  genre     Genre   @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId   Int
   culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
   cultureId Int
 
-  @@id([styleId, cultureId])
-}
-
-model Trend {
-  id                 Int                   @id @default(autoincrement())
-  name               String
-  alternateNames     TrendName[]
-  shortDesc          String                @db.VarChar(255)
-  longDesc           String                @db.Text
-  parentTrends       TrendTrendParent[]    @relation("TrendTrendChild")
-  parentStyles       TrendStyleParent[]    @relation("TrendStyleChild")
-  parentMetas        TrendMetaParent[]     @relation("TrendMetaChild")
-  childTrends        TrendTrendParent[]    @relation("TrendTrendParent")
-  influencedByTrends TrendTrendInfluence[] @relation("TrendTrendInfluenced")
-  influencedByStyles TrendStyleInfluence[] @relation("TrendStyleInfluenced")
-  influencesTrends   TrendTrendInfluence[] @relation("TrendTrendInfluencer")
-  locations          TrendLocation[]
-  cultures           TrendCulture[]
-
-  includedInCorrections TrendCorrection[] @relation("TrendCorrectionData")
-  targetedByCorrections TrendCorrection[] @relation("TrendCorrectionTarget")
-  targetedByDeletions   TrendDeletion[]
-}
-
-model TrendName {
-  trend   Trend  @relation(fields: [trendId], references: [id], onDelete: Cascade)
-  trendId Int
-  name    String
-
-  @@id([trendId, name])
-}
-
-model TrendTrendParent {
-  parent   Trend @relation("TrendTrendParent", fields: [parentId], references: [id], onDelete: Cascade)
-  parentId Int
-  child    Trend @relation("TrendTrendChild", fields: [childId], references: [id], onDelete: Cascade)
-  childId  Int
-
-  @@id([parentId, childId])
-}
-
-model TrendStyleParent {
-  parent   Style @relation("TrendStyleParent", fields: [parentId], references: [id], onDelete: Cascade)
-  parentId Int
-  child    Trend @relation("TrendStyleChild", fields: [childId], references: [id], onDelete: Cascade)
-  childId  Int
-
-  @@id([parentId, childId])
-}
-
-model TrendMetaParent {
-  parent   Meta  @relation("TrendMetaParent", fields: [parentId], references: [id], onDelete: Cascade)
-  parentId Int
-  child    Trend @relation("TrendMetaChild", fields: [childId], references: [id], onDelete: Cascade)
-  childId  Int
-
-  @@id([parentId, childId])
-}
-
-model TrendTrendInfluence {
-  influencer   Trend @relation("TrendTrendInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
-  influencerId Int
-  influenced   Trend @relation("TrendTrendInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
-  influencedId Int
-
-  @@id([influencerId, influencedId])
-}
-
-model TrendStyleInfluence {
-  influencer    Style         @relation("TrendStyleInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
-  influencerId  Int
-  influenced    Trend         @relation("TrendStyleInfluenced", fields: [influencedId], references: [id], onDelete: Cascade)
-  influencedId  Int
-  influenceType InfluenceType
-
-  @@id([influencerId, influencedId])
-}
-
-model TrendLocation {
-  trend      Trend    @relation(fields: [trendId], references: [id], onDelete: Cascade)
-  trendId    Int
-  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  locationId Int
-
-  @@id([trendId, locationId])
-}
-
-model TrendCulture {
-  trend     Trend   @relation(fields: [trendId], references: [id], onDelete: Cascade)
-  trendId   Int
-  culture   Culture @relation(fields: [cultureId], references: [id], onDelete: Cascade)
-  cultureId Int
-
-  @@id([trendId, cultureId])
+  @@id([genreId, cultureId])
 }
 
 model Location {
@@ -268,9 +90,7 @@ model Location {
   region  String
   country String
 
-  scenes SceneLocation[]
-  styles StyleLocation[]
-  trends TrendLocation[]
+  genres GenreLocation[]
 
   @@unique([city, region, country])
 }
@@ -279,120 +99,49 @@ model Culture {
   id   Int    @id @default(autoincrement())
   name String
 
-  scenes SceneCulture[]
-  styles StyleCulture[]
-  trends TrendCulture[]
+  genres GenreCulture[]
 
   @@unique([name])
 }
 
-enum InfluenceType {
-  HISTORICAL
-  SONIC
-}
-
 model Correction {
-  id Int @id @default(autoincrement())
+  id   Int     @id @default(autoincrement())
+  name String? @db.VarChar(255)
 
-  metas  MetaCorrection[]
-  scenes SceneCorrection[]
-  styles StyleCorrection[]
-  trends TrendCorrection[]
-
-  deleteMetas  MetaDeletion[]
-  deleteScenes SceneDeletion[]
-  deleteStyles StyleDeletion[]
-  deleteTrends TrendDeletion[]
+  create GenreCreate[]
+  edit   GenreEdit[]
+  delete GenreDelete[]
 }
 
-model MetaCorrection {
-  correction   Correction @relation(fields: [correctionId], references: [id])
+model GenreCreate {
+  correction   Correction @relation(fields: [correctionId], references: [id], onDelete: Cascade)
   correctionId Int
 
-  meta   Meta @relation("MetaCorrectionData", fields: [metaId], references: [id], onDelete: Cascade)
-  metaId Int
+  createdGenre   Genre @relation(fields: [createdGenreId], references: [id], onDelete: Cascade)
+  createdGenreId Int   @unique
 
-  targetMeta   Meta? @relation("MetaCorrectionTarget", fields: [targetMetaId], references: [id], onDelete: Cascade)
-  targetMetaId Int?
-
-  @@unique([correctionId, metaId])
+  @@id([correctionId, createdGenreId])
 }
 
-model SceneCorrection {
-  correction   Correction @relation(fields: [correctionId], references: [id])
+model GenreEdit {
+  correction   Correction @relation(fields: [correctionId], references: [id], onDelete: Cascade)
   correctionId Int
 
-  scene   Scene @relation("SceneCorrectionData", fields: [sceneId], references: [id], onDelete: Cascade)
-  sceneId Int
+  updatedGenre   Genre @relation("GenreEditUpdated", fields: [updatedGenreId], references: [id], onDelete: Cascade)
+  updatedGenreId Int   @unique
 
-  targetScene   Scene? @relation("SceneCorrectionTarget", fields: [targetSceneId], references: [id], onDelete: Cascade)
-  targetSceneId Int?
+  targetGenre   Genre @relation("GenreEditTarget", fields: [targetGenreId], references: [id], onDelete: Cascade)
+  targetGenreId Int
 
-  @@unique([correctionId, sceneId])
+  @@id([correctionId, targetGenreId])
 }
 
-model StyleCorrection {
-  correction   Correction @relation(fields: [correctionId], references: [id])
+model GenreDelete {
+  correction   Correction @relation(fields: [correctionId], references: [id], onDelete: Cascade)
   correctionId Int
 
-  style   Style @relation("StyleCorrectionData", fields: [styleId], references: [id], onDelete: Cascade)
-  styleId Int
+  targetGenre   Genre @relation("GenreDeleteTarget", fields: [targetGenreId], references: [id], onDelete: Cascade)
+  targetGenreId Int
 
-  targetStyle   Style? @relation("StyleCorrectionTarget", fields: [targetStyleId], references: [id], onDelete: Cascade)
-  targetStyleId Int?
-
-  @@unique([correctionId, styleId])
-}
-
-model TrendCorrection {
-  correction   Correction @relation(fields: [correctionId], references: [id])
-  correctionId Int
-
-  trend   Trend @relation("TrendCorrectionData", fields: [trendId], references: [id], onDelete: Cascade)
-  trendId Int
-
-  targetTrend   Trend? @relation("TrendCorrectionTarget", fields: [targetTrendId], references: [id], onDelete: Cascade)
-  targetTrendId Int?
-
-  @@unique([correctionId, trendId])
-}
-
-model MetaDeletion {
-  correction   Correction @relation(fields: [correctionId], references: [id])
-  correctionId Int
-
-  targetMeta   Meta @relation(fields: [targetMetaId], references: [id], onDelete: Cascade)
-  targetMetaId Int
-
-  @@unique([correctionId, targetMetaId])
-}
-
-model SceneDeletion {
-  correction   Correction @relation(fields: [correctionId], references: [id])
-  correctionId Int
-
-  targetScene   Scene @relation(fields: [targetSceneId], references: [id], onDelete: Cascade)
-  targetSceneId Int
-
-  @@unique([correctionId, targetSceneId])
-}
-
-model StyleDeletion {
-  correction   Correction @relation(fields: [correctionId], references: [id])
-  correctionId Int
-
-  targetStyle   Style @relation(fields: [targetStyleId], references: [id], onDelete: Cascade)
-  targetStyleId Int
-
-  @@unique([correctionId, targetStyleId])
-}
-
-model TrendDeletion {
-  correction   Correction @relation(fields: [correctionId], references: [id])
-  correctionId Int
-
-  targetTrend   Trend @relation(fields: [targetTrendId], references: [id], onDelete: Cascade)
-  targetTrendId Int
-
-  @@unique([correctionId, targetTrendId])
+  @@id([correctionId, targetGenreId])
 }
