@@ -62,12 +62,16 @@ const ParentMultiselect: FC<{
   )
 
   const renderOptions = useCallback(() => {
-    if (!options) return <div>Loading...</div>
-    if (options.length === 0) return <div>No items</div>
+    if (!options)
+      return <div className='px-1 py-0.5 text-sm text-gray-700'>Loading...</div>
+
+    if (options.length === 0)
+      return <div className='px-1 py-0.5 text-sm text-gray-700'>No items</div>
+
     return options.map((item) => (
-      <li key={item.id}>
+      <li className='group hover:bg-gray-100' key={item.id}>
         <button
-          className='w-full text-left'
+          className='w-full text-left text-sm text-gray-700 px-1 py-0.5 border-b border-gray-200 group-last:border-0'
           type='button'
           onClick={() => {
             addParent(item.id)
@@ -113,7 +117,7 @@ const ParentMultiselect: FC<{
         </button>
       </div>
       {open && (
-        <ul className='absolute z-10 w-full bg-white border border-t-0 border-gray-200'>
+        <ul className='absolute z-10 w-full bg-white border border-t-0 border-gray-300'>
           {renderOptions()}
         </ul>
       )}
