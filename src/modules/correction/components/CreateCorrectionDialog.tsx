@@ -4,7 +4,6 @@ import toast from 'react-hot-toast'
 
 import Dialog from '../../../common/components/Dialog'
 import { useCreateCorrectionMutation } from '../../../common/services/corrections'
-import FormElement from './forms/elements/FormElement'
 
 const CreateCorrectionDialog: FC<{
   onClose: () => void
@@ -39,14 +38,14 @@ const CreateCorrectionDialog: FC<{
           handleCreate(name.length === 0 ? undefined : name)
         }}
       >
-        <FormElement>
-          <label>Name</label>
+        <div>
+          <label className='block'>Name</label>
           <input
             autoFocus
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-        </FormElement>
+        </div>
         <div>
           <button type='submit' disabled={isLoading}>
             Create

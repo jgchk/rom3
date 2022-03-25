@@ -1,7 +1,6 @@
 import { Dispatch, FC, SetStateAction, useCallback } from 'react'
 
 import { GenreApiInput } from '../../../server/routers/genres'
-import FormElement from './elements/FormElement'
 import GenreTypeSelect from './elements/GenreTypeSelect'
 import MetaForm from './MetaForm'
 import SceneForm from './SceneForm'
@@ -27,8 +26,8 @@ const GenreForm: FC<{
 
   return (
     <>
-      <FormElement>
-        <label>Type</label>
+      <div>
+        <label className='block'>Type</label>
         <GenreTypeSelect
           value={data.type}
           onChange={(type) => {
@@ -45,7 +44,7 @@ const GenreForm: FC<{
             onChange((d) => ({ ...d, type }))
           }}
         />
-      </FormElement>
+      </div>
       {renderForm()}
     </>
   )

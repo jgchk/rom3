@@ -8,7 +8,6 @@ import {
 } from '../../../common/services/corrections'
 import { trpcClient } from '../../../common/utils/trpc'
 import { defaultCorrectionName } from '../constants'
-import FormElement from './forms/elements/FormElement'
 
 const UpdateNameDialog: FC<{
   id: number
@@ -66,14 +65,14 @@ const Loaded: FC<{
         handleUpdate(name.length === 0 ? undefined : name)
       }}
     >
-      <FormElement>
-        <label>Name</label>
+      <div>
+        <label className='block'>Name</label>
         <input
           autoFocus
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-      </FormElement>
+      </div>
       <div>
         <button type='submit' disabled={isLoading}>
           Update
