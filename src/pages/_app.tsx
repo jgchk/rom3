@@ -13,7 +13,7 @@ import { AppRouter } from '../modules/server/routers/_app'
 const MyApp = ({ Component, pageProps }: AppProps) => (
   <div className='w-screen h-screen flex flex-col'>
     <Navbar />
-    <div className='flex-1'>
+    <div className='flex-1 overflow-auto'>
       <ErrorBoundary>
         <Component {...pageProps} />
       </ErrorBoundary>
