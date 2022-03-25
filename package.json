@@ -11,8 +11,6 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@emotion/react": "^11.8.1",
-    "@emotion/styled": "^11.8.1",
     "@prisma/client": "^3.11.0",
     "@trpc/client": "^9.20.1",
     "@trpc/next": "^9.20.1",
