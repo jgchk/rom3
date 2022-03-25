@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { FC, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
@@ -14,18 +13,19 @@ const MarkdownEditor: FC<{
   const [tab, setTab] = useState<Tab>(Tab.EDIT)
 
   return (
-    <Container>
+    <div className='flex flex-col h-72 overflow-auto resize'>
       {tab === Tab.EDIT && (
-        <TextArea
+        <textarea
+          className='flex-1 resize-none'
           value={value}
           onChange={(e) => onChange(e.target.value)}
           style={{ flex: 1, resize: 'none' }}
         />
       )}
       {tab === Tab.VIEW && (
-        <MarkdownContainer>
+        <div className='flex-1 overflow-auto'>
           <ReactMarkdown>{value}</ReactMarkdown>
-        </MarkdownContainer>
+        </div>
       )}
       <div>
         <button
@@ -43,26 +43,8 @@ const MarkdownEditor: FC<{
           View
         </button>
       </div>
-    </Container>
+    </div>
   )
 }
 
 export default MarkdownEditor
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 300px;
-  overflow: auto;
-  resize: both;
-`
-
-const TextArea = styled.textarea`
-  flex: 1;
-  resize: none;
-`
-
-const MarkdownContainer = styled.div`
-  flex: 1;
-  overflow: auto;
-`
