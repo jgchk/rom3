@@ -1,4 +1,6 @@
+import clsx from 'clsx'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { RiCloseFill } from 'react-icons/ri'
 
 import { GenreType } from '../../../../../common/model'
 import { genreParentTypes } from '../../../../../common/model/parents'
@@ -88,6 +90,7 @@ const ParentMultiselect: FC<{
                 key={selectedItem}
                 id={selectedItem}
                 onRemove={() => removeParent(selectedItem)}
+                childType={childType}
               />
             ))}
           </div>
@@ -114,9 +117,17 @@ const ParentMultiselect: FC<{
 const SelectedParent: FC<{
   id: number
   onRemove: () => void
-}> = ({ id, onRemove }) => {
+  childType: GenreType
+}> = ({ id, onRemove, childType }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data } = useCorrectionGenreQuery(id, correctionId)
+
+  const isInvalid = useMemo(() => {
+    if (!data) return false
+
+    const parentTypes = genreParentTypes[childType]
+    return !parentTypes.includes(data.type)
+  }, [childType, data])
 
   const renderText = useCallback(() => {
     if (data) return data.name
@@ -124,14 +135,26 @@ const SelectedParent: FC<{
   }, [data])
 
   return (
-    <div className='flex space-x-2 items-center pl-2 bg-gray-200 border border-gray-300'>
-      {renderText()}
+    <div
+      className={clsx(
+        'flex border',
+        isInvalid
+          ? 'border-red-400 bg-red-200 text-red-600'
+          : 'border-gray-400 bg-gray-200 text-gray-600'
+      )}
+    >
+      <div className='px-2 py-0.5 text-sm font-medium'>{renderText()}</div>
       <button
-        className='border-l border-gray-300'
+        className={clsx(
+          'border-l h-full px-1',
+          isInvalid
+            ? 'border-red-300 hover:bg-red-300'
+            : 'border-gray-300 hover:bg-gray-300'
+        )}
         type='button'
         onClick={() => onRemove()}
       >
-        &#10005;
+        <RiCloseFill />
       </button>
     </div>
   )

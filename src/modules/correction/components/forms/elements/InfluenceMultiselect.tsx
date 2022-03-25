@@ -1,4 +1,6 @@
+import clsx from 'clsx'
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { RiCloseFill } from 'react-icons/ri'
 
 import Select from '../../../../../common/components/Select'
 import { GenreType } from '../../../../../common/model'
@@ -110,6 +112,7 @@ const InfluenceMultiselect: FC<{
                 influence={selectedItem}
                 onChange={(update) => updateInfluence(update)}
                 onRemove={() => removeInfluence(selectedItem)}
+                childType={childType}
               />
             ))}
           </div>
@@ -137,9 +140,17 @@ const SelectedInfluence: FC<{
   influence: InfluenceUiState
   onChange: (value: InfluenceUiState) => void
   onRemove: () => void
-}> = ({ influence, onChange, onRemove }) => {
+  childType: GenreType
+}> = ({ influence, onChange, onRemove, childType }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data } = useCorrectionGenreQuery(influence.id, correctionId)
+
+  const isInvalid = useMemo(() => {
+    if (!data) return false
+
+    const influencedByTypes = genreInfluencedByTypes[childType]
+    return !influencedByTypes.includes(data.type)
+  }, [childType, data])
 
   const renderItem = useCallback(() => {
     if (data) {
@@ -167,14 +178,26 @@ const SelectedInfluence: FC<{
   }, [data, influence, onChange])
 
   return (
-    <div className='flex space-x-2 items-center pl-2 bg-gray-200 border border-gray-300'>
-      {renderItem()}
+    <div
+      className={clsx(
+        'flex border',
+        isInvalid
+          ? 'border-red-400 bg-red-200 text-red-600'
+          : 'border-gray-400 bg-gray-200 text-gray-600'
+      )}
+    >
+      <div className='px-2 py-0.5 text-sm font-medium'>{renderItem()}</div>
       <button
-        className='border-l border-gray-300'
+        className={clsx(
+          'border-l h-full px-1',
+          isInvalid
+            ? 'border-red-300 hover:bg-red-300'
+            : 'border-gray-300 hover:bg-gray-300'
+        )}
         type='button'
         onClick={() => onRemove()}
       >
-        &#10005;
+        <RiCloseFill />
       </button>
     </div>
   )
