@@ -5,7 +5,6 @@ import InfluenceMultiselect from './elements/InfluenceMultiselect'
 import LocationInput from './elements/LocationInput'
 import MarkdownEditor from './elements/MarkdownEditor'
 import ParentMultiselect from './elements/ParentMultiselect'
-import SmallLabel from './elements/SmallLabel'
 import StringArrayEditor from './elements/StringArrayEditor'
 
 const StyleForm: FC<{
@@ -22,7 +21,9 @@ const StyleForm: FC<{
     </div>
     <div>
       <label className='block'>Alternate Names</label>
-      <SmallLabel className='block'>comma-separated list</SmallLabel>
+      <label className='block text-sm text-gray-800'>
+        comma-separated list
+      </label>
       <StringArrayEditor
         value={data.alternateNames}
         onChange={(alternateNames) =>
@@ -55,7 +56,9 @@ const StyleForm: FC<{
     </div>
     <div>
       <label className='block'>Cultures</label>
-      <SmallLabel className='block'>comma-separated list</SmallLabel>
+      <label className='block text-sm text-gray-800'>
+        comma-separated list
+      </label>
       <StringArrayEditor
         value={data.cultures}
         onChange={(cultures) => onChange((d) => ({ ...d, cultures }))}

@@ -3,7 +3,6 @@ import { Dispatch, FC, SetStateAction } from 'react'
 import { GenreApiInput } from '../../../server/routers/genres'
 import MarkdownEditor from './elements/MarkdownEditor'
 import ParentMultiselect from './elements/ParentMultiselect'
-import SmallLabel from './elements/SmallLabel'
 import StringArrayEditor from './elements/StringArrayEditor'
 
 const MetaForm: FC<{
@@ -21,7 +20,9 @@ const MetaForm: FC<{
     </div>
     <div>
       <label className='block'>Alternate Names</label>
-      <SmallLabel className='block'>comma-separated list</SmallLabel>
+      <label className='block text-sm text-gray-800'>
+        comma-separated list
+      </label>
       <StringArrayEditor
         value={data.alternateNames}
         onChange={(alternateNames) =>
