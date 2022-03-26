@@ -4,11 +4,25 @@ export type CorrectionApiOutput = InferQueryOutput<'corrections.byId'>
 
 export const useCorrectionsQuery = (
   opts?: InferQueryOptions<'corrections.all'>
-) =>
-  trpc.useQuery(['corrections.all'], {
+) => {
+  const utils = trpc.useContext()
+  return trpc.useQuery(['corrections.all'], {
     ...opts,
     useErrorBoundary: opts?.useErrorBoundary ?? true,
+    onSuccess: (res) => {
+      for (const correction of res) {
+        utils.setQueryData(
+          ['corrections.byId', { id: correction.id }],
+          correction
+        )
+      }
+
+      if (opts?.onSuccess) {
+        opts.onSuccess(res)
+      }
+    },
   })
+}
 
 export const useCorrectionQuery = (
   id: number,
