@@ -35,7 +35,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
 
   const renderToolbar = useCallback(
     () => (
-      <div className={'flex border border-gray-300 w-fit'}>
+      <div className={'flex border border-stone-300 w-fit'}>
         {genreTypes.map((genreType) => (
           <Link
             key={genreType}
@@ -44,7 +44,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
               query: { type: genreType },
             }}
           >
-            <a className='border-r last:border-0 border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'>
+            <a className='border-r last:border-0 border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
               Add {capitalize(genreType)}
             </a>
           </Link>
@@ -109,7 +109,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
 
   return (
     <div>
-      <div className='border border-gray-300'>
+      <div className='border border-stone-300'>
         <div>
           <div className='p-2'>
             <div className={clsx('text-xs font-bold', color)}>{genre.type}</div>
@@ -123,9 +123,9 @@ const Node: FC<{ id: number }> = ({ id }) => {
                 <a className='hover:underline'>{genre.name}</a>
               </Link>
             </div>
-            <div className='text-sm text-gray-700 mt-1'>{genre.shortDesc}</div>
+            <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
           </div>
-          <div className='flex justify-between border-t border-gray-200'>
+          <div className='flex justify-between border-t border-stone-200'>
             <div className='flex'>
               <Link
                 href={{
@@ -133,7 +133,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
                   query: { genreId: id },
                 }}
               >
-                <a className='border-r border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'>
+                <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
                   Edit
                 </a>
               </Link>
@@ -148,14 +148,14 @@ const Node: FC<{ id: number }> = ({ id }) => {
                     },
                   }}
                 >
-                  <a className='border-r border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'>
+                  <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
                     Add Child {capitalize(childType)}
                   </a>
                 </Link>
               ))}
             </div>
             <button
-              className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100 -ml-px'
+              className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
               onClick={() => handleDelete()}
             >
               Delete

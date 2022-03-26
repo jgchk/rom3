@@ -41,10 +41,10 @@ const Node: FC<{ id: number }> = ({ id }) => {
 
   return (
     <div>
-      <div className='border border-gray-200 -mb-px'>
+      <div className='border border-stone-200 -mb-px'>
         <div className='px-3 py-1'>
           <div className='font-bold text-lg'>{genre.name}</div>
-          <div className='text-gray-800'>{genre.shortDesc}</div>
+          <div className='text-stone-800'>{genre.shortDesc}</div>
         </div>
       </div>
       {children.length > 0 && (

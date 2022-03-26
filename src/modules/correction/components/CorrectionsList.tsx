@@ -27,7 +27,7 @@ const CorrectionsList: FC = () => {
   const renderCreateButton = useCallback(
     () => (
       <button
-        className='border border-gray-300 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'
+        className='border border-stone-300 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'
         type='button'
         onClick={() => setShowNameDialog(true)}
       >
@@ -94,22 +94,22 @@ const Correction: FC<{ correction: CorrectionApiOutput }> = ({
 
   return (
     <>
-      <li className='border border-gray-300'>
+      <li className='border border-stone-300'>
         <Link href={`/corrections/${correction.id}/edit/tree`}>
           <a className='font-bold text-lg hover:underline px-2 py-1'>
             {correction.name ?? defaultCorrectionName}
           </a>
         </Link>
         {/* TODO: add small preview of create/edit/delete actions */}
-        <div className='flex justify-between border-t border-gray-200'>
+        <div className='flex justify-between border-t border-stone-200'>
           <div className='flex'>
             <Link href={`/corrections/${correction.id}/edit/tree`}>
-              <a className='border-r border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'>
+              <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
                 Edit
               </a>
             </Link>
             <button
-              className='border-r border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'
+              className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'
               onClick={() => setShowNameDialog(true)}
               disabled={showNameDialog}
             >
@@ -117,7 +117,7 @@ const Correction: FC<{ correction: CorrectionApiOutput }> = ({
             </button>
           </div>
           <button
-            className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100 -ml-px'
+            className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
             onClick={() => handleDeleteCorrection()}
             disabled={isLoading}
           >

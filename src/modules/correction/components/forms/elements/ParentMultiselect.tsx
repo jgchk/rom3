@@ -66,15 +66,17 @@ const ParentMultiselect: FC<{
 
   const renderOptions = useCallback(() => {
     if (!options)
-      return <div className='px-1 py-0.5 text-sm text-gray-700'>Loading...</div>
+      return (
+        <div className='px-1 py-0.5 text-sm text-stone-700'>Loading...</div>
+      )
 
     if (options.length === 0)
-      return <div className='px-1 py-0.5 text-sm text-gray-700'>No items</div>
+      return <div className='px-1 py-0.5 text-sm text-stone-700'>No items</div>
 
     return options.map((item) => (
-      <li className='group hover:bg-gray-100' key={item.id}>
+      <li className='group hover:bg-stone-100' key={item.id}>
         <button
-          className='w-full text-left text-sm text-gray-700 px-1 py-0.5 border-b border-gray-200 group-last:border-0'
+          className='w-full text-left text-sm text-stone-700 px-1 py-0.5 border-b border-stone-200 group-last:border-0'
           type='button'
           onClick={() => {
             addParent(item.id)
@@ -89,7 +91,7 @@ const ParentMultiselect: FC<{
 
   return (
     <div className='relative' ref={containerRef}>
-      <div className='flex border border-gray-300'>
+      <div className='flex border border-stone-300'>
         <div className='flex-1 flex flex-wrap gap-1 w-full p-1'>
           {parents.map((selectedItem) => (
             <SelectedParent
@@ -108,7 +110,7 @@ const ParentMultiselect: FC<{
           />
         </div>
         <button
-          className='px-1 border-l text-gray-400 border-gray-200 hover:bg-gray-100'
+          className='px-1 border-l text-stone-400 border-stone-200 hover:bg-stone-100'
           type='button'
           onClick={() => setOpen(!open)}
         >
@@ -120,7 +122,7 @@ const ParentMultiselect: FC<{
         </button>
       </div>
       {open && (
-        <ul className='absolute z-10 w-full bg-white border border-t-0 border-gray-300'>
+        <ul className='absolute z-10 w-full bg-white border border-t-0 border-stone-300'>
           {renderOptions()}
         </ul>
       )}
@@ -158,7 +160,7 @@ const SelectedParent: FC<{
           'flex border',
           isInvalid
             ? 'border-red-400 bg-red-200 text-red-600'
-            : 'border-gray-400 bg-gray-200 text-gray-600'
+            : 'border-stone-400 bg-stone-200 text-stone-600'
         )}
       >
         <div
@@ -173,7 +175,7 @@ const SelectedParent: FC<{
             'border-l h-full px-1',
             isInvalid
               ? 'border-red-300 hover:bg-red-300'
-              : 'border-gray-300 hover:bg-gray-300'
+              : 'border-stone-300 hover:bg-stone-300'
           )}
           type='button'
           onClick={() => onRemove()}

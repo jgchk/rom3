@@ -7,14 +7,14 @@ const Navbar: FC = () => {
   const router = useRouter()
 
   return (
-    <nav className='flex justify-center bg-gray-100 px-2 h-10 shadow z-10'>
+    <nav className='flex justify-center bg-stone-100 px-2 h-10 shadow z-10'>
       <div className='flex-1 max-w-screen-lg flex items-center space-x-4'>
         <div className='font-mackinac font-bold text-2xl'>Romulus</div>
         <div className='h-full flex'>
           <Link href='/genres/tree'>
             <a
               className={clsx(
-                'flex items-center border-b-2 px-2 font-medium hover:bg-gray-200',
+                'flex items-center border-b-2 px-2 font-medium hover:bg-stone-200',
                 router.pathname === '/genres/tree'
                   ? 'border-primary-600'
                   : 'border-transparent'
@@ -26,7 +26,7 @@ const Navbar: FC = () => {
           <Link href='/corrections'>
             <a
               className={clsx(
-                'flex items-center border-b-2 px-2 font-medium hover:bg-gray-200',
+                'flex items-center border-b-2 px-2 font-medium hover:bg-stone-200',
                 router.pathname.startsWith('/corrections')
                   ? 'border-primary-600'
                   : 'border-transparent'

@@ -20,7 +20,7 @@ const GenreTypeSelect: FC<{
 
   return (
     <Select
-      className='px-1 py-0.5 border border-gray-300 bg-gray-200'
+      className='px-1 py-0.5 border border-stone-300 bg-stone-200'
       value={value}
       onChange={(val) => onChange(val)}
       options={options}

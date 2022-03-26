@@ -69,7 +69,7 @@ const Loaded: FC<{
       <div>
         <label className='block'>Name</label>
         <input
-          className='border border-gray-300'
+          className='border border-stone-300'
           value={name}
           onChange={(e) => setName(e.target.value)}
           autoFocus
@@ -84,7 +84,7 @@ const Loaded: FC<{
           Update
         </button>
         <button
-          className='text-gray-500 uppercase text-sm font-bold px-1 py-1'
+          className='text-stone-500 uppercase text-sm font-bold px-1 py-1'
           type='button'
           onClick={() => onClose()}
         >

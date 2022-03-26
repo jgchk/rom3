@@ -70,12 +70,12 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   }, [correctionId, genre.id, mutate])
 
   return (
-    <li className='border border-gray-300'>
-      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-bold text-white bg-green-600'>
+    <li className='border border-stone-300'>
+      <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-green-600'>
         Create
       </div>
       <div className='p-2'>
-        <div className='text-xs font-semibold text-gray-500'>{genre.type}</div>
+        <div className='text-xs font-semibold text-stone-500'>{genre.type}</div>
         <div className='text-lg font-medium mt-0.5'>
           <Link
             href={{
@@ -86,21 +86,21 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
             <a className='hover:underline'>{genre.name}</a>
           </Link>
         </div>
-        <div className='text-sm text-gray-700 mt-1'>{genre.shortDesc}</div>
+        <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
       </div>
-      <div className='flex justify-between border-t border-gray-200'>
+      <div className='flex justify-between border-t border-stone-200'>
         <Link
           href={{
             pathname: `/corrections/${correctionId}/edit/genres/edit`,
             query: { genreId: genre.id },
           }}
         >
-          <a className='border-r border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'>
+          <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
             Edit
           </a>
         </Link>
         <button
-          className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100 -ml-px'
+          className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
           type='button'
           onClick={() => handleRemove()}
           disabled={isLoading}
@@ -176,12 +176,12 @@ const EditItem: FC<{
   }, [targetGenre.shortDesc, updatedGenre.shortDesc])
 
   return (
-    <li className='border border-gray-300'>
-      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-bold text-white bg-blue-600'>
+    <li className='border border-stone-300'>
+      <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-blue-600'>
         Edit
       </div>
       <div className='p-2'>
-        <div className={'text-xs font-semibold text-gray-500'}>{type}</div>
+        <div className={'text-xs font-semibold text-stone-500'}>{type}</div>
         <div className='text-lg font-medium mt-0.5'>
           <Link
             href={{
@@ -192,21 +192,21 @@ const EditItem: FC<{
             <a className='hover:underline'>{name}</a>
           </Link>
         </div>
-        <div className='text-sm text-gray-700 mt-1'>{shortDesc}</div>
+        <div className='text-sm text-stone-700 mt-1'>{shortDesc}</div>
       </div>
-      <div className='flex justify-between border-t border-gray-200'>
+      <div className='flex justify-between border-t border-stone-200'>
         <Link
           href={{
             pathname: `/corrections/${correctionId}/edit/genres/edit`,
             query: { genreId: targetGenre.id },
           }}
         >
-          <a className='border-r border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100'>
+          <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
             Edit
           </a>
         </Link>
         <button
-          className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100 -ml-px'
+          className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
           type='button'
           onClick={() => handleRemove()}
           disabled={isLoading}
@@ -237,24 +237,24 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   }, [correctionId, genre.id, mutate])
 
   return (
-    <li className='border border-gray-300'>
-      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-bold text-white bg-red-600'>
+    <li className='border border-stone-300'>
+      <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-red-600'>
         Delete
       </div>
       <div className='p-2'>
-        <div className='text-xs font-semibold text-gray-500 line-through'>
+        <div className='text-xs font-semibold text-stone-500 line-through'>
           {genre.type}
         </div>
         <div className='text-lg font-medium mt-0.5 line-through'>
           {genre.name}
         </div>
-        <div className='text-sm text-gray-700 mt-1 line-through'>
+        <div className='text-sm text-stone-700 mt-1 line-through'>
           {genre.shortDesc}
         </div>
       </div>
-      <div className='flex justify-end border-t border-gray-200'>
+      <div className='flex justify-end border-t border-stone-200'>
         <button
-          className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100 -ml-px'
+          className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
           type='button'
           onClick={() => handleRemove()}
           disabled={isLoading}

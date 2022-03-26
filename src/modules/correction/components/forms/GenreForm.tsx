@@ -10,9 +10,9 @@ import MarkdownEditor from './elements/MarkdownEditor'
 import ParentMultiselect from './elements/ParentMultiselect'
 import StringArrayEditor from './elements/StringArrayEditor'
 
-const labelClassname = 'block text-sm font-medium text-gray-700'
+const labelClassname = 'block text-sm font-medium text-stone-700'
 
-const smallLabelClassname = 'block text-xs font-medium text-gray-500'
+const smallLabelClassname = 'block text-xs font-medium text-stone-500'
 
 const GenreForm: FC<{
   data: GenreApiInput
@@ -38,7 +38,7 @@ const GenreForm: FC<{
     <div>
       <label className={labelClassname}>Name *</label>
       <input
-        className='border border-gray-300 px-2 py-1'
+        className='border border-stone-300 px-2 py-1'
         value={data.name}
         onChange={(e) => onChange((d) => ({ ...d, name: e.target.value }))}
         required
@@ -99,7 +99,7 @@ const GenreForm: FC<{
     <div>
       <label className={labelClassname}>Short Description *</label>
       <textarea
-        className='border border-gray-300 w-full px-2 py-1'
+        className='border border-stone-300 w-full px-2 py-1'
         value={data.shortDesc}
         onChange={(e) => onChange((d) => ({ ...d, shortDesc: e.target.value }))}
         required
@@ -114,7 +114,7 @@ const GenreForm: FC<{
     </div>
     <div className='space-x-2'>
       <button
-        className='bg-primary-600 hover:bg-primary-700 text-white uppercase text-sm font-bold px-3 py-2'
+        className='bg-gradient-to-r from-primary-500 to-primary-600 text-white uppercase text-sm font-bold px-3 py-2'
         type='submit'
       >
         Submit
