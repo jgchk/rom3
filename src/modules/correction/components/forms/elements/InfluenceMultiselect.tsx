@@ -79,24 +79,22 @@ const InfluenceMultiselect: FC<{
           !influences.some(
             (selectedInfluence) => item.id === selectedInfluence.id
           ) &&
-          item.name.toLowerCase().startsWith(inputValue.toLowerCase())
+          item.name.toLowerCase().includes(inputValue.toLowerCase())
       ),
     [data, influencedByTypes, selfId, influences, inputValue]
   )
 
   const renderOptions = useCallback(() => {
     if (!options)
-      return (
-        <div className='px-1 py-0.5 text-sm text-stone-700'>Loading...</div>
-      )
+      return <div className='px-2 py-1 text-sm text-stone-700'>Loading...</div>
 
     if (options.length === 0)
-      return <div className='px-1 py-0.5 text-sm text-stone-700'>No items</div>
+      return <div className='px-2 py-1 text-sm text-stone-700'>No items</div>
 
     return options.map((item) => (
       <li className='group hover:bg-stone-100' key={item.id}>
         <button
-          className='w-full text-left text-sm text-stone-700 px-1 py-0.5 border-b border-stone-200 group-last:border-0'
+          className='w-full text-left text-sm text-stone-700 px-2 py-1 border-b border-stone-200 group-last:border-0'
           type='button'
           onClick={() => {
             addInfluence({ id: item.id, influenceType: 'HISTORICAL' })
@@ -111,7 +109,7 @@ const InfluenceMultiselect: FC<{
 
   return (
     <div className='relative' ref={containerRef}>
-      <div className='flex border border-stone-300'>
+      <div className='flex bg-white shadow-sm border border-stone-300 focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500'>
         <div className='flex-1 flex flex-wrap gap-1 w-full p-1'>
           {influences.map((selectedItem) => (
             <SelectedInfluence
@@ -123,7 +121,7 @@ const InfluenceMultiselect: FC<{
             />
           ))}
           <input
-            className='flex-1 px-1 py-0.5 border border-transparent text-sm'
+            className='flex-1 border border-transparent focus:outline-none'
             placeholder='Search...'
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -143,7 +141,10 @@ const InfluenceMultiselect: FC<{
         </button>
       </div>
       {open && (
-        <ul className='absolute z-10 w-full bg-white border border-t-0 border-stone-300'>
+        <ul
+          className='absolute z-10 w-full bg-white border border-stone-300 shadow'
+          style={{ top: 'calc(100% - 1px)' }}
+        >
           {renderOptions()}
         </ul>
       )}

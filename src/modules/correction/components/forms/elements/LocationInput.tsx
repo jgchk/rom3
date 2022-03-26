@@ -1,7 +1,9 @@
+import clsx from 'clsx'
 import { FC, useMemo } from 'react'
 import { IoMdTrash } from 'react-icons/io'
 
 import { InferMutationInput } from '../../../../../common/utils/trpc'
+import { inputClass } from '../styles'
 
 type LocationUiState = InferMutationInput<'genres.add'>['locations'][number]
 
@@ -25,7 +27,7 @@ const LocationInput: FC<{
       {value.map((location, i) => (
         <div className='flex items-center space-x-1' key={i}>
           <input
-            className='flex-1 border border-stone-300 px-2 py-1 min-w-0'
+            className={clsx(inputClass, 'flex-1 min-w-0')}
             placeholder='City'
             value={location.city}
             onChange={(e) =>
@@ -37,7 +39,7 @@ const LocationInput: FC<{
             }
           />
           <input
-            className='flex-1 border border-stone-300 px-2 py-1 min-w-0'
+            className={clsx(inputClass, 'flex-1 min-w-0')}
             placeholder='Region'
             value={location.region}
             onChange={(e) =>
@@ -49,7 +51,7 @@ const LocationInput: FC<{
             }
           />
           <input
-            className='flex-1 border border-stone-300 px-2 py-1 min-w-0'
+            className={clsx(inputClass, 'flex-1 min-w-0')}
             placeholder='Country'
             value={location.country}
             onChange={(e) =>
@@ -61,7 +63,7 @@ const LocationInput: FC<{
             }
           />
           <button
-            className='w-8 h-8 flex items-center justify-center text-stone-500 hover:text-stone-600'
+            className='w-8 h-8 flex items-center justify-center text-stone-500 hover:text-primary-600 focus:text-primary-600 hover:bg-primary-100 focus:outline-none border border-transparent focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
             type='button'
             onClick={() => onChange(value.filter((_, j) => j !== i))}
           >

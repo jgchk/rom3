@@ -4,7 +4,8 @@ import { FC, useEffect, useState } from 'react'
 const StringArrayEditor: FC<{
   value: string[]
   onChange: (value: string[]) => void
-}> = ({ value, onChange }) => {
+  className?: string
+}> = ({ value, onChange, className }) => {
   const [strVal, setStrVal] = useState(value.join(', '))
 
   useEffect(() => {
@@ -16,7 +17,7 @@ const StringArrayEditor: FC<{
 
   return (
     <input
-      className='border border-stone-300 px-2 py-1'
+      className={className}
       value={strVal}
       onChange={(e) => setStrVal(e.target.value)}
     />
