@@ -21,28 +21,17 @@ const GenreForm: FC<{
         <label className='block'>Type</label>
         <GenreTypeSelect
           value={data.type}
-          onChange={(type) => {
-            // TODO: limit parent/influence types & location/culture fields. run conversion
-            //
-            // const [newData, dataLost] = makeUiState(val, uiState)
-            // const shouldRun = dataLost
-            //   ? confirm(
-            //       'Some data may be lost in the conversion. Are you sure you want to continue?'
-            //     )
-            //   : true
-            // if (shouldRun) setUiState(newData)
-
-            onChange((d) => ({ ...d, type }))
-          }}
+          onChange={(type) => onChange((d) => ({ ...d, type }))}
         />
       </div>
       <div>
         <label className='block'>Name *</label>
         <input
-          className='border border-gray-300'
+          className='border border-gray-300 px-2 py-1'
           value={data.name}
           onChange={(e) => onChange((d) => ({ ...d, name: e.target.value }))}
           required
+          autoFocus
         />
       </div>
       <div>
@@ -105,7 +94,7 @@ const GenreForm: FC<{
       <div>
         <label className='block'>Short Description *</label>
         <textarea
-          className='border border-gray-300 w-full'
+          className='border border-gray-300 w-full px-2 py-1'
           value={data.shortDesc}
           onChange={(e) =>
             onChange((d) => ({ ...d, shortDesc: e.target.value }))

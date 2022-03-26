@@ -16,7 +16,7 @@ const StringArrayEditor: FC<{
 
   return (
     <input
-      className='border border-gray-300'
+      className='border border-gray-300 px-2 py-1'
       value={strVal}
       onChange={(e) => setStrVal(e.target.value)}
     />

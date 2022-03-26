@@ -24,7 +24,7 @@ const LocationInput: FC<{
       {value.map((location, i) => (
         <div className='flex space-x-1' key={i}>
           <input
-            className='flex-1 border border-gray-300'
+            className='flex-1 border border-gray-300 px-2 py-1'
             placeholder='City'
             value={location.city}
             onChange={(e) =>
@@ -36,7 +36,7 @@ const LocationInput: FC<{
             }
           />
           <input
-            className='flex-1 border border-gray-300'
+            className='flex-1 border border-gray-300 px-2 py-1'
             placeholder='Region'
             value={location.region}
             onChange={(e) =>
@@ -48,7 +48,7 @@ const LocationInput: FC<{
             }
           />
           <input
-            className='flex-1 border border-gray-300'
+            className='flex-1 border border-gray-300 px-2 py-1'
             placeholder='Country'
             value={location.country}
             onChange={(e) =>

@@ -17,7 +17,7 @@ const MarkdownEditor: FC<{
     <div className='flex flex-col h-72 overflow-auto resize border border-gray-300'>
       {tab === Tab.EDIT && (
         <textarea
-          className='flex-1 resize-none'
+          className='flex-1 resize-none px-2 py-1'
           value={value}
           onChange={(e) => onChange(e.target.value)}
           style={{ flex: 1, resize: 'none' }}

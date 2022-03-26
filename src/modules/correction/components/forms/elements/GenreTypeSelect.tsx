@@ -13,13 +13,18 @@ const GenreTypeSelect: FC<{
       genreTypes.map((genreName) => ({
         key: genreName,
         value: genreName,
-        label: capitalize(genreName),
+        label: capitalize(genreName.toLowerCase()),
       })),
     []
   )
 
   return (
-    <Select value={value} onChange={(val) => onChange(val)} options={options} />
+    <Select
+      className='px-1 py-0.5 border border-gray-300 bg-gray-200'
+      value={value}
+      onChange={(val) => onChange(val)}
+      options={options}
+    />
   )
 }
 
