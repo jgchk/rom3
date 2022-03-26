@@ -60,7 +60,7 @@ const Loaded: FC<{
 
   return (
     <form
-      className='bg-white p-2 space-y-2'
+      className='bg-white p-6 border border-stone-300 space-y-2'
       onSubmit={(e) => {
         e.preventDefault()
         handleUpdate(name.length === 0 ? undefined : name)

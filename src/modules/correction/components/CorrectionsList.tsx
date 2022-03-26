@@ -27,7 +27,7 @@ const CorrectionsList: FC = () => {
   const renderCreateButton = useCallback(
     () => (
       <button
-        className='border border-stone-300 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'
+        className='border border-stone-300 bg-white shadow-sm px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'
         type='button'
         onClick={() => setShowNameDialog(true)}
       >
@@ -94,7 +94,7 @@ const Correction: FC<{ correction: CorrectionApiOutput }> = ({
 
   return (
     <>
-      <li className='border border-stone-300'>
+      <li className='border border-stone-300 bg-white shadow-sm'>
         <Link href={`/corrections/${correction.id}/edit/tree`}>
           <a className='font-bold text-lg hover:underline px-2 py-1'>
             {correction.name ?? defaultCorrectionName}

@@ -1,6 +1,7 @@
-import clsx from 'clsx'
 import { Dispatch, FC, SetStateAction } from 'react'
 
+import Input from '../../../../common/components/Input'
+import TextArea from '../../../../common/components/TextArea'
 import { genreInfluencedByTypes } from '../../../../common/model/influences'
 import { genreParentTypes } from '../../../../common/model/parents'
 import { GenreApiInput } from '../../../server/routers/genres'
@@ -10,7 +11,6 @@ import LocationInput from './elements/LocationInput'
 import MarkdownEditor from './elements/MarkdownEditor'
 import ParentMultiselect from './elements/ParentMultiselect'
 import StringArrayEditor from './elements/StringArrayEditor'
-import { inputClass } from './styles'
 
 const labelClassname = 'block text-sm font-medium text-stone-700'
 
@@ -39,8 +39,7 @@ const GenreForm: FC<{
     </div>
     <div>
       <label className={labelClassname}>Name *</label>
-      <input
-        className={inputClass}
+      <Input
         value={data.name}
         onChange={(e) => onChange((d) => ({ ...d, name: e.target.value }))}
         required
@@ -51,7 +50,6 @@ const GenreForm: FC<{
       <label className={labelClassname}>Alternate Names</label>
       <label className={smallLabelClassname}>comma-separated list</label>
       <StringArrayEditor
-        className={inputClass}
         value={data.alternateNames}
         onChange={(alternateNames) =>
           onChange((d) => ({ ...d, alternateNames }))
@@ -93,7 +91,6 @@ const GenreForm: FC<{
           <label className={labelClassname}>Cultures</label>
           <label className={smallLabelClassname}>comma-separated list</label>
           <StringArrayEditor
-            className={inputClass}
             value={data.cultures}
             onChange={(cultures) => onChange((d) => ({ ...d, cultures }))}
           />
@@ -102,8 +99,8 @@ const GenreForm: FC<{
     )}
     <div>
       <label className={labelClassname}>Short Description *</label>
-      <textarea
-        className={clsx(inputClass, 'w-full')}
+      <TextArea
+        className='w-full'
         value={data.shortDesc}
         onChange={(e) => onChange((d) => ({ ...d, shortDesc: e.target.value }))}
         required

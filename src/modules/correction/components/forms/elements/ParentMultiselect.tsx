@@ -89,7 +89,7 @@ const ParentMultiselect: FC<{
 
   return (
     <div className='relative' ref={containerRef}>
-      <div className='flex bg-white shadow-sm border border-stone-300 focus-within:border-primary-500 focus-within:ring-1 focus-within:ring-primary-500'>
+      <div className='flex bg-white shadow-sm border border-stone-300 focus-within:border-primary-500 ring-0 focus-within:ring-1 focus-within:ring-primary-500 transition'>
         <div className='flex-1 flex flex-wrap gap-1 w-full p-1'>
           {parents.map((selectedItem) => (
             <SelectedParent

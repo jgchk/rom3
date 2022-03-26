@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { FC, useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
 
+import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import { genreTypes } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
 import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
@@ -94,73 +95,60 @@ const Node: FC<{ id: number }> = ({ id }) => {
     [correctionId, id, mutate]
   )
 
-  const color = useMemo(() => {
-    switch (genre.type) {
-      case 'META':
-        return 'text-orange-600'
-      case 'SCENE':
-        return 'text-teal-600'
-      case 'STYLE':
-        return 'text-blue-600'
-      case 'TREND':
-        return 'text-fuchsia-600'
-    }
-  }, [genre.type])
+  const color = useGenreTypeColor(genre.type)
 
   return (
     <div>
       <div className='border border-stone-300 bg-white shadow-sm'>
-        <div>
-          <div className='p-2'>
-            <div className={clsx('text-xs font-bold', color)}>{genre.type}</div>
-            <div className='text-lg font-medium mt-0.5'>
-              <Link
-                href={{
-                  pathname: `/corrections/${correctionId}/edit/genres/edit`,
-                  query: { genreId: id },
-                }}
-              >
-                <a className='hover:underline'>{genre.name}</a>
-              </Link>
-            </div>
-            <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
+        <div className='p-2'>
+          <div className={clsx('text-xs font-bold', color)}>{genre.type}</div>
+          <div className='text-lg font-medium mt-0.5'>
+            <Link
+              href={{
+                pathname: `/corrections/${correctionId}/edit/genres/edit`,
+                query: { genreId: id },
+              }}
+            >
+              <a className='hover:underline'>{genre.name}</a>
+            </Link>
           </div>
-          <div className='flex justify-between border-t border-stone-200'>
-            <div className='flex'>
+          <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
+        </div>
+        <div className='flex justify-between border-t border-stone-200'>
+          <div className='flex'>
+            <Link
+              href={{
+                pathname: `/corrections/${correctionId}/edit/genres/edit`,
+                query: { genreId: id },
+              }}
+            >
+              <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
+                Edit
+              </a>
+            </Link>
+            {childTypes.map((childType) => (
               <Link
+                key={childType}
                 href={{
-                  pathname: `/corrections/${correctionId}/edit/genres/edit`,
-                  query: { genreId: id },
+                  pathname: `/corrections/${correctionId}/edit/genres/create`,
+                  query: {
+                    type: childType,
+                    parentId: id,
+                  },
                 }}
               >
                 <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-                  Edit
+                  Add Child {capitalize(childType)}
                 </a>
               </Link>
-              {childTypes.map((childType) => (
-                <Link
-                  key={childType}
-                  href={{
-                    pathname: `/corrections/${correctionId}/edit/genres/create`,
-                    query: {
-                      type: childType,
-                      parentId: id,
-                    },
-                  }}
-                >
-                  <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-                    Add Child {capitalize(childType)}
-                  </a>
-                </Link>
-              ))}
-            </div>
-            <button
-              className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
-              onClick={() => handleDelete()}
-            >
-              Delete
-            </button>
+            ))}
           </div>
+          <button
+            className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
+            onClick={() => handleDelete()}
+          >
+            Delete
+          </button>
         </div>
       </div>
       {children.length > 0 && (

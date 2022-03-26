@@ -7,7 +7,7 @@ const Navbar: FC = () => {
   const router = useRouter()
 
   return (
-    <nav className='flex justify-center bg-stone-100 px-2 h-10 shadow z-10'>
+    <nav className='flex justify-center px-2 h-10 z-10'>
       <div className='flex-1 max-w-screen-lg flex items-center space-x-4'>
         <div className='font-mackinac font-bold text-2xl'>Romulus</div>
         <div className='h-full flex'>
