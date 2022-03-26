@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { FC, useCallback } from 'react'
+import { FC, useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
+import { RiArrowRightSLine } from 'react-icons/ri'
 
 import { GenreApiOutput } from '../../../common/model'
 import {
@@ -70,19 +71,23 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
 
   return (
     <li className='border border-gray-300'>
-      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-semibold text-white bg-green-600'>
+      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-bold text-white bg-green-600'>
         Create
       </div>
-      <Link
-        href={{
-          pathname: `/corrections/${correctionId}/edit/genres/edit`,
-          query: { genreId: genre.id },
-        }}
-      >
-        <a className='font-bold text-lg hover:underline px-2 py-1'>
-          {genre.name}
-        </a>
-      </Link>
+      <div className='p-2'>
+        <div className='text-xs font-semibold text-gray-500'>{genre.type}</div>
+        <div className='text-lg font-medium mt-0.5'>
+          <Link
+            href={{
+              pathname: `/corrections/${correctionId}/edit/genres/edit`,
+              query: { genreId: genre.id },
+            }}
+          >
+            <a className='hover:underline'>{genre.name}</a>
+          </Link>
+        </div>
+        <div className='text-sm text-gray-700 mt-1'>{genre.shortDesc}</div>
+      </div>
       <div className='flex justify-between border-t border-gray-200'>
         <Link
           href={{
@@ -128,29 +133,67 @@ const EditItem: FC<{
     )
   }, [correctionId, mutate, updatedGenre.id])
 
-  const renderName = useCallback(
-    () =>
-      targetGenre.name !== updatedGenre.name
-        ? `${targetGenre.name} -> ${updatedGenre.name}`
-        : updatedGenre.name,
-    [targetGenre.name, updatedGenre.name]
-  )
+  const type = useMemo(() => {
+    if (targetGenre.type !== updatedGenre.type) {
+      return (
+        <div className='flex items-center space-x-1'>
+          <div className='line-through'>{targetGenre.type}</div>
+          <RiArrowRightSLine />
+          <div>{updatedGenre.type}</div>
+        </div>
+      )
+    }
+
+    return updatedGenre.type
+  }, [targetGenre.type, updatedGenre.type])
+
+  const name = useMemo(() => {
+    if (targetGenre.name !== updatedGenre.name) {
+      return (
+        <div className='flex items-center space-x-1'>
+          <div className='line-through'>{targetGenre.name}</div>
+          <RiArrowRightSLine />
+          <div>{updatedGenre.name}</div>
+        </div>
+      )
+    }
+
+    return updatedGenre.name
+  }, [targetGenre.name, updatedGenre.name])
+
+  const shortDesc = useMemo(() => {
+    if (targetGenre.shortDesc !== updatedGenre.shortDesc) {
+      return (
+        <div className='flex items-center space-x-1'>
+          <div className='line-through'>{targetGenre.shortDesc}</div>
+          <RiArrowRightSLine />
+          <div>{updatedGenre.shortDesc}</div>
+        </div>
+      )
+    }
+
+    return updatedGenre.shortDesc
+  }, [targetGenre.shortDesc, updatedGenre.shortDesc])
 
   return (
     <li className='border border-gray-300'>
-      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-semibold text-white bg-blue-600'>
+      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-bold text-white bg-blue-600'>
         Edit
       </div>
-      <Link
-        href={{
-          pathname: `/corrections/${correctionId}/edit/genres/edit`,
-          query: { genreId: targetGenre.id },
-        }}
-      >
-        <a className='font-bold text-lg hover:underline px-2 py-1'>
-          {renderName()}
-        </a>
-      </Link>
+      <div className='p-2'>
+        <div className={'text-xs font-semibold text-gray-500'}>{type}</div>
+        <div className='text-lg font-medium mt-0.5'>
+          <Link
+            href={{
+              pathname: `/corrections/${correctionId}/edit/genres/edit`,
+              query: { genreId: targetGenre.id },
+            }}
+          >
+            <a className='hover:underline'>{name}</a>
+          </Link>
+        </div>
+        <div className='text-sm text-gray-700 mt-1'>{shortDesc}</div>
+      </div>
       <div className='flex justify-between border-t border-gray-200'>
         <Link
           href={{
@@ -195,10 +238,20 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
 
   return (
     <li className='border border-gray-300'>
-      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-semibold text-white bg-red-600'>
+      <div className='border-b border-gray-200 px-2 py-1 uppercase text-xs font-bold text-white bg-red-600'>
         Delete
       </div>
-      <div className='font-medium text-lg px-2'>{genre.name}</div>
+      <div className='p-2'>
+        <div className='text-xs font-semibold text-gray-500 line-through'>
+          {genre.type}
+        </div>
+        <div className='text-lg font-medium mt-0.5 line-through'>
+          {genre.name}
+        </div>
+        <div className='text-sm text-gray-700 mt-1 line-through'>
+          {genre.shortDesc}
+        </div>
+      </div>
       <div className='flex justify-end border-t border-gray-200'>
         <button
           className='border-l border-gray-200 px-2 py-1 uppercase text-xs font-medium text-gray-400 hover:bg-gray-100 -ml-px'

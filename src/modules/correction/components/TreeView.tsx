@@ -111,7 +111,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
     <div>
       <div className='border border-gray-300'>
         <div>
-          <div className='px-2 py-2'>
+          <div className='p-2'>
             <div className={clsx('text-xs font-bold', color)}>{genre.type}</div>
             <div className='text-lg font-medium mt-0.5'>
               <Link
