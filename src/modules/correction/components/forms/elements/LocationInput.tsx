@@ -1,4 +1,5 @@
 import { FC, useMemo } from 'react'
+import { IoMdTrash } from 'react-icons/io'
 
 import { InferMutationInput } from '../../../../../common/utils/trpc'
 
@@ -20,11 +21,11 @@ const LocationInput: FC<{
   )
 
   return (
-    <div>
+    <div className='space-y-1'>
       {value.map((location, i) => (
-        <div className='flex space-x-1' key={i}>
+        <div className='flex items-center space-x-1' key={i}>
           <input
-            className='flex-1 border border-gray-300 px-2 py-1'
+            className='flex-1 border border-gray-300 px-2 py-1 min-w-0'
             placeholder='City'
             value={location.city}
             onChange={(e) =>
@@ -36,7 +37,7 @@ const LocationInput: FC<{
             }
           />
           <input
-            className='flex-1 border border-gray-300 px-2 py-1'
+            className='flex-1 border border-gray-300 px-2 py-1 min-w-0'
             placeholder='Region'
             value={location.region}
             onChange={(e) =>
@@ -48,7 +49,7 @@ const LocationInput: FC<{
             }
           />
           <input
-            className='flex-1 border border-gray-300 px-2 py-1'
+            className='flex-1 border border-gray-300 px-2 py-1 min-w-0'
             placeholder='Country'
             value={location.country}
             onChange={(e) =>
@@ -60,25 +61,21 @@ const LocationInput: FC<{
             }
           />
           <button
+            className='w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-600'
             type='button'
             onClick={() => onChange(value.filter((_, j) => j !== i))}
           >
-            -
-          </button>
-          <button
-            type='button'
-            onClick={() => {
-              onChange([
-                ...value.slice(0, i + 1),
-                makeLocation(),
-                ...value.slice(i + 1),
-              ])
-            }}
-          >
-            +
+            <IoMdTrash />
           </button>
         </div>
       ))}
+      <button
+        className='px-2 py-1 text-sm uppercase font-bold text-gray-500 hover:text-gray-600'
+        type='button'
+        onClick={() => onChange([...value, makeLocation()])}
+      >
+        Add New
+      </button>
     </div>
   )
 }
