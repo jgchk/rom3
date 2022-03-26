@@ -3,6 +3,7 @@ import { FC, useMemo } from 'react'
 import Select from '../../../../../common/components/Select'
 import { GenreType, genreTypes } from '../../../../../common/model'
 import { capitalize } from '../../../../../common/utils/string'
+import { inputClass } from '../styles'
 
 const GenreTypeSelect: FC<{
   value: GenreType
@@ -20,7 +21,7 @@ const GenreTypeSelect: FC<{
 
   return (
     <Select
-      className='px-1 py-0.5 border border-stone-300 bg-stone-200'
+      className={inputClass}
       value={value}
       onChange={(val) => onChange(val)}
       options={options}

@@ -11,7 +11,7 @@ import { trpcPath, trpcUrl } from '../common/utils/trpc'
 import { AppRouter } from '../modules/server/routers/_app'
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
-  <div className='w-screen h-screen flex flex-col bg-stone-100'>
+  <div className='w-screen h-screen flex flex-col bg-stone-200'>
     <Navbar />
     <div className='flex-1 overflow-auto'>
       <ErrorBoundary>

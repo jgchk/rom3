@@ -70,7 +70,7 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   }, [correctionId, genre.id, mutate])
 
   return (
-    <li className='border border-stone-300'>
+    <li className='border border-stone-300 bg-white shadow-sm'>
       <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-green-600'>
         Create
       </div>
@@ -176,7 +176,7 @@ const EditItem: FC<{
   }, [targetGenre.shortDesc, updatedGenre.shortDesc])
 
   return (
-    <li className='border border-stone-300'>
+    <li className='border border-stone-300 bg-white shadow-sm'>
       <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-blue-600'>
         Edit
       </div>
@@ -237,7 +237,7 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   }, [correctionId, genre.id, mutate])
 
   return (
-    <li className='border border-stone-300'>
+    <li className='border border-stone-300 bg-white shadow-sm'>
       <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-red-600'>
         Delete
       </div>
