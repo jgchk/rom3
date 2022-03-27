@@ -11,7 +11,6 @@ import {
   useUpdateCorrectionNameMutation,
 } from '../../../common/services/corrections'
 import { trpcClient } from '../../../common/utils/trpc'
-import { defaultCorrectionName } from '../constants'
 
 const UpdateNameDialog: FC<{
   id: number
@@ -48,10 +47,7 @@ const Loaded: FC<{
       mutate(
         { id, name },
         {
-          onSuccess: (res) => {
-            toast.success(
-              `Renamed correction to ${res.name ?? defaultCorrectionName}`
-            )
+          onSuccess: () => {
             onClose()
           },
           onError: (error) => {
