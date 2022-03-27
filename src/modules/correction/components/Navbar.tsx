@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
-import { RiEditFill } from 'react-icons/ri'
 
 import {
   useCorrectionQuery,
@@ -76,13 +75,6 @@ const Navbar: FC = () => {
               <div className='font-mackinac font-extrabold text-xl'>
                 {renderCorrectionName()}
               </div>
-              <button
-                className='rounded-full w-6 h-6 flex items-center justify-center hover:bg-primary-700'
-                onClick={() => setShowNameDialog(true)}
-                disabled={showNameDialog}
-              >
-                <RiEditFill />
-              </button>
             </div>
             <Link href={`/corrections/${id}/edit/tree`}>
               <a
@@ -110,6 +102,13 @@ const Navbar: FC = () => {
             </Link>
           </div>
           <div className='flex'>
+            <button
+              className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
+              onClick={() => setShowNameDialog(true)}
+              disabled={showNameDialog}
+            >
+              Rename
+            </button>
             <button
               className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
               onClick={() => handleDeleteCorrection()}
