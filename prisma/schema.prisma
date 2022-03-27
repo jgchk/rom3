@@ -109,6 +109,9 @@ model Correction {
   id   Int     @id @default(autoincrement())
   name String? @db.VarChar(255)
 
+  creator   Account @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  creatorId Int
+
   create GenreCreate[]
   edit   GenreEdit[]
   delete GenreDelete[]
@@ -151,4 +154,6 @@ model Account {
   id       Int    @id @default(autoincrement())
   username String @unique
   password String
+
+  corrections Correction[]
 }
