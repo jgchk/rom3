@@ -62,7 +62,7 @@ const LocationInput: FC<{
             }
           />
           <button
-            className='w-8 h-8 flex items-center justify-center text-stone-500 hover:text-primary-600 focus:text-primary-600 focus:outline-none border border-transparent focus:border-primary-500 focus:ring-1 focus:ring-primary-500'
+            className='w-8 h-8 flex items-center justify-center text-stone-500 hover:text-primary-600 focus:text-primary-600 focus:outline-none border border-transparent focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition'
             type='button'
             onClick={() => onChange(value.filter((_, j) => j !== i))}
           >
@@ -71,7 +71,7 @@ const LocationInput: FC<{
         </div>
       ))}
       <button
-        className='px-2 py-1 text-sm uppercase font-bold text-stone-500 hover:text-stone-600'
+        className='px-2 py-1 text-sm uppercase font-bold text-stone-500 hover:text-primary-600 focus:text-primary-600 focus:outline-none border border-transparent focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition'
         type='button'
         onClick={() => onChange([...value, makeLocation()])}
       >
