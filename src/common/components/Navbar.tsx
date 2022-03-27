@@ -15,7 +15,7 @@ const Navbar: FC = () => {
         <Link href='/genres/tree'>
           <a
             className={clsx(
-              'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-800 border-b-2',
+              'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
               router.pathname === '/genres/tree'
                 ? 'border-primary-500'
                 : 'border-transparent'
@@ -27,7 +27,7 @@ const Navbar: FC = () => {
         <Link href='/corrections'>
           <a
             className={clsx(
-              'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-800 border-b-2',
+              'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
               router.pathname === '/corrections'
                 ? 'border-primary-500'
                 : 'border-transparent'
