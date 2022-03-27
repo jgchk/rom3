@@ -1,13 +1,94 @@
 import { NextPage } from 'next'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { FC, useCallback, useState } from 'react'
+import toast from 'react-hot-toast'
+
+import { useLoginMutation, useRegisterMutation } from '../common/services/auth'
 
 const Home: NextPage = () => {
-  const router = useRouter()
-
-  useEffect(() => void router.push('/genres/tree'), [router])
-
-  return <div />
+  return (
+    <div>
+      <Register />
+      <Login />
+    </div>
+  )
 }
 
 export default Home
+
+const Register: FC = () => {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
+  const { mutate, isLoading } = useRegisterMutation()
+  const handleRegister = useCallback(
+    () =>
+      mutate(
+        { username, password },
+        {
+          onSuccess: (res) => {
+            toast.success(`Created account ${res.account.username}`)
+            console.log(res)
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [mutate, password, username]
+  )
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+      }}
+    >
+      <input value={username} onChange={(e) => setUsername(e.target.value)} />
+      <input value={password} onChange={(e) => setPassword(e.target.value)} />
+      <button
+        type='submit'
+        onClick={() => handleRegister()}
+        disabled={isLoading}
+      >
+        Register
+      </button>
+    </form>
+  )
+}
+
+const Login: FC = () => {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
+  const { mutate, isLoading } = useLoginMutation()
+  const handleLogin = useCallback(
+    () =>
+      mutate(
+        { username, password },
+        {
+          onSuccess: (res) => {
+            toast.success(`Logged in ${res.account.username}`)
+            console.log(res)
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [mutate, password, username]
+  )
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+      }}
+    >
+      <input value={username} onChange={(e) => setUsername(e.target.value)} />
+      <input value={password} onChange={(e) => setPassword(e.target.value)} />
+      <button type='submit' onClick={() => handleLogin()} disabled={isLoading}>
+        Login
+      </button>
+    </form>
+  )
+}

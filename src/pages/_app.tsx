@@ -23,6 +23,15 @@ const MyApp = ({ Component, pageProps }: AppProps) => (
 )
 
 export default withTRPC<AppRouter>({
-  config: () => (isBrowser ? { url: trpcPath } : { url: trpcUrl }),
+  config: () =>
+    isBrowser
+      ? {
+          url: trpcPath,
+          headers: () => {
+            const token = localStorage.getItem('token')
+            return token ? { Authorization: `Bearer ${token}` } : {}
+          },
+        }
+      : { url: trpcUrl },
   ssr: true,
 })(MyApp)

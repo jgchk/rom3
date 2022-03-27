@@ -146,3 +146,9 @@ model GenreDelete {
 
   @@id([correctionId, targetGenreId])
 }
+
+model Account {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+}
