@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 import createRouter from '../createRouter'
 import prisma from '../prisma'
-import { signToken } from '../utils/jwt'
+import { createAuthToken } from '../utils/auth'
 
 type AccountApiOutput = Omit<Account, 'password'>
 
@@ -28,7 +28,7 @@ const authRouter = createRouter()
       })
       return {
         account: toAccountApiOutput(account),
-        token: signToken(account),
+        token: createAuthToken(account.id),
       }
     },
   })
@@ -57,8 +57,21 @@ const authRouter = createRouter()
 
       return {
         account: toAccountApiOutput(account),
-        token: signToken(account),
+        token: createAuthToken(account.id),
       }
+    },
+  })
+  .query('whoami', {
+    resolve: async ({ ctx }) => {
+      if (ctx.accountId === undefined) return null
+
+      const account = await prisma.account.findUnique({
+        where: { id: ctx.accountId },
+      })
+
+      if (account === null) return null
+
+      return toAccountApiOutput(account)
     },
   })
 

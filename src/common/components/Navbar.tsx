@@ -1,10 +1,18 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC } from 'react'
+import { FC, useMemo } from 'react'
+
+import { useWhoamiQuery } from '../services/auth'
 
 const Navbar: FC = () => {
   const router = useRouter()
+
+  const { data } = useWhoamiQuery()
+  const username = useMemo(
+    () => data?.username ?? 'Loading...',
+    [data?.username]
+  )
 
   return (
     <nav className='flex justify-center px-2 h-10 z-10 bg-stone-300 shadow'>
@@ -36,6 +44,8 @@ const Navbar: FC = () => {
             Corrections
           </a>
         </Link>
+        <div className='flex-1' />
+        <div className='text-sm font-semibold text-stone-800'>{username}</div>
       </div>
     </nav>
   )

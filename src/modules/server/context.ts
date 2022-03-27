@@ -1,25 +1,21 @@
 import { inferAsyncReturnType } from '@trpc/server'
 import { CreateNextContextOptions } from '@trpc/server/adapters/next'
 
-import { verifyToken } from './utils/jwt'
+import { parseAuthToken } from './utils/auth'
 
 export const createContext = ({ req }: CreateNextContextOptions) => {
-  console.log('CONTEXT', req.headers)
-
   const getAccountFromHeader = () => {
     if (!req.headers.authorization) return
 
     const token = req.headers.authorization.split(' ')[1]
     if (!token) return
 
-    const account = verifyToken(token)
-    console.log(account)
-    return account
+    return parseAuthToken(token)
   }
 
-  const user = getAccountFromHeader()
+  const accountId = getAccountFromHeader()
 
-  return { user }
+  return { accountId }
 }
 
 export type Context = inferAsyncReturnType<typeof createContext>
