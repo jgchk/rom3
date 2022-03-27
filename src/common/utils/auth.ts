@@ -1,7 +1,9 @@
-const tokenKey = 'token'
+import cookies from 'js-cookie'
 
-export const getToken = () => localStorage.getItem(tokenKey) ?? undefined
+export const tokenKey = 'token'
 
-export const setToken = (token: string) => localStorage.setItem(tokenKey, token)
+export const getToken = () => cookies.get(tokenKey)
 
-export const clearToken = () => localStorage.removeItem(tokenKey)
+export const setToken = (token: string) => cookies.set(tokenKey, token)
+
+export const clearToken = () => cookies.remove(tokenKey)

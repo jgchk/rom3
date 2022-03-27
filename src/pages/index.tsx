@@ -27,7 +27,6 @@ const Register: FC = () => {
         {
           onSuccess: (res) => {
             toast.success(`Created account ${res.account.username}`)
-            console.log(res)
           },
           onError: (error) => {
             toast.error(error.message)
@@ -68,7 +67,6 @@ const Login: FC = () => {
         {
           onSuccess: (res) => {
             toast.success(`Logged in ${res.account.username}`)
-            console.log(res)
           },
           onError: (error) => {
             toast.error(error.message)

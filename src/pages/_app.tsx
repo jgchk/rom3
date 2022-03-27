@@ -1,12 +1,13 @@
 import '../common/styles/globals.css'
 
 import { withTRPC } from '@trpc/next'
+import cookies from 'cookie'
 import type { AppProps } from 'next/app'
 import { Toaster } from 'react-hot-toast'
 
 import ErrorBoundary from '../common/components/ErrorBoundary'
 import Navbar from '../common/components/Navbar'
-import { getToken } from '../common/utils/auth'
+import { tokenKey } from '../common/utils/auth'
 import { isBrowser } from '../common/utils/ssr'
 import { trpcPath, trpcUrl } from '../common/utils/trpc'
 import { AppRouter } from '../modules/server/routers/_app'
@@ -24,15 +25,26 @@ const MyApp = ({ Component, pageProps }: AppProps) => (
 )
 
 export default withTRPC<AppRouter>({
-  config: () =>
+  config: ({ ctx }) =>
     isBrowser
-      ? {
-          url: trpcPath,
+      ? { url: trpcPath }
+      : {
+          url: trpcUrl,
           headers: () => {
-            const token = getToken()
-            return token ? { Authorization: `Bearer ${token}` } : {}
+            // tRPC context does not receive cookies when using SSR, but it does receive headers.
+            // Here we forward the token cookie through the Authorization header so the tRPC context
+            // can receive it.
+
+            const cookieStr = ctx?.req?.headers.cookie
+
+            if (cookieStr) {
+              const cookie = cookies.parse(cookieStr)
+              const token = cookie[tokenKey]
+              return token ? { Authorization: `Bearer ${token}` } : {}
+            }
+
+            return {}
           },
-        }
-      : { url: trpcUrl },
+        },
   ssr: true,
 })(MyApp)

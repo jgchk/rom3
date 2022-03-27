@@ -15,61 +15,64 @@ const toAccountApiOutput = (account: Account): AccountApiOutput => {
   return data
 }
 
+export const LoginApiInput = z.object({
+  username: z.string().min(1),
+  password: z.string().min(1),
+})
+
+export const register = async (input: {
+  username: string
+  password: string
+}) => {
+  const password = await bcrypt.hash(input.password, 8)
+  const account = await prisma.account.create({
+    data: { username: input.username, password },
+  })
+  return {
+    account: toAccountApiOutput(account),
+    token: createAuthToken(account.id),
+  }
+}
+
+export const login = async (input: { username: string; password: string }) => {
+  const account = await prisma.account.findUnique({
+    where: { username: input.username },
+  })
+
+  if (!account) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' })
+  }
+
+  const checkPassword = await bcrypt.compare(input.password, account.password)
+
+  if (!checkPassword) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' })
+  }
+
+  return {
+    account: toAccountApiOutput(account),
+    token: createAuthToken(account.id),
+  }
+}
+
 const authRouter = createRouter()
   .mutation('register', {
-    input: z.object({
-      username: z.string().min(1),
-      password: z.string().min(1),
-    }),
-    resolve: async ({ input }) => {
-      const password = await bcrypt.hash(input.password, 8)
-      const account = await prisma.account.create({
-        data: { username: input.username, password },
-      })
-      return {
-        account: toAccountApiOutput(account),
-        token: createAuthToken(account.id),
-      }
-    },
+    input: LoginApiInput,
+    resolve: async ({ input }) => register(input),
   })
   .mutation('login', {
-    input: z.object({
-      username: z.string().min(1),
-      password: z.string().min(1),
-    }),
-    resolve: async ({ input }) => {
-      const account = await prisma.account.findUnique({
-        where: { username: input.username },
-      })
-
-      if (!account) {
-        throw new TRPCError({ code: 'UNAUTHORIZED' })
-      }
-
-      const checkPassword = await bcrypt.compare(
-        input.password,
-        account.password
-      )
-
-      if (!checkPassword) {
-        throw new TRPCError({ code: 'UNAUTHORIZED' })
-      }
-
-      return {
-        account: toAccountApiOutput(account),
-        token: createAuthToken(account.id),
-      }
-    },
+    input: LoginApiInput,
+    resolve: async ({ input }) => login(input),
   })
   .query('whoami', {
     resolve: async ({ ctx }) => {
-      if (ctx.accountId === undefined) return null
+      if (ctx.accountId === undefined) return 'LOGGED_OUT' as const
 
       const account = await prisma.account.findUnique({
         where: { id: ctx.accountId },
       })
 
-      if (account === null) return null
+      if (account === null) return 'LOGGED_OUT' as const
 
       return toAccountApiOutput(account)
     },

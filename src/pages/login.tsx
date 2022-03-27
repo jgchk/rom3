@@ -6,7 +6,8 @@ import toast from 'react-hot-toast'
 import ButtonPrimary from '../common/components/ButtonPrimary'
 import Input from '../common/components/Input'
 import Label from '../common/components/Label'
-import { useLoginMutation, useWhoamiQuery } from '../common/services/auth'
+import useLoggedInQuery from '../common/hooks/useLoggedInQuery'
+import { useLoginMutation } from '../common/services/auth'
 import { getFirstOrValue } from '../common/utils/array'
 
 const Login: NextPage = () => {
@@ -31,7 +32,7 @@ const Login: NextPage = () => {
     [mutate, password, username]
   )
 
-  const { data } = useWhoamiQuery()
+  const { data } = useLoggedInQuery()
   useEffect(() => {
     if (data) {
       // user is logged in. redirect

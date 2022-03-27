@@ -3,12 +3,15 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 
+import useLoggedInQuery from '../hooks/useLoggedInQuery'
 import { useWhoamiQuery } from '../services/auth'
 import { clearToken } from '../utils/auth'
 import trpc from '../utils/trpc'
 
 const Navbar: FC = () => {
   const router = useRouter()
+
+  const { data: loggedIn } = useLoggedInQuery()
 
   return (
     <nav className='flex justify-center px-2 h-10 z-10 bg-stone-300 shadow'>
@@ -28,18 +31,20 @@ const Navbar: FC = () => {
             Genre Tree
           </a>
         </Link>
-        <Link href='/corrections'>
-          <a
-            className={clsx(
-              'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
-              router.pathname === '/corrections'
-                ? 'border-primary-500'
-                : 'border-transparent'
-            )}
-          >
-            Corrections
-          </a>
-        </Link>
+        {loggedIn && (
+          <Link href='/corrections'>
+            <a
+              className={clsx(
+                'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
+                router.pathname === '/corrections'
+                  ? 'border-primary-500'
+                  : 'border-transparent'
+              )}
+            >
+              Corrections
+            </a>
+          </Link>
+        )}
         <div className='flex-1' />
         <Account />
       </div>
@@ -50,7 +55,7 @@ const Navbar: FC = () => {
 export default Navbar
 
 const Account: FC = () => {
-  const { asPath, query } = useRouter()
+  const { asPath, query, pathname } = useRouter()
 
   const { data } = useWhoamiQuery()
 
@@ -59,20 +64,34 @@ const Account: FC = () => {
     return from === '/login' || from === '/register' ? undefined : from
   }, [asPath, query.from])
 
-  if (data === undefined) {
+  if (!data) {
     return <div>Loading...</div>
   }
 
-  if (data === null) {
+  if (data === 'LOGGED_OUT') {
     return (
       <>
         <Link href={{ pathname: '/login', query: from ? { from } : {} }}>
-          <a className='px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2 border-transparent'>
+          <a
+            className={clsx(
+              'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
+              pathname === '/login'
+                ? 'border-primary-500'
+                : 'border-transparent'
+            )}
+          >
             Login
           </a>
         </Link>
         <Link href={{ pathname: '/register', query: from ? { from } : {} }}>
-          <a className='px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2 border-transparent'>
+          <a
+            className={clsx(
+              'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
+              pathname === '/register'
+                ? 'border-primary-500'
+                : 'border-transparent'
+            )}
+          >
             Register
           </a>
         </Link>
