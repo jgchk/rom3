@@ -51,9 +51,12 @@ const toCorrectionApiOutput = (
   delete: correction.delete.map((d) => toGenreApiOutput(d.targetGenre)),
 })
 
-const addCorrection = async (name?: string): Promise<CorrectionApiOutput> => {
+const addCorrection = async (
+  creatorId: number,
+  name?: string
+): Promise<CorrectionApiOutput> => {
   const correction = await prisma.correction.create({
-    data: { name },
+    data: { creatorId, name },
     include: correctionInclude,
   })
   return toCorrectionApiOutput(correction)
@@ -377,7 +380,17 @@ const mergeCorrection = async (id: number) => {
 const correctionsRouter = createRouter()
   .mutation('add', {
     input: z.object({ name: z.string().min(1).optional() }),
-    resolve: ({ input }) => addCorrection(input.name),
+    resolve: ({ input, ctx }) => {
+      const accountId = ctx.accountId
+
+      if (accountId === undefined)
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'You must be logged in to create a correction',
+        })
+
+      return addCorrection(accountId, input.name)
+    },
   })
   .query('all', {
     resolve: async () => getCorrections(),

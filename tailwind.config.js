@@ -1,4 +1,5 @@
 const colors = require('tailwindcss/colors')
+const defaultTheme = require('tailwindcss/defaultTheme')
 
 module.exports = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
@@ -8,6 +9,7 @@ module.exports = {
         primary: colors.blue,
       },
       fontFamily: {
+        sans: ['Open Sans', ...defaultTheme.fontFamily.sans],
         mackinac: ['P22 Mackinac', 'serif'],
       },
       backgroundImage: {

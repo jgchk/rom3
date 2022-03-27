@@ -23,3 +23,12 @@
   src: url('/fonts/P22Mackinac/P22Mackinac-ExtraBold.otf');
   font-display: swap;
 }
+
+@font-face {
+  font-weight: 300 800;
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-stretch: 75% 100%;
+  src: url('/fonts/OpenSans/OpenSans-VariableFont_wdth,wght.ttf');
+  font-display: swap;
+}

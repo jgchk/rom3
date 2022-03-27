@@ -1,18 +1,14 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useMemo } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 
 import { useWhoamiQuery } from '../services/auth'
+import { clearToken } from '../utils/auth'
+import trpc from '../utils/trpc'
 
 const Navbar: FC = () => {
   const router = useRouter()
-
-  const { data } = useWhoamiQuery()
-  const username = useMemo(
-    () => data?.username ?? 'Loading...',
-    [data?.username]
-  )
 
   return (
     <nav className='flex justify-center px-2 h-10 z-10 bg-stone-300 shadow'>
@@ -45,10 +41,65 @@ const Navbar: FC = () => {
           </a>
         </Link>
         <div className='flex-1' />
-        <div className='text-sm font-semibold text-stone-800'>{username}</div>
+        <Account />
       </div>
     </nav>
   )
 }
 
 export default Navbar
+
+const Account: FC = () => {
+  const { asPath, query } = useRouter()
+
+  const { data } = useWhoamiQuery()
+
+  const from = useMemo(() => {
+    const from = query.from ?? asPath
+    return from === '/login' || from === '/register' ? undefined : from
+  }, [asPath, query.from])
+
+  if (data === undefined) {
+    return <div>Loading...</div>
+  }
+
+  if (data === null) {
+    return (
+      <>
+        <Link href={{ pathname: '/login', query: from ? { from } : {} }}>
+          <a className='px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2 border-transparent'>
+            Login
+          </a>
+        </Link>
+        <Link href={{ pathname: '/register', query: from ? { from } : {} }}>
+          <a className='px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2 border-transparent'>
+            Register
+          </a>
+        </Link>
+      </>
+    )
+  }
+
+  return <LoggedIn username={data.username} />
+}
+
+const LoggedIn: FC<{ username: string }> = ({ username }) => {
+  const [open, setOpen] = useState(false)
+
+  const utils = trpc.useContext()
+  const handleLogout = useCallback(() => {
+    clearToken()
+    void utils.invalidateQueries('auth.whoami')
+  }, [utils])
+
+  return (
+    <div className='relative'>
+      <button onClick={() => setOpen(!open)}>{username}</button>
+      {open && (
+        <div className='absolute'>
+          <button onClick={() => handleLogout()}>Logout</button>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast'
 
 import ErrorBoundary from '../common/components/ErrorBoundary'
 import Navbar from '../common/components/Navbar'
+import { getToken } from '../common/utils/auth'
 import { isBrowser } from '../common/utils/ssr'
 import { trpcPath, trpcUrl } from '../common/utils/trpc'
 import { AppRouter } from '../modules/server/routers/_app'
@@ -28,7 +29,7 @@ export default withTRPC<AppRouter>({
       ? {
           url: trpcPath,
           headers: () => {
-            const token = localStorage.getItem('token')
+            const token = getToken()
             return token ? { Authorization: `Bearer ${token}` } : {}
           },
         }

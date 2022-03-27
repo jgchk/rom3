@@ -23,8 +23,10 @@ const Document: FC = () => (
         crossOrigin=''
       />
       <link
-        href='https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap'
-        rel='stylesheet'
+        rel='preload'
+        href='/fonts/OpenSans/OpenSans-VariableFont_wdth,wght.ttf'
+        as='font'
+        crossOrigin=''
       />
     </Head>
     <body>
