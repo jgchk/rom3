@@ -19,11 +19,12 @@ import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
 type InfluenceUiState = InferMutationInput<'genres.add'>['influencedBy'][number]
 
 const InfluenceMultiselect: FC<{
+  id?: string
   influences: InfluenceUiState[]
   onChange: (value: InfluenceUiState[]) => void
   childType: GenreType
   selfId?: number
-}> = ({ influences, onChange, childType, selfId }) => {
+}> = ({ id, influences, onChange, childType, selfId }) => {
   const { id: correctionId } = useCorrectionContext()
 
   const [inputValue, setInputValue] = useState('')
@@ -121,6 +122,7 @@ const InfluenceMultiselect: FC<{
             />
           ))}
           <input
+            id={id}
             className='flex-1 border border-transparent focus:outline-none'
             placeholder='Search...'
             value={inputValue}

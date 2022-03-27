@@ -51,6 +51,7 @@ export const GenreApiInput = z.object({
   alternateNames: z.array(z.string()),
   shortDesc: z.string().optional(),
   longDesc: z.string().optional(),
+  trial: z.boolean(),
   parents: z.number().array(),
   influencedBy: ApiGenreInfluence.array(),
   locations: ApiLocation.array(),
@@ -157,6 +158,7 @@ export const dbGenreCreateInput = async (
     },
     shortDesc: input.shortDesc,
     longDesc: input.longDesc,
+    trial: input.trial,
     parents: {
       create: input.parents.map((parentId) => ({ parentId })),
     },
@@ -210,6 +212,7 @@ export const dbGenreUpdateInput = async (
     },
     shortDesc: input.shortDesc,
     longDesc: input.longDesc,
+    trial: input.trial,
     parents: {
       deleteMany: { childId: id },
       create: input.parents.map((parentId) => ({ parentId })),

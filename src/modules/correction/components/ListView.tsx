@@ -75,7 +75,10 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
         Create
       </div>
       <div className='p-2'>
-        <div className='text-xs font-semibold text-stone-500'>{genre.type}</div>
+        <div className='text-xs font-semibold text-stone-500'>
+          {genre.type}
+          {genre.trial && <> (TRIAL)</>}
+        </div>
         <div className='text-lg font-medium mt-0.5'>
           <Link
             href={{
@@ -134,18 +137,37 @@ const EditItem: FC<{
   }, [correctionId, mutate, updatedGenre.id])
 
   const type = useMemo(() => {
-    if (targetGenre.type !== updatedGenre.type) {
+    if (
+      targetGenre.type !== updatedGenre.type ||
+      targetGenre.trial !== updatedGenre.trial
+    ) {
       return (
         <div className='flex items-center space-x-1'>
-          <div className='line-through'>{targetGenre.type}</div>
+          <div className='line-through'>
+            {targetGenre.type}
+            {targetGenre.trial && <> (TRIAL)</>}
+          </div>
           <RiArrowRightSLine />
-          <div>{updatedGenre.type}</div>
+          <div>
+            {updatedGenre.type}
+            {updatedGenre.trial && <> (TRIAL)</>}
+          </div>
         </div>
       )
     }
 
-    return updatedGenre.type
-  }, [targetGenre.type, updatedGenre.type])
+    return (
+      <>
+        {updatedGenre.type}
+        {updatedGenre.trial && <> (TRIAL)</>}
+      </>
+    )
+  }, [
+    targetGenre.trial,
+    targetGenre.type,
+    updatedGenre.trial,
+    updatedGenre.type,
+  ])
 
   const name = useMemo(() => {
     if (targetGenre.name !== updatedGenre.name) {
@@ -244,6 +266,7 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
       <div className='p-2'>
         <div className='text-xs font-semibold text-stone-500 line-through'>
           {genre.type}
+          {genre.trial && <> (TRIAL)</>}
         </div>
         <div className='text-lg font-medium mt-0.5 line-through'>
           {genre.name}

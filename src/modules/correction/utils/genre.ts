@@ -11,6 +11,7 @@ export const makeUiData = (
   alternateNames: [],
   shortDesc: '',
   longDesc: '',
+  trial: false,
   parents: parentId ? [parentId] : [],
   influencedBy: [],
   locations: [],

@@ -12,11 +12,12 @@ import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
 
 const ParentMultiselect: FC<{
+  id?: string
   parents: number[]
   onChange: (value: number[]) => void
   childType: GenreType
   selfId?: number
-}> = ({ parents, onChange, childType, selfId }) => {
+}> = ({ id, parents, onChange, childType, selfId }) => {
   const { id: correctionId } = useCorrectionContext()
 
   const [inputValue, setInputValue] = useState('')
@@ -100,6 +101,7 @@ const ParentMultiselect: FC<{
             />
           ))}
           <input
+            id={id}
             className='flex-1 border border-transparent focus:outline-none'
             placeholder='Search...'
             value={inputValue}

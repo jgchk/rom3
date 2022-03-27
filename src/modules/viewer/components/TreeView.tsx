@@ -1,4 +1,3 @@
-import clsx from 'clsx'
 import { FC, useMemo } from 'react'
 
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
@@ -46,7 +45,15 @@ const Node: FC<{ id: number }> = ({ id }) => {
   return (
     <div>
       <div className='border border-stone-300 bg-white shadow-sm p-2'>
-        <div className={clsx('text-xs font-bold', color)}>{genre.type}</div>
+        <div className='text-xs font-bold'>
+          <span className={color}>{genre.type}</span>
+          {genre.trial && (
+            <>
+              {' '}
+              <span className='text-stone-500'>(TRIAL)</span>
+            </>
+          )}
+        </div>
         <div className='text-lg font-medium mt-0.5'>{genre.name}</div>
         <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
       </div>

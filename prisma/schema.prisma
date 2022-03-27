@@ -21,6 +21,7 @@ model Genre {
   alternateNames GenreName[]
   shortDesc      String?          @db.VarChar(255)
   longDesc       String?          @db.Text
+  trial          Boolean          @default(false)
   parents        GenreParent[]    @relation("GenreChild")
   children       GenreParent[]    @relation("GenreParent")
   influences     GenreInfluence[] @relation("GenreInfluencer")

@@ -2,6 +2,7 @@ import { Dispatch, FC, SetStateAction } from 'react'
 
 import ButtonPrimary from '../../../../common/components/ButtonPrimary'
 import ButtonTertiary from '../../../../common/components/ButtonTertiary'
+import Checkbox from '../../../../common/components/Checkbox'
 import Input from '../../../../common/components/Input'
 import Label from '../../../../common/components/Label'
 import TextArea from '../../../../common/components/TextArea'
@@ -31,16 +32,28 @@ const GenreForm: FC<{
       onSubmit()
     }}
   >
-    <div>
-      <Label>Type</Label>
-      <GenreTypeSelect
-        value={data.type}
-        onChange={(type) => onChange((d) => ({ ...d, type }))}
-      />
+    <div className='flex items-start justify-between'>
+      <div>
+        <Label htmlFor='type'>Type</Label>
+        <GenreTypeSelect
+          id='type'
+          value={data.type}
+          onChange={(type) => onChange((d) => ({ ...d, type }))}
+        />
+      </div>
+      <div className='flex items-center space-x-1'>
+        <Label htmlFor='trial'>Trial</Label>
+        <Checkbox
+          id='trial'
+          checked={data.trial}
+          onChange={(e) => onChange((d) => ({ ...d, trial: e.target.checked }))}
+        />
+      </div>
     </div>
     <div>
-      <Label>Name</Label>
+      <Label htmlFor='name'>Name</Label>
       <Input
+        id='name'
         value={data.name}
         onChange={(e) => onChange((d) => ({ ...d, name: e.target.value }))}
         required
@@ -48,9 +61,12 @@ const GenreForm: FC<{
       />
     </div>
     <div>
-      <Label>Alternate Names</Label>
-      <label className={smallLabelClassname}>comma-separated list</label>
+      <Label htmlFor='alternate-names'>Alternate Names</Label>
+      <label className={smallLabelClassname} htmlFor='alternate-names'>
+        comma-separated list
+      </label>
       <StringArrayEditor
+        id='alternate-names'
         value={data.alternateNames}
         onChange={(alternateNames) =>
           onChange((d) => ({ ...d, alternateNames }))
@@ -59,8 +75,9 @@ const GenreForm: FC<{
     </div>
     {genreParentTypes[data.type].length > 0 && (
       <div>
-        <Label>Parents</Label>
+        <Label htmlFor='parents'>Parents</Label>
         <ParentMultiselect
+          id='parents'
           parents={data.parents}
           onChange={(parents) => onChange((d) => ({ ...d, parents }))}
           childType={data.type}
@@ -70,8 +87,9 @@ const GenreForm: FC<{
     )}
     {genreInfluencedByTypes[data.type].length > 0 && (
       <div>
-        <Label>Influences</Label>
+        <Label htmlFor='influences'>Influences</Label>
         <InfluenceMultiselect
+          id='influences'
           influences={data.influencedBy}
           onChange={(influencedBy) => onChange((d) => ({ ...d, influencedBy }))}
           childType={data.type}
@@ -89,9 +107,12 @@ const GenreForm: FC<{
           />
         </div>
         <div>
-          <Label>Cultures</Label>
-          <label className={smallLabelClassname}>comma-separated list</label>
+          <Label htmlFor='cultures'>Cultures</Label>
+          <label className={smallLabelClassname} htmlFor='cultures'>
+            comma-separated list
+          </label>
           <StringArrayEditor
+            id='cultures'
             value={data.cultures}
             onChange={(cultures) => onChange((d) => ({ ...d, cultures }))}
           />
@@ -99,16 +120,18 @@ const GenreForm: FC<{
       </>
     )}
     <div>
-      <Label>Short Description</Label>
+      <Label htmlFor='short-desc'>Short Description</Label>
       <TextArea
+        id='short-desc'
         className='w-full'
         value={data.shortDesc ?? ''}
         onChange={(e) => onChange((d) => ({ ...d, shortDesc: e.target.value }))}
       />
     </div>
     <div>
-      <Label>Long Description</Label>
+      <Label htmlFor='long-desc'>Long Description</Label>
       <MarkdownEditor
+        id='long-desc'
         value={data.longDesc ?? ''}
         onChange={(longDesc) => onChange((d) => ({ ...d, longDesc }))}
       />
