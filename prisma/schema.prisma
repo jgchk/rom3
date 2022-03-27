@@ -19,8 +19,8 @@ model Genre {
   type           GenreType
   name           String
   alternateNames GenreName[]
-  shortDesc      String           @db.VarChar(255)
-  longDesc       String           @db.Text
+  shortDesc      String?          @db.VarChar(255)
+  longDesc       String?          @db.Text
   parents        GenreParent[]    @relation("GenreChild")
   children       GenreParent[]    @relation("GenreParent")
   influences     GenreInfluence[] @relation("GenreInfluencer")

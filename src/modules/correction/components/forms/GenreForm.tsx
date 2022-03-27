@@ -98,18 +98,17 @@ const GenreForm: FC<{
       </>
     )}
     <div>
-      <label className={labelClassname}>Short Description *</label>
+      <label className={labelClassname}>Short Description</label>
       <TextArea
         className='w-full'
-        value={data.shortDesc}
+        value={data.shortDesc ?? ''}
         onChange={(e) => onChange((d) => ({ ...d, shortDesc: e.target.value }))}
-        required
       />
     </div>
     <div>
-      <label className={labelClassname}>Long Description *</label>
+      <label className={labelClassname}>Long Description</label>
       <MarkdownEditor
-        value={data.longDesc}
+        value={data.longDesc ?? ''}
         onChange={(longDesc) => onChange((d) => ({ ...d, longDesc }))}
       />
     </div>

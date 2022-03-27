@@ -49,8 +49,8 @@ export const GenreApiInput = z.object({
   type: GenreType,
   name: z.string().min(1),
   alternateNames: z.array(z.string()),
-  shortDesc: z.string().min(1),
-  longDesc: z.string().min(1),
+  shortDesc: z.string().optional(),
+  longDesc: z.string().optional(),
   parents: z.number().array(),
   influencedBy: ApiGenreInfluence.array(),
   locations: ApiLocation.array(),
@@ -58,8 +58,10 @@ export const GenreApiInput = z.object({
 })
 export type GenreApiInput = z.infer<typeof GenreApiInput>
 
-export type GenreApiOutput = Genre & {
+export type GenreApiOutput = Omit<Genre, 'shortDesc' | 'longDesc'> & {
   alternateNames: string[]
+  shortDesc: string | undefined
+  longDesc: string | undefined
   parents: ApiGenreParent[]
   influencedBy: ApiGenreInfluence[]
   locations: ApiLocation[]
@@ -82,6 +84,11 @@ export const genreInclude = {
 } as const
 
 const cleanInput = async (input: GenreApiInput): Promise<GenreApiInput> => {
+  const shortDesc =
+    input.shortDesc && input.shortDesc.length > 0 ? input.shortDesc : undefined
+  const longDesc =
+    input.longDesc && input.longDesc.length > 0 ? input.longDesc : undefined
+
   const parentTypes = genreParentTypes[input.type]
   const dbParents = await prisma.genre.findMany({
     where: { id: { in: input.parents } },
@@ -128,6 +135,8 @@ const cleanInput = async (input: GenreApiInput): Promise<GenreApiInput> => {
 
   return {
     ...input,
+    shortDesc,
+    longDesc,
     parents,
     influencedBy,
     alternateNames: input.alternateNames.filter((s) => s.length > 0),
@@ -247,6 +256,8 @@ export const dbGenreUpdateInput = async (
 export const toGenreApiOutput = (genre: GenreInclude): GenreApiOutput => ({
   ...genre,
   alternateNames: genre.alternateNames.map((an) => an.name),
+  shortDesc: genre.shortDesc ?? undefined,
+  longDesc: genre.longDesc ?? undefined,
   parents: genre.parents.map((p) => p.parentId),
   influencedBy: genre.influencedBy.map((p) => ({
     id: p.influencerId,
