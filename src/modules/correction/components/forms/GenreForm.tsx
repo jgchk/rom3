@@ -114,13 +114,13 @@ const GenreForm: FC<{
     </div>
     <div className='space-x-2'>
       <button
-        className='bg-gradient-to-r from-primary-500 to-primary-600 text-white uppercase text-sm font-bold px-3 py-2'
+        className='px-3 py-2 text-sm uppercase font-bold text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-gray-400 focus:outline-none border border-transparent focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition'
         type='submit'
       >
         Submit
       </button>
       <button
-        className='bg-primary-100 hover:bg-primary-200 text-primary-600 hover:text-primary-700 uppercase text-sm font-bold px-3 py-2'
+        className='px-3 py-2 text-sm uppercase font-bold text-stone-500 hover:text-primary-600 focus:text-primary-600 focus:outline-none border border-transparent focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition'
         type='button'
         onClick={() => onCancel()}
       >
