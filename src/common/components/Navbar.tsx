@@ -21,7 +21,7 @@ const Navbar: FC = () => {
                 : 'border-transparent'
             )}
           >
-            Tree
+            Genre Tree
           </a>
         </Link>
         <Link href='/corrections'>
