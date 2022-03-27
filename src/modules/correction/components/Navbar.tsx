@@ -69,12 +69,10 @@ const Navbar: FC = () => {
   return (
     <>
       <div className='flex justify-center bg-primary-600 px-2 h-9 drop-shadow shadow'>
-        <div className='flex-1 max-w-screen-lg flex justify-between text-white text-sm'>
-          <div className='flex items-center'>
-            <div className='flex items-center space-x-2 mr-5'>
-              <div className='font-mackinac font-extrabold text-xl'>
-                {renderCorrectionName()}
-              </div>
+        <div className='flex-1 max-w-screen-lg flex justify-between text-white text-sm min-w-0'>
+          <div className='flex items-center min-w-0'>
+            <div className='mr-5 font-mackinac font-extrabold text-xl whitespace-nowrap overflow-hidden text-ellipsis'>
+              {renderCorrectionName()}
             </div>
             <Link href={`/corrections/${id}/edit/tree`}>
               <a
