@@ -1,6 +1,9 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 
+import ButtonPrimary from '../../../../common/components/ButtonPrimary'
+import ButtonTertiary from '../../../../common/components/ButtonTertiary'
 import Input from '../../../../common/components/Input'
+import Label from '../../../../common/components/Label'
 import TextArea from '../../../../common/components/TextArea'
 import { genreInfluencedByTypes } from '../../../../common/model/influences'
 import { genreParentTypes } from '../../../../common/model/parents'
@@ -11,8 +14,6 @@ import LocationInput from './elements/LocationInput'
 import MarkdownEditor from './elements/MarkdownEditor'
 import ParentMultiselect from './elements/ParentMultiselect'
 import StringArrayEditor from './elements/StringArrayEditor'
-
-const labelClassname = 'block text-sm font-medium text-stone-700'
 
 const smallLabelClassname = 'block text-xs font-medium text-stone-500'
 
@@ -31,14 +32,14 @@ const GenreForm: FC<{
     }}
   >
     <div>
-      <label className={labelClassname}>Type</label>
+      <Label>Type</Label>
       <GenreTypeSelect
         value={data.type}
         onChange={(type) => onChange((d) => ({ ...d, type }))}
       />
     </div>
     <div>
-      <label className={labelClassname}>Name *</label>
+      <Label>Name</Label>
       <Input
         value={data.name}
         onChange={(e) => onChange((d) => ({ ...d, name: e.target.value }))}
@@ -47,7 +48,7 @@ const GenreForm: FC<{
       />
     </div>
     <div>
-      <label className={labelClassname}>Alternate Names</label>
+      <Label>Alternate Names</Label>
       <label className={smallLabelClassname}>comma-separated list</label>
       <StringArrayEditor
         value={data.alternateNames}
@@ -58,7 +59,7 @@ const GenreForm: FC<{
     </div>
     {genreParentTypes[data.type].length > 0 && (
       <div>
-        <label className={labelClassname}>Parents</label>
+        <Label>Parents</Label>
         <ParentMultiselect
           parents={data.parents}
           onChange={(parents) => onChange((d) => ({ ...d, parents }))}
@@ -69,7 +70,7 @@ const GenreForm: FC<{
     )}
     {genreInfluencedByTypes[data.type].length > 0 && (
       <div>
-        <label className={labelClassname}>Influences</label>
+        <Label>Influences</Label>
         <InfluenceMultiselect
           influences={data.influencedBy}
           onChange={(influencedBy) => onChange((d) => ({ ...d, influencedBy }))}
@@ -81,14 +82,14 @@ const GenreForm: FC<{
     {data.type !== 'META' && (
       <>
         <div>
-          <label className={labelClassname}>Locations</label>
+          <Label>Locations</Label>
           <LocationInput
             value={data.locations}
             onChange={(locations) => onChange((d) => ({ ...d, locations }))}
           />
         </div>
         <div>
-          <label className={labelClassname}>Cultures</label>
+          <Label>Cultures</Label>
           <label className={smallLabelClassname}>comma-separated list</label>
           <StringArrayEditor
             value={data.cultures}
@@ -98,7 +99,7 @@ const GenreForm: FC<{
       </>
     )}
     <div>
-      <label className={labelClassname}>Short Description</label>
+      <Label>Short Description</Label>
       <TextArea
         className='w-full'
         value={data.shortDesc ?? ''}
@@ -106,26 +107,17 @@ const GenreForm: FC<{
       />
     </div>
     <div>
-      <label className={labelClassname}>Long Description</label>
+      <Label>Long Description</Label>
       <MarkdownEditor
         value={data.longDesc ?? ''}
         onChange={(longDesc) => onChange((d) => ({ ...d, longDesc }))}
       />
     </div>
-    <div className='space-x-2'>
-      <button
-        className='px-3 py-2 text-sm uppercase font-bold text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-gray-400 focus:outline-none border border-transparent focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition'
-        type='submit'
-      >
-        Submit
-      </button>
-      <button
-        className='px-3 py-2 text-sm uppercase font-bold text-stone-500 hover:text-primary-600 focus:text-primary-600 focus:outline-none border border-transparent focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition'
-        type='button'
-        onClick={() => onCancel()}
-      >
+    <div className='space-x-1'>
+      <ButtonPrimary type='submit'>Submit</ButtonPrimary>
+      <ButtonTertiary type='button' onClick={() => onCancel()}>
         Cancel
-      </button>
+      </ButtonTertiary>
     </div>
   </form>
 )

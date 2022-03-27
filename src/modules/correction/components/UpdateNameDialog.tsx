@@ -1,7 +1,11 @@
 import { FC, useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import ButtonPrimary from '../../../common/components/ButtonPrimary'
+import ButtonTertiary from '../../../common/components/ButtonTertiary'
 import Dialog from '../../../common/components/Dialog'
+import Input from '../../../common/components/Input'
+import Label from '../../../common/components/Label'
 import {
   CorrectionApiOutput,
   useUpdateCorrectionNameMutation,
@@ -60,36 +64,28 @@ const Loaded: FC<{
 
   return (
     <form
-      className='bg-white p-6 border border-stone-300 space-y-2'
+      className='bg-white p-4 border border-stone-300 space-y-2'
       onSubmit={(e) => {
         e.preventDefault()
         handleUpdate(name.length === 0 ? undefined : name)
       }}
     >
       <div>
-        <label className='block'>Name</label>
-        <input
+        <Label>Name</Label>
+        <Input
           className='border border-stone-300'
           value={name}
           onChange={(e) => setName(e.target.value)}
           autoFocus
         />
       </div>
-      <div className='space-x-2'>
-        <button
-          className='bg-primary-600 text-white uppercase text-sm font-bold px-2 py-1 rounded-sm'
-          type='submit'
-          disabled={isLoading}
-        >
-          Update
-        </button>
-        <button
-          className='text-stone-500 uppercase text-sm font-bold px-1 py-1'
-          type='button'
-          onClick={() => onClose()}
-        >
+      <div className='space-x-1'>
+        <ButtonPrimary type='submit' disabled={isLoading}>
+          Create
+        </ButtonPrimary>
+        <ButtonTertiary type='button' onClick={() => onClose()}>
           Cancel
-        </button>
+        </ButtonTertiary>
       </div>
     </form>
   )
