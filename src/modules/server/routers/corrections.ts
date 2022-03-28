@@ -412,13 +412,7 @@ const correctionsRouter = createRouter()
     },
   })
   .query('submitted', {
-    resolve: async ({ ctx }) => {
-      if (ctx.accountId === undefined) {
-        throw new TRPCError({ code: 'UNAUTHORIZED' })
-      }
-
-      return getSubmittedCorrections()
-    },
+    resolve: async () => getSubmittedCorrections(),
   })
   .query('drafts', {
     resolve: async ({ ctx }) => {
@@ -431,13 +425,7 @@ const correctionsRouter = createRouter()
   })
   .query('byId', {
     input: z.object({ id: z.number() }),
-    resolve: ({ input, ctx }) => {
-      if (ctx.accountId === undefined) {
-        throw new TRPCError({ code: 'UNAUTHORIZED' })
-      }
-
-      return getCorrection(input.id)
-    },
+    resolve: ({ input }) => getCorrection(input.id),
   })
   .mutation('edit.name', {
     input: z.object({ id: z.number(), name: z.string().min(1).optional() }),
