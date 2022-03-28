@@ -404,42 +404,60 @@ const correctionsRouter = createRouter()
   .mutation('add', {
     input: z.object({ name: z.string().min(1).optional() }),
     resolve: ({ input, ctx }) => {
-      const accountId = ctx.accountId
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
 
-      if (accountId === undefined) throw new TRPCError({ code: 'UNAUTHORIZED' })
-
-      return addCorrection(accountId, input.name)
+      return addCorrection(ctx.accountId, input.name)
     },
   })
   .query('submitted', {
     resolve: async ({ ctx }) => {
-      const accountId = ctx.accountId
-
-      if (accountId === undefined) throw new TRPCError({ code: 'UNAUTHORIZED' })
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
 
       return getSubmittedCorrections()
     },
   })
   .query('drafts', {
     resolve: async ({ ctx }) => {
-      const accountId = ctx.accountId
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
 
-      if (accountId === undefined) throw new TRPCError({ code: 'UNAUTHORIZED' })
-
-      return getAccountDraftCorrections(accountId)
+      return getAccountDraftCorrections(ctx.accountId)
     },
   })
   .query('byId', {
     input: z.object({ id: z.number() }),
-    resolve: ({ input }) => getCorrection(input.id),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return getCorrection(input.id)
+    },
   })
   .mutation('edit.name', {
     input: z.object({ id: z.number(), name: z.string().min(1).optional() }),
-    resolve: ({ input }) => updateCorrectionName(input.id, input.name),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return updateCorrectionName(input.id, input.name)
+    },
   })
   .mutation('edit.create.add', {
     input: z.object({ id: z.number(), data: GenreApiInput }),
-    resolve: ({ input }) => addCreatedGenre(input.id, input.data),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return addCreatedGenre(input.id, input.data)
+    },
   })
   .mutation('edit.edit', {
     input: z.object({
@@ -447,7 +465,13 @@ const correctionsRouter = createRouter()
       genreId: z.number(),
       data: GenreApiInput,
     }),
-    resolve: ({ input }) => updateGenre(input.id, input.genreId, input.data),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return updateGenre(input.id, input.genreId, input.data)
+    },
   })
   .mutation('edit.create.edit', {
     input: z.object({
@@ -455,12 +479,23 @@ const correctionsRouter = createRouter()
       genreId: z.number(),
       data: GenreApiInput,
     }),
-    resolve: ({ input }) =>
-      updateCreatedGenre(input.id, input.genreId, input.data),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return updateCreatedGenre(input.id, input.genreId, input.data)
+    },
   })
   .mutation('edit.create.remove', {
     input: z.object({ id: z.number(), genreId: z.number() }),
-    resolve: ({ input }) => removeCreatedGenre(input.id, input.genreId),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return removeCreatedGenre(input.id, input.genreId)
+    },
   })
   .mutation('edit.edit.add', {
     input: z.object({
@@ -468,8 +503,13 @@ const correctionsRouter = createRouter()
       targetId: z.number(),
       data: GenreApiInput,
     }),
-    resolve: ({ input }) =>
-      addEditedGenre(input.id, input.targetId, input.data),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return addEditedGenre(input.id, input.targetId, input.data)
+    },
   })
   .mutation('edit.edit.edit', {
     input: z.object({
@@ -478,36 +518,88 @@ const correctionsRouter = createRouter()
       genreId: z.number(),
       data: GenreApiInput,
     }),
-    resolve: ({ input }) =>
-      updateEditedGenre(input.id, input.targetId, input.genreId, input.data),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return updateEditedGenre(
+        input.id,
+        input.targetId,
+        input.genreId,
+        input.data
+      )
+    },
   })
   .mutation('edit.edit.remove', {
     input: z.object({ id: z.number(), updatedGenreId: z.number() }),
-    resolve: ({ input }) => removeEditedGenre(input.id, input.updatedGenreId),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return removeEditedGenre(input.id, input.updatedGenreId)
+    },
   })
   .mutation('edit.delete.add', {
     input: z.object({ id: z.number(), targetId: z.number() }),
-    resolve: ({ input }) => addDeletedGenre(input.id, input.targetId),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return addDeletedGenre(input.id, input.targetId)
+    },
   })
   .mutation('edit.delete.remove', {
     input: z.object({ id: z.number(), targetId: z.number() }),
-    resolve: ({ input }) => removeDeletedGenre(input.id, input.targetId),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return removeDeletedGenre(input.id, input.targetId)
+    },
   })
   .mutation('edit.delete', {
     input: z.object({ id: z.number(), targetId: z.number() }),
-    resolve: ({ input }) => removeGenre(input.id, input.targetId),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return removeGenre(input.id, input.targetId)
+    },
   })
   .mutation('edit.draft', {
     input: z.object({ id: z.number(), draft: z.boolean() }),
-    resolve: ({ input }) => editCorrectionDraftStatus(input.id, input.draft),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return editCorrectionDraftStatus(input.id, input.draft)
+    },
   })
   .mutation('delete', {
     input: z.object({ id: z.number() }),
-    resolve: ({ input }) => deleteCorrection(input.id),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return deleteCorrection(input.id)
+    },
   })
   .mutation('merge', {
     input: z.object({ id: z.number() }),
-    resolve: ({ input }) => mergeCorrection(input.id),
+    resolve: ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      return mergeCorrection(input.id)
+    },
   })
 
 export default correctionsRouter
