@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useMemo, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import useLoggedInQuery from '../hooks/useLoggedInQuery'
 import { useWhoamiQuery } from '../services/auth'
@@ -111,13 +111,39 @@ const LoggedIn: FC<{ username: string }> = ({ username }) => {
     void utils.invalidateQueries('auth.whoami')
   }, [utils])
 
+  // Close the menu whenever user clicks outside the menu element or trigger button.
+  const containerRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const listener = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        e.target &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('click', listener)
+    return () => document.removeEventListener('click', listener)
+  }, [])
+
   return (
-    <div className='relative'>
-      <button onClick={() => setOpen(!open)}>{username}</button>
+    <div className='relative h-full' ref={containerRef}>
+      <button
+        className='px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2 border-transparent'
+        onClick={() => setOpen(!open)}
+      >
+        {username}
+      </button>
       {open && (
-        <div className='absolute'>
-          <button onClick={() => handleLogout()}>Logout</button>
-        </div>
+        <menu className='absolute bg-stone-100 border border-stone-300 shadow right-0'>
+          <button
+            className='text-sm font-medium text-stone-600 hover:bg-stone-100 px-4 py-3'
+            onClick={() => handleLogout()}
+          >
+            Logout
+          </button>
+        </menu>
       )}
     </div>
   )
