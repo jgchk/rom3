@@ -6,11 +6,21 @@ import { GenreApiOutput } from '../../../common/model'
 import { useCorrectGenreMutation } from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
+import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 import fetchCorrectionGenre from '../services'
 import GenreForm from './forms/GenreForm'
 
 const EditView: FC<{ genreId: number }> = ({ genreId }) => {
   const { id: correctionId } = useCorrectionContext()
+
+  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
+  const { push: navigate } = useRouter()
+  useEffect(() => {
+    if (isMyCorrection === undefined) return
+    if (!isMyCorrection) {
+      void navigate(`/corrections/${correctionId}/edit/tree`)
+    }
+  }, [correctionId, isMyCorrection, navigate])
 
   const [data, setData] = useState<GenreApiOutput>()
   const fetchData = useCallback(async () => {

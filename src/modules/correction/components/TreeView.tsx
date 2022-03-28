@@ -12,13 +12,14 @@ import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
 import useCorrectionGenreTreeQuery, {
   GenreTree,
 } from '../hooks/useCorrectionGenreTreeQuery'
+import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 
 const TreeView: FC = () => {
   const { id: correctionId } = useCorrectionContext()
-  const { data } = useCorrectionGenreTreeQuery(correctionId)
+  const { data: treeData } = useCorrectionGenreTreeQuery(correctionId)
 
-  if (data) {
-    return <Tree tree={data} />
+  if (treeData) {
+    return <Tree tree={treeData} />
   }
 
   return <div>Loading...</div>
@@ -26,6 +27,7 @@ const TreeView: FC = () => {
 
 const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
   const { id: correctionId } = useCorrectionContext()
+  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
 
   const topLevelGenres = useMemo(
     () =>
@@ -57,7 +59,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
   return (
     <TreeProvider tree={tree}>
       <div className='space-y-4'>
-        {renderToolbar()}
+        {isMyCorrection && renderToolbar()}
         <ul className='space-y-2'>
           {topLevelGenres.map((genre) => (
             <li key={genre.id}>
@@ -65,7 +67,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
             </li>
           ))}
         </ul>
-        {topLevelGenres.length > 0 && renderToolbar()}
+        {isMyCorrection && topLevelGenres.length > 0 && renderToolbar()}
       </div>
     </TreeProvider>
   )
@@ -73,6 +75,8 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
 
 const Node: FC<{ id: number }> = ({ id }) => {
   const { id: correctionId } = useCorrectionContext()
+  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
+
   const tree = useGenreTree()
 
   const genre = useMemo(() => tree.genres[id], [id, tree.genres])
@@ -110,6 +114,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
             )}
           </div>
           <div className='text-lg font-medium mt-0.5'>
+            {/* TODO: Link to genre view page when not your correction */}
             <Link
               href={{
                 pathname: `/corrections/${correctionId}/edit/genres/edit`,
@@ -121,42 +126,44 @@ const Node: FC<{ id: number }> = ({ id }) => {
           </div>
           <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
         </div>
-        <div className='flex justify-between border-t border-stone-200'>
-          <div className='flex'>
-            <Link
-              href={{
-                pathname: `/corrections/${correctionId}/edit/genres/edit`,
-                query: { genreId: id },
-              }}
-            >
-              <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-                Edit
-              </a>
-            </Link>
-            {childTypes.map((childType) => (
+        {isMyCorrection && (
+          <div className='flex justify-between border-t border-stone-200'>
+            <div className='flex'>
               <Link
-                key={childType}
                 href={{
-                  pathname: `/corrections/${correctionId}/edit/genres/create`,
-                  query: {
-                    type: childType,
-                    parentId: id,
-                  },
+                  pathname: `/corrections/${correctionId}/edit/genres/edit`,
+                  query: { genreId: id },
                 }}
               >
                 <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-                  Add Child {capitalize(childType)}
+                  Edit
                 </a>
               </Link>
-            ))}
+              {childTypes.map((childType) => (
+                <Link
+                  key={childType}
+                  href={{
+                    pathname: `/corrections/${correctionId}/edit/genres/create`,
+                    query: {
+                      type: childType,
+                      parentId: id,
+                    },
+                  }}
+                >
+                  <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
+                    Add Child {capitalize(childType)}
+                  </a>
+                </Link>
+              ))}
+            </div>
+            <button
+              className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
+              onClick={() => handleDelete()}
+            >
+              Delete
+            </button>
           </div>
-          <button
-            className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
-            onClick={() => handleDelete()}
-          >
-            Delete
-          </button>
-        </div>
+        )}
       </div>
       {children.length > 0 && (
         <ul className='mt-2 space-y-2'>

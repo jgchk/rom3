@@ -11,6 +11,7 @@ import {
   useRemoveEditGenreMutation,
 } from '../../../common/services/corrections'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
+import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 
 const ListView: FC = () => {
   const { id: correctionId } = useCorrectionContext()
@@ -53,6 +54,7 @@ const ListView: FC = () => {
 
 const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   const { id: correctionId } = useCorrectionContext()
+  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
 
   const { mutate, isLoading } = useRemoveCreateGenreMutation()
   const handleRemove = useCallback(() => {
@@ -80,6 +82,7 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
           {genre.trial && <> (TRIAL)</>}
         </div>
         <div className='text-lg font-medium mt-0.5'>
+          {/* TODO: Link to genre view page when not your correction */}
           <Link
             href={{
               pathname: `/corrections/${correctionId}/edit/genres/edit`,
@@ -91,26 +94,28 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
         </div>
         <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
       </div>
-      <div className='flex justify-between border-t border-stone-200'>
-        <Link
-          href={{
-            pathname: `/corrections/${correctionId}/edit/genres/edit`,
-            query: { genreId: genre.id },
-          }}
-        >
-          <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-            Edit
-          </a>
-        </Link>
-        <button
-          className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
-          type='button'
-          onClick={() => handleRemove()}
-          disabled={isLoading}
-        >
-          Remove
-        </button>
-      </div>
+      {isMyCorrection && (
+        <div className='flex justify-between border-t border-stone-200'>
+          <Link
+            href={{
+              pathname: `/corrections/${correctionId}/edit/genres/edit`,
+              query: { genreId: genre.id },
+            }}
+          >
+            <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
+              Edit
+            </a>
+          </Link>
+          <button
+            className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
+            type='button'
+            onClick={() => handleRemove()}
+            disabled={isLoading}
+          >
+            Remove
+          </button>
+        </div>
+      )}
     </li>
   )
 }
@@ -120,6 +125,7 @@ const EditItem: FC<{
   updatedGenre: GenreApiOutput
 }> = ({ targetGenre, updatedGenre }) => {
   const { id: correctionId } = useCorrectionContext()
+  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
 
   const { mutate, isLoading } = useRemoveEditGenreMutation()
   const handleRemove = useCallback(() => {
@@ -205,6 +211,7 @@ const EditItem: FC<{
       <div className='p-2'>
         <div className={'text-xs font-semibold text-stone-500'}>{type}</div>
         <div className='text-lg font-medium mt-0.5'>
+          {/* TODO: Link to genre view page when not your correction */}
           <Link
             href={{
               pathname: `/corrections/${correctionId}/edit/genres/edit`,
@@ -216,32 +223,35 @@ const EditItem: FC<{
         </div>
         <div className='text-sm text-stone-700 mt-1'>{shortDesc}</div>
       </div>
-      <div className='flex justify-between border-t border-stone-200'>
-        <Link
-          href={{
-            pathname: `/corrections/${correctionId}/edit/genres/edit`,
-            query: { genreId: targetGenre.id },
-          }}
-        >
-          <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-            Edit
-          </a>
-        </Link>
-        <button
-          className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
-          type='button'
-          onClick={() => handleRemove()}
-          disabled={isLoading}
-        >
-          Remove
-        </button>
-      </div>
+      {isMyCorrection && (
+        <div className='flex justify-between border-t border-stone-200'>
+          <Link
+            href={{
+              pathname: `/corrections/${correctionId}/edit/genres/edit`,
+              query: { genreId: targetGenre.id },
+            }}
+          >
+            <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
+              Edit
+            </a>
+          </Link>
+          <button
+            className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
+            type='button'
+            onClick={() => handleRemove()}
+            disabled={isLoading}
+          >
+            Remove
+          </button>
+        </div>
+      )}
     </li>
   )
 }
 
 const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   const { id: correctionId } = useCorrectionContext()
+  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
 
   const { mutate, isLoading } = useRemoveDeleteGenreMutation()
   const handleRemove = useCallback(() => {
@@ -275,16 +285,18 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
           {genre.shortDesc}
         </div>
       </div>
-      <div className='flex justify-end border-t border-stone-200'>
-        <button
-          className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
-          type='button'
-          onClick={() => handleRemove()}
-          disabled={isLoading}
-        >
-          Remove
-        </button>
-      </div>
+      {isMyCorrection && (
+        <div className='flex justify-end border-t border-stone-200'>
+          <button
+            className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
+            type='button'
+            onClick={() => handleRemove()}
+            disabled={isLoading}
+          >
+            Remove
+          </button>
+        </div>
+      )}
     </li>
   )
 }

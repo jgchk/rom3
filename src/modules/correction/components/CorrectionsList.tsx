@@ -1,18 +1,18 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useMemo, useState } from 'react'
+import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
 import { useFromQueryParams } from '../../../common/hooks/useFromQueryParam'
 import useLoggedInQuery from '../../../common/hooks/useLoggedInQuery'
-import { useWhoamiQuery } from '../../../common/services/auth'
 import {
   CorrectionApiOutput,
   useDeleteCorrectionMutation,
   useSubmittedCorrectionsQuery,
 } from '../../../common/services/corrections'
 import { defaultCorrectionName } from '../constants'
+import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 import CreateCorrectionDialog from './CreateCorrectionDialog'
 import UpdateNameDialog from './UpdateNameDialog'
 
@@ -82,6 +82,7 @@ const Correction: FC<{ correction: CorrectionApiOutput }> = ({
   correction,
 }) => {
   const router = useRouter()
+  const { data: isMyCorrection } = useIsMyCorrectionQuery(correction.id)
 
   const [showNameDialog, setShowNameDialog] = useState(false)
 
@@ -104,31 +105,18 @@ const Correction: FC<{ correction: CorrectionApiOutput }> = ({
     )
   }, [correction.id, mutate, router])
 
-  const { data: whoamiData } = useWhoamiQuery()
-  const isMine = useMemo(() => {
-    if (!whoamiData) return false
-    if (whoamiData === 'LOGGED_OUT') return false
-    return whoamiData.id === correction.creatorId
-  }, [correction.creatorId, whoamiData])
-
   return (
     <>
       <li className='border border-stone-300 bg-white shadow-sm'>
-        {isMine ? (
-          <Link href={`/corrections/${correction.id}/edit/tree`}>
-            <a className='font-bold text-lg px-2 py-1 hover:underline'>
-              {correction.name ?? defaultCorrectionName}
-            </a>
-          </Link>
-        ) : (
-          <div className='font-bold text-lg px-2 py-1'>
+        <Link href={`/corrections/${correction.id}/edit/tree`}>
+          <a className='font-bold text-lg px-2 py-1 hover:underline'>
             {correction.name ?? defaultCorrectionName}
-          </div>
-        )}
+          </a>
+        </Link>
 
         {/* TODO: add small preview of create/edit/delete actions */}
 
-        {isMine && (
+        {isMyCorrection && (
           <div className='flex justify-between border-t border-stone-200'>
             <div className='flex'>
               <Link href={`/corrections/${correction.id}/edit/tree`}>

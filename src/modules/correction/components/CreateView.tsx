@@ -1,11 +1,12 @@
 import { useRouter } from 'next/router'
-import { FC, useCallback, useState } from 'react'
+import { FC, useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { GenreType } from '../../../common/model'
 import { useAddCreatedGenreMutation } from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
+import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 import { makeUiData } from '../utils/genre'
 import GenreForm from './forms/GenreForm'
 
@@ -14,6 +15,16 @@ const CreateView: FC<{
   parentId?: number
 }> = ({ type, parentId }) => {
   const { id: correctionId } = useCorrectionContext()
+
+  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
+  const { push: navigate } = useRouter()
+  useEffect(() => {
+    if (isMyCorrection === undefined) return
+    if (!isMyCorrection) {
+      void navigate(`/corrections/${correctionId}/edit/tree`)
+    }
+  }, [correctionId, isMyCorrection, navigate])
+
   const [uiState, setUiState] = useState<GenreApiInput>(
     makeUiData(type ?? 'META', parentId)
   )

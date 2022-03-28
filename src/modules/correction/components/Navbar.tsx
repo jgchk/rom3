@@ -12,10 +12,12 @@ import {
 } from '../../../common/services/corrections'
 import { defaultCorrectionName } from '../constants'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
+import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 import UpdateNameDialog from './UpdateNameDialog'
 
 const Navbar: FC = () => {
   const { id } = useCorrectionContext()
+  const { data: isMyCorrection } = useIsMyCorrectionQuery(id)
 
   const { data } = useCorrectionQuery(id)
 
@@ -102,7 +104,7 @@ const Navbar: FC = () => {
                     : 'border-transparent'
                 )}
               >
-                Edit
+                Tree
               </a>
             </Link>
             <Link href={`/corrections/${id}/edit`}>
@@ -114,40 +116,42 @@ const Navbar: FC = () => {
                     : 'border-transparent'
                 )}
               >
-                Review
+                Changes
               </a>
             </Link>
           </div>
-          <div className='flex'>
-            <button
-              className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
-              onClick={() => handleUpdateDraftStatus(!data?.draft)}
-              disabled={isUpdatingDraftStatus}
-            >
-              {data?.draft ? 'Set Ready' : 'Set Draft'}
-            </button>
-            <button
-              className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
-              onClick={() => setShowNameDialog(true)}
-              disabled={showNameDialog}
-            >
-              Rename
-            </button>
-            <button
-              className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
-              onClick={() => handleDeleteCorrection()}
-              disabled={isDeleting}
-            >
-              Delete
-            </button>
-            <button
-              className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
-              onClick={() => handleMergeCorrection()}
-              disabled={isMerging}
-            >
-              Merge
-            </button>
-          </div>
+          {isMyCorrection && (
+            <div className='flex'>
+              <button
+                className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
+                onClick={() => handleUpdateDraftStatus(!data?.draft)}
+                disabled={isUpdatingDraftStatus}
+              >
+                {data?.draft ? 'Set Ready' : 'Set Draft'}
+              </button>
+              <button
+                className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
+                onClick={() => setShowNameDialog(true)}
+                disabled={showNameDialog}
+              >
+                Rename
+              </button>
+              <button
+                className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
+                onClick={() => handleDeleteCorrection()}
+                disabled={isDeleting}
+              >
+                Delete
+              </button>
+              <button
+                className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
+                onClick={() => handleMergeCorrection()}
+                disabled={isMerging}
+              >
+                Merge
+              </button>
+            </div>
+          )}
         </div>
       </div>
       {showNameDialog && (
