@@ -3,11 +3,14 @@ import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
+import useAuthorizedPageRedirect from '../../../../common/hooks/useAuthorizedPageRedirect'
 import { getFirstOrValue } from '../../../../common/utils/array'
 import Layout from '../../../../modules/correction/components/Layout'
 import TreeView from '../../../../modules/correction/components/TreeView'
 
 const Tree: NextPage = () => {
+  useAuthorizedPageRedirect()
+
   const router = useRouter()
 
   const correctionId = useMemo(() => {
