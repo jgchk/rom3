@@ -21,7 +21,7 @@ model Genre {
   alternateNames GenreName[]
   shortDesc      String?          @db.VarChar(255)
   longDesc       String?          @db.Text
-  trial          Boolean          @default(false)
+  trial          Boolean
   parents        GenreParent[]    @relation("GenreChild")
   children       GenreParent[]    @relation("GenreParent")
   influences     GenreInfluence[] @relation("GenreInfluencer")
@@ -106,8 +106,9 @@ model Culture {
 }
 
 model Correction {
-  id   Int     @id @default(autoincrement())
-  name String? @db.VarChar(255)
+  id    Int     @id @default(autoincrement())
+  name  String? @db.VarChar(255)
+  draft Boolean
 
   creator   Account @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   creatorId Int

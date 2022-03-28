@@ -8,6 +8,7 @@ import {
   useCorrectionQuery,
   useDeleteCorrectionMutation,
   useMergeCorrectionMutation,
+  useUpdateCorrectionDraftStatusMutation,
 } from '../../../common/services/corrections'
 import { defaultCorrectionName } from '../constants'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
@@ -66,6 +67,24 @@ const Navbar: FC = () => {
     )
   }, [deleteCorrection, id, router])
 
+  const { mutate: updateDraftStatus, isLoading: isUpdatingDraftStatus } =
+    useUpdateCorrectionDraftStatusMutation()
+  const handleUpdateDraftStatus = useCallback(
+    (draft: boolean) =>
+      updateDraftStatus(
+        { id, draft },
+        {
+          onSuccess: (res) => {
+            toast.success(res.draft ? 'Set to ready' : 'Set to draft')
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [id, updateDraftStatus]
+  )
+
   return (
     <>
       <div className='flex justify-center bg-primary-600 px-2 h-9 drop-shadow shadow'>
@@ -100,6 +119,13 @@ const Navbar: FC = () => {
             </Link>
           </div>
           <div className='flex'>
+            <button
+              className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
+              onClick={() => handleUpdateDraftStatus(!data?.draft)}
+              disabled={isUpdatingDraftStatus}
+            >
+              {data?.draft ? 'Set Ready' : 'Set Draft'}
+            </button>
             <button
               className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
               onClick={() => setShowNameDialog(true)}

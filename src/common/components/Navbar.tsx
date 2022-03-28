@@ -32,18 +32,32 @@ const Navbar: FC = () => {
           </a>
         </Link>
         {loggedIn && (
-          <Link href='/corrections'>
-            <a
-              className={clsx(
-                'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
-                router.pathname === '/corrections'
-                  ? 'border-primary-500'
-                  : 'border-transparent'
-              )}
-            >
-              Corrections
-            </a>
-          </Link>
+          <>
+            <Link href='/corrections'>
+              <a
+                className={clsx(
+                  'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
+                  router.pathname === '/corrections'
+                    ? 'border-primary-500'
+                    : 'border-transparent'
+                )}
+              >
+                Corrections Queue
+              </a>
+            </Link>
+            <Link href='/corrections/mine'>
+              <a
+                className={clsx(
+                  'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
+                  router.pathname === '/corrections/mine'
+                    ? 'border-primary-500'
+                    : 'border-transparent'
+                )}
+              >
+                My Corrections
+              </a>
+            </Link>
+          </>
         )}
         <div className='flex-1' />
         <Account />

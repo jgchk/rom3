@@ -56,7 +56,7 @@ const addCorrection = async (
   name?: string
 ): Promise<CorrectionApiOutput> => {
   const correction = await prisma.correction.create({
-    data: { creatorId, name },
+    data: { creatorId, name, draft: true },
     include: correctionInclude,
   })
   return toCorrectionApiOutput(correction)
@@ -260,6 +260,18 @@ const removeDeletedGenre = async (
   return toCorrectionApiOutput(correction)
 }
 
+const editCorrectionDraftStatus = async (
+  correctionId: number,
+  draft: boolean
+): Promise<CorrectionApiOutput> => {
+  const correction = await prisma.correction.update({
+    where: { id: correctionId },
+    data: { draft },
+    include: correctionInclude,
+  })
+  return toCorrectionApiOutput(correction)
+}
+
 const getCorrection = async (id: number): Promise<CorrectionApiOutput> => {
   const correction = await prisma.correction.findUnique({
     where: { id },
@@ -274,8 +286,19 @@ const getCorrection = async (id: number): Promise<CorrectionApiOutput> => {
   return toCorrectionApiOutput(correction)
 }
 
-const getCorrections = async (): Promise<CorrectionApiOutput[]> => {
+const getSubmittedCorrections = async (): Promise<CorrectionApiOutput[]> => {
   const corrections = await prisma.correction.findMany({
+    where: { draft: false },
+    include: correctionInclude,
+  })
+  return corrections.map(toCorrectionApiOutput)
+}
+
+const getAccountDraftCorrections = async (
+  accountId: number
+): Promise<CorrectionApiOutput[]> => {
+  const corrections = await prisma.correction.findMany({
+    where: { draft: true, creatorId: accountId },
     include: correctionInclude,
   })
   return corrections.map(toCorrectionApiOutput)
@@ -383,17 +406,28 @@ const correctionsRouter = createRouter()
     resolve: ({ input, ctx }) => {
       const accountId = ctx.accountId
 
-      if (accountId === undefined)
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'You must be logged in to create a correction',
-        })
+      if (accountId === undefined) throw new TRPCError({ code: 'UNAUTHORIZED' })
 
       return addCorrection(accountId, input.name)
     },
   })
-  .query('all', {
-    resolve: async () => getCorrections(),
+  .query('submitted', {
+    resolve: async ({ ctx }) => {
+      const accountId = ctx.accountId
+
+      if (accountId === undefined) throw new TRPCError({ code: 'UNAUTHORIZED' })
+
+      return getSubmittedCorrections()
+    },
+  })
+  .query('drafts', {
+    resolve: async ({ ctx }) => {
+      const accountId = ctx.accountId
+
+      if (accountId === undefined) throw new TRPCError({ code: 'UNAUTHORIZED' })
+
+      return getAccountDraftCorrections(accountId)
+    },
   })
   .query('byId', {
     input: z.object({ id: z.number() }),
@@ -462,6 +496,10 @@ const correctionsRouter = createRouter()
   .mutation('edit.delete', {
     input: z.object({ id: z.number(), targetId: z.number() }),
     resolve: ({ input }) => removeGenre(input.id, input.targetId),
+  })
+  .mutation('edit.draft', {
+    input: z.object({ id: z.number(), draft: z.boolean() }),
+    resolve: ({ input }) => editCorrectionDraftStatus(input.id, input.draft),
   })
   .mutation('delete', {
     input: z.object({ id: z.number() }),

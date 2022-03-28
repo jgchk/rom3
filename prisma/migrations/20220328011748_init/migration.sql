@@ -5,7 +5,7 @@ CREATE TABLE `Genre` (
     `name` VARCHAR(191) NOT NULL,
     `shortDesc` VARCHAR(255) NULL,
     `longDesc` TEXT NULL,
-    `trial` BOOLEAN NOT NULL DEFAULT false,
+    `trial` BOOLEAN NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -75,6 +75,7 @@ CREATE TABLE `Culture` (
 CREATE TABLE `Correction` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(255) NULL,
+    `draft` BOOLEAN NOT NULL,
     `creatorId` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
