@@ -138,7 +138,7 @@ const LoggedIn: FC<{ username: string }> = ({ username }) => {
       {open && (
         <menu className='absolute bg-stone-100 border border-stone-300 shadow right-0'>
           <button
-            className='text-sm font-medium text-stone-600 hover:bg-stone-100 px-4 py-3'
+            className='text-sm font-medium text-stone-600 hover:bg-stone-200 px-4 py-3'
             onClick={() => handleLogout()}
           >
             Logout
