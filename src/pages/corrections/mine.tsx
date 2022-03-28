@@ -1,10 +1,18 @@
 import { NextPage } from 'next'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
 
-import useAuthorizedPageRedirect from '../../common/hooks/useAuthorizedPageRedirect'
+import useLoggedInQuery from '../../common/hooks/useLoggedInQuery'
 import CorrectionsListMine from '../../modules/correction/components/CorrectionsListMine'
 
 const MyCorrectionsPage: NextPage = () => {
-  useAuthorizedPageRedirect()
+  const { data: isLoggedIn } = useLoggedInQuery()
+  const { push: navigate } = useRouter()
+  useEffect(() => {
+    if (isLoggedIn === false) {
+      void navigate('/corrections')
+    }
+  }, [isLoggedIn, navigate])
 
   return (
     <div className='flex justify-center p-3'>
