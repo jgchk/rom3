@@ -3,15 +3,12 @@ import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
-import useAuthorizedPageRedirect from '../../../../../common/hooks/useAuthorizedPageRedirect'
 import { isGenreType } from '../../../../../common/model'
 import { getFirstOrValue } from '../../../../../common/utils/array'
 import CreateView from '../../../../../modules/correction/components/CreateView'
 import Layout from '../../../../../modules/correction/components/Layout'
 
 const Create: NextPage = () => {
-  useAuthorizedPageRedirect()
-
   const router = useRouter()
 
   const correctionId = useMemo(() => {
