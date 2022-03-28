@@ -1,8 +1,9 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FC, useCallback, useEffect, useRef, useState } from 'react'
 
+import { useFromQueryParams } from '../hooks/useFromQueryParam'
 import useLoggedInQuery from '../hooks/useLoggedInQuery'
 import { useWhoamiQuery } from '../services/auth'
 import { clearToken } from '../utils/auth'
@@ -31,33 +32,31 @@ const Navbar: FC = () => {
             Genre Tree
           </a>
         </Link>
+        <Link href='/corrections'>
+          <a
+            className={clsx(
+              'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
+              router.pathname === '/corrections'
+                ? 'border-primary-500'
+                : 'border-transparent'
+            )}
+          >
+            Corrections Queue
+          </a>
+        </Link>
         {loggedIn && (
-          <>
-            <Link href='/corrections'>
-              <a
-                className={clsx(
-                  'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
-                  router.pathname === '/corrections'
-                    ? 'border-primary-500'
-                    : 'border-transparent'
-                )}
-              >
-                Corrections Queue
-              </a>
-            </Link>
-            <Link href='/corrections/mine'>
-              <a
-                className={clsx(
-                  'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
-                  router.pathname === '/corrections/mine'
-                    ? 'border-primary-500'
-                    : 'border-transparent'
-                )}
-              >
-                My Corrections
-              </a>
-            </Link>
-          </>
+          <Link href='/corrections/mine'>
+            <a
+              className={clsx(
+                'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
+                router.pathname === '/corrections/mine'
+                  ? 'border-primary-500'
+                  : 'border-transparent'
+              )}
+            >
+              My Corrections
+            </a>
+          </Link>
         )}
         <div className='flex-1' />
         <Account />
@@ -69,14 +68,10 @@ const Navbar: FC = () => {
 export default Navbar
 
 const Account: FC = () => {
-  const { asPath, query, pathname } = useRouter()
+  const { pathname } = useRouter()
+  const query = useFromQueryParams()
 
   const { data } = useWhoamiQuery()
-
-  const from = useMemo(() => {
-    const from = query.from ?? asPath
-    return from === '/login' || from === '/register' ? undefined : from
-  }, [asPath, query.from])
 
   if (!data) {
     return <div>Loading...</div>
@@ -85,7 +80,7 @@ const Account: FC = () => {
   if (data === 'LOGGED_OUT') {
     return (
       <>
-        <Link href={{ pathname: '/login', query: from ? { from } : {} }}>
+        <Link href={{ pathname: '/login', query }}>
           <a
             className={clsx(
               'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',
@@ -97,7 +92,7 @@ const Account: FC = () => {
             Login
           </a>
         </Link>
-        <Link href={{ pathname: '/register', query: from ? { from } : {} }}>
+        <Link href={{ pathname: '/register', query }}>
           <a
             className={clsx(
               'px-2 h-full flex items-center text-sm font-semibold text-stone-800 hover:text-primary-600 border-b-2',

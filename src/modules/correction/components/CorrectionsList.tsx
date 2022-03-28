@@ -4,6 +4,8 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
+import { useFromQueryParams } from '../../../common/hooks/useFromQueryParam'
+import useLoggedInQuery from '../../../common/hooks/useLoggedInQuery'
 import { useWhoamiQuery } from '../../../common/services/auth'
 import {
   CorrectionApiOutput,
@@ -15,6 +17,9 @@ import CreateCorrectionDialog from './CreateCorrectionDialog'
 import UpdateNameDialog from './UpdateNameDialog'
 
 const CorrectionsList: FC = () => {
+  const { data: isLoggedIn } = useLoggedInQuery()
+  const query = useFromQueryParams()
+
   const { data } = useSubmittedCorrectionsQuery({
     select: (res) =>
       res.sort((a, b) =>
@@ -43,9 +48,23 @@ const CorrectionsList: FC = () => {
   return (
     <>
       <div className='space-y-4'>
-        <ButtonSecondary onClick={() => setShowNameDialog(true)}>
-          New Correction
-        </ButtonSecondary>
+        {isLoggedIn ? (
+          <ButtonSecondary
+            onClick={() => setShowNameDialog(true)}
+            disabled={!isLoggedIn}
+          >
+            New Correction
+          </ButtonSecondary>
+        ) : (
+          <div className='text-stone-700'>
+            <Link href={{ pathname: '/register', query }}>
+              <a className='text-primary-600 font-bold hover:underline'>
+                Register
+              </a>
+            </Link>{' '}
+            to create a correction
+          </div>
+        )}
 
         {renderList()}
       </div>
