@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 
-import { GenreApiOutput } from '../../../common/model'
+import { CorrectionGenre } from './useCorrectionGenreQuery'
 import useCorrectionGenresQuery from './useCorrectionGenresQuery'
 
 export type GenreTree = {
-  genres: Record<number, GenreApiOutput>
+  genres: Record<number, CorrectionGenre>
   children: Record<number, number[]>
 }
 

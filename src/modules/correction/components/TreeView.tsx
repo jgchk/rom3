@@ -1,8 +1,8 @@
+import clsx from 'clsx'
 import Link from 'next/link'
-import { FC, useCallback, useMemo } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import { genreTypes } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
 import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
@@ -35,6 +35,54 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
     [tree.genres]
   )
 
+  const changedTopLevelIds = useMemo(() => {
+    const changedGenres = Object.values(tree.genres).filter(
+      (genre) => genre.changes
+    )
+
+    const topLevelIds = new Set()
+
+    const queue = changedGenres.map((genre) => genre.id)
+    while (queue.length > 0) {
+      const id = queue.pop()
+      if (id === undefined) continue
+
+      const genre = tree.genres[id]
+      if (genre.parents.length === 0) {
+        topLevelIds.add(id)
+      }
+
+      queue.push(...genre.parents)
+    }
+
+    return topLevelIds
+  }, [tree.genres])
+
+  const [changedTopLevelGenres, unchangedTopLevelGenres] = useMemo(() => {
+    const changed = []
+    const unchanged = []
+
+    for (const genre of topLevelGenres) {
+      if (changedTopLevelIds.has(genre.id)) {
+        changed.push(genre)
+      } else {
+        unchanged.push(genre)
+      }
+    }
+
+    return [changed, unchanged]
+  }, [changedTopLevelIds, topLevelGenres])
+
+  const [showUnchanged, setShowUnchanged] = useState(false)
+
+  const renderedGenres = useMemo(
+    () =>
+      showUnchanged
+        ? [...changedTopLevelGenres, ...unchangedTopLevelGenres]
+        : changedTopLevelGenres,
+    [changedTopLevelGenres, showUnchanged, unchangedTopLevelGenres]
+  )
+
   const renderToolbar = useCallback(
     () => (
       <div className='flex border border-stone-300 bg-white shadow-sm w-fit'>
@@ -60,8 +108,11 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
     <TreeProvider tree={tree}>
       <div className='space-y-4'>
         {isMyCorrection && renderToolbar()}
+        <button onClick={() => setShowUnchanged(!showUnchanged)}>
+          {showUnchanged ? 'Hide Unchanged' : 'Show Unchanged'}
+        </button>
         <ul className='space-y-2'>
-          {topLevelGenres.map((genre) => (
+          {renderedGenres.map((genre) => (
             <li key={genre.id}>
               <Node id={genre.id} />
             </li>
@@ -98,20 +149,43 @@ const Node: FC<{ id: number }> = ({ id }) => {
     [correctionId, id, mutate]
   )
 
-  const color = useGenreTypeColor(genre.type)
+  const topbarText: string = useMemo(() => {
+    switch (genre.changes) {
+      case undefined:
+        return 'Unchanged'
+      case 'created':
+        return 'Created'
+      case 'edited':
+        return 'Edited'
+    }
+  }, [genre.changes])
+
+  const topbarColor: string = useMemo(() => {
+    switch (genre.changes) {
+      case undefined:
+        return 'bg-stone-600'
+      case 'created':
+        return 'bg-green-600'
+      case 'edited':
+        return 'bg-blue-600'
+    }
+  }, [genre.changes])
 
   return (
     <div>
       <div className='border border-stone-300 bg-white shadow-sm'>
+        <div
+          className={clsx(
+            'border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white',
+            topbarColor
+          )}
+        >
+          {topbarText}
+        </div>
         <div className='p-2'>
-          <div className='text-xs font-bold'>
-            <span className={color}>{genre.type}</span>
-            {genre.trial && (
-              <>
-                {' '}
-                <span className='text-stone-500'>(TRIAL)</span>
-              </>
-            )}
+          <div className='text-xs font-bold text-stone-500'>
+            {genre.type}
+            {genre.trial && <> (TRIAL)</>}
           </div>
           <div className='text-lg font-medium mt-0.5'>
             <Link

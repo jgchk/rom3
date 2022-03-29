@@ -4,11 +4,12 @@ import { GenreApiOutput } from '../../../common/model'
 import { useCorrectionQuery } from '../../../common/services/corrections'
 import { useGenresQuery } from '../../../common/services/genres'
 import { TError } from '../../../common/utils/trpc'
+import { CorrectionGenre } from './useCorrectionGenreQuery'
 
 const useCorrectionGenresQuery = (
   correctionId: number
 ): {
-  data?: GenreApiOutput[]
+  data?: CorrectionGenre[]
   error: TError | null
   isLoading: boolean
 } => {
@@ -35,30 +36,31 @@ const useCorrectionGenresQuery = (
         // remove deleted genres
         .filter((genre) => !deletedIds.has(genre.id))
         // replace edited genres with their real genres
-        .map((genre) => editedIds[genre.id] ?? genre)
-        // remove deleted parents/influences & replace ids of parents/influences that have pending edits with the edited genre ids
+        .map((genre): CorrectionGenre => {
+          const editedGenre = editedIds[genre.id]
+          return editedGenre
+            ? { ...editedGenre, id: genre.id, changes: 'edited' }
+            : { ...genre, changes: undefined }
+        })
+        // remove deleted parents/influences
         .map((genre) => ({
           ...genre,
           parents: genre.parents
             // remove deleted genres
-            .filter((parentId) => !deletedIds.has(parentId))
-            // replace ids of genres that have pending edits with the edited genre id
-            .map((parentId) => editedIds[parentId]?.id ?? parentId),
+            .filter((parentId) => !deletedIds.has(parentId)),
           children: genre.children
             // remove deleted genres
-            .filter((childId) => !deletedIds.has(childId))
-            // replace ids of genres that have pending edits with the edited genre id
-            .map((childId) => editedIds[childId]?.id ?? childId),
+            .filter((childId) => !deletedIds.has(childId)),
           influencedBy: genre.influencedBy
             // remove deleted genres
-            .filter((inf) => !deletedIds.has(inf.id))
-            // replace ids of genres that have pending edits with the edited genre id
-            .map((inf) => ({
-              ...inf,
-              id: editedIds[inf.id]?.id ?? inf.id,
-            })),
+            .filter((inf) => !deletedIds.has(inf.id)),
         })),
-      ...Object.values(correctionQuery.data.create),
+      ...Object.values(correctionQuery.data.create).map(
+        (genre): CorrectionGenre => ({
+          ...genre,
+          changes: 'created',
+        })
+      ),
     ]
 
     return genres

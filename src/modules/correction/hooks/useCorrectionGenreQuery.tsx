@@ -5,11 +5,15 @@ import { useCorrectionQuery } from '../../../common/services/corrections'
 import { useGenreQuery } from '../../../common/services/genres'
 import { TError } from '../../../common/utils/trpc'
 
+export type CorrectionGenre = GenreApiOutput & {
+  changes: 'created' | 'edited' | undefined
+}
+
 const useCorrectionGenreQuery = (
   genreId: number,
   correctionId: number
 ): {
-  data?: GenreApiOutput
+  data?: CorrectionGenre
   error: TError | null
   isLoading: boolean
 } => {
@@ -35,29 +39,24 @@ const useCorrectionGenreQuery = (
       throw new Error(`No account with id '${genreId}'`)
     }
 
-    let genre = editedIds[genreId] ?? genreQuery.data
-    genre = {
+    const editedGenre = editedIds[genreId]
+
+    const genre: CorrectionGenre = editedGenre
+      ? { ...editedGenre, id: genreId, changes: 'edited' }
+      : { ...genreQuery.data, changes: undefined }
+
+    return {
       ...genre,
       parents: genre.parents
         // remove deleted genres
-        .filter((parentId) => !deletedIds.has(parentId))
-        // replace ids of genres that have pending edits with the edited genre id
-        .map((parentId) => editedIds[parentId]?.id ?? parentId),
+        .filter((parentId) => !deletedIds.has(parentId)),
       children: genre.children
         // remove deleted genres
-        .filter((childId) => !deletedIds.has(childId))
-        // replace ids of genres that have pending edits with the edited genre id
-        .map((childId) => editedIds[childId]?.id ?? childId),
+        .filter((childId) => !deletedIds.has(childId)),
       influencedBy: genre.influencedBy
         // remove deleted genres
-        .filter((inf) => !deletedIds.has(inf.id))
-        // replace ids of genres that have pending edits with the edited genre id
-        .map((inf) => ({
-          ...inf,
-          id: editedIds[inf.id]?.id ?? inf.id,
-        })),
+        .filter((inf) => !deletedIds.has(inf.id)),
     }
-    return genre
   }, [correctionQuery.data, genreId, genreQuery.data])
 
   if (genre) {
