@@ -77,7 +77,7 @@ const Navbar: FC = () => {
         { id, draft },
         {
           onSuccess: (res) => {
-            toast.success(res.draft ? 'Set to ready' : 'Set to draft')
+            toast.success(res.draft ? 'Set to draft' : 'Set to ready')
           },
           onError: (error) => {
             toast.error(error.message)
