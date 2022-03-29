@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -91,8 +90,6 @@ const SubmittedList: FC = () => {
 const Correction: FC<{ correction: CorrectionApiOutput }> = ({
   correction,
 }) => {
-  const router = useRouter()
-
   const [showNameDialog, setShowNameDialog] = useState(false)
 
   const { mutate, isLoading } = useDeleteCorrectionMutation()
@@ -105,14 +102,13 @@ const Correction: FC<{ correction: CorrectionApiOutput }> = ({
       {
         onSuccess: () => {
           toast.success('Deleted correction')
-          void router.push('/corrections')
         },
         onError: (error) => {
           toast.error(error.message)
         },
       }
     )
-  }, [correction.id, mutate, router])
+  }, [correction.id, mutate])
 
   return (
     <>
