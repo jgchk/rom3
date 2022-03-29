@@ -3,11 +3,11 @@ import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
-import { getFirstOrValue } from '../../../../common/utils/array'
-import Layout from '../../../../modules/correction/components/Layout'
-import ListView from '../../../../modules/correction/components/ListView'
+import { getFirstOrValue } from '../../../common/utils/array'
+import Layout from '../../../modules/correction/components/Layout'
+import TreeView from '../../../modules/correction/components/TreeView'
 
-const Home: NextPage = () => {
+const Tree: NextPage = () => {
   const router = useRouter()
 
   const correctionId = useMemo(() => {
@@ -24,9 +24,9 @@ const Home: NextPage = () => {
 
   return (
     <Layout correctionId={correctionId}>
-      <ListView />
+      <TreeView />
     </Layout>
   )
 }
 
-export default Home
+export default Tree

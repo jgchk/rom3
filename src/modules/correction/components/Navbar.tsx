@@ -95,11 +95,11 @@ const Navbar: FC = () => {
             <div className='mr-5 font-mackinac font-extrabold text-xl whitespace-nowrap overflow-hidden text-ellipsis'>
               {renderCorrectionName()}
             </div>
-            <Link href={`/corrections/${id}/edit/tree`}>
+            <Link href={`/corrections/${id}/tree`}>
               <a
                 className={clsx(
                   'h-full flex items-center border-b-2 px-2 font-semibold hover:bg-primary-700',
-                  router.pathname === '/corrections/[id]/edit/tree'
+                  router.pathname === '/corrections/[id]/tree'
                     ? 'border-white'
                     : 'border-transparent'
                 )}
@@ -107,11 +107,11 @@ const Navbar: FC = () => {
                 Tree
               </a>
             </Link>
-            <Link href={`/corrections/${id}/edit`}>
+            <Link href={`/corrections/${id}`}>
               <a
                 className={clsx(
                   'h-full flex items-center border-b-2 px-2 font-semibold hover:bg-primary-700',
-                  router.pathname === '/corrections/[id]/edit'
+                  router.pathname === '/corrections/[id]'
                     ? 'border-white'
                     : 'border-transparent'
                 )}

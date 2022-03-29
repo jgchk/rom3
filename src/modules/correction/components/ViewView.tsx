@@ -137,7 +137,7 @@ const Parent: FC<{ id: number }> = ({ id }) => {
     <div>
       <Link
         href={{
-          pathname: '/corrections/5/edit/genres/view',
+          pathname: `/corrections/${correctionId}/genres/view`,
           query: { genreId: id },
         }}
       >
@@ -164,7 +164,7 @@ const Influence: FC<ApiGenreInfluence> = ({ id, influenceType }) => {
     <div>
       <Link
         href={{
-          pathname: '/corrections/5/edit/genres/view',
+          pathname: `/corrections/${correctionId}/genres/view`,
           query: { genreId: id },
         }}
       >

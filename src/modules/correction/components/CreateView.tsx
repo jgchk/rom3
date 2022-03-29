@@ -21,7 +21,7 @@ const CreateView: FC<{
   useEffect(() => {
     if (isMyCorrection === undefined) return
     if (!isMyCorrection) {
-      void navigate(`/corrections/${correctionId}/edit/tree`)
+      void navigate(`/corrections/${correctionId}/tree`)
     }
   }, [correctionId, isMyCorrection, navigate])
 
@@ -37,7 +37,7 @@ const CreateView: FC<{
         { id: correctionId, data: uiState },
         {
           onSuccess: () => {
-            void router.push(`/corrections/${correctionId}/edit/tree`)
+            void router.push(`/corrections/${correctionId}/tree`)
           },
           onError: (error) => {
             toast.error(error.message)
@@ -48,7 +48,7 @@ const CreateView: FC<{
   )
 
   const handleCancel = useCallback(
-    () => void router.push(`/corrections/${correctionId}/edit/tree`),
+    () => void router.push(`/corrections/${correctionId}/tree`),
     [correctionId, router]
   )
 

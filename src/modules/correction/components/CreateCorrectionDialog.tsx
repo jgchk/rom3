@@ -23,7 +23,7 @@ const CreateCorrectionDialog: FC<{
         {
           onSuccess: (res) => {
             toast.success('Created new correction')
-            void router.push(`/corrections/${res.id}/edit/tree`)
+            void router.push(`/corrections/${res.id}/tree`)
             onClose()
           },
           onError: (error) => {

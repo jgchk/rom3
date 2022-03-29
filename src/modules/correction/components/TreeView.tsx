@@ -42,7 +42,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
           <Link
             key={genreType}
             href={{
-              pathname: `/corrections/${correctionId}/edit/genres/create`,
+              pathname: `/corrections/${correctionId}/genres/create`,
               query: { type: genreType },
             }}
           >
@@ -116,7 +116,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
           <div className='text-lg font-medium mt-0.5'>
             <Link
               href={{
-                pathname: `/corrections/${correctionId}/edit/genres/${
+                pathname: `/corrections/${correctionId}/genres/${
                   isMyCorrection ? 'edit' : 'view'
                 }`,
                 query: { genreId: id },
@@ -132,7 +132,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
             <div className='flex'>
               <Link
                 href={{
-                  pathname: `/corrections/${correctionId}/edit/genres/edit`,
+                  pathname: `/corrections/${correctionId}/genres/edit`,
                   query: { genreId: id },
                 }}
               >
@@ -144,7 +144,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
                 <Link
                   key={childType}
                   href={{
-                    pathname: `/corrections/${correctionId}/edit/genres/create`,
+                    pathname: `/corrections/${correctionId}/genres/create`,
                     query: {
                       type: childType,
                       parentId: id,

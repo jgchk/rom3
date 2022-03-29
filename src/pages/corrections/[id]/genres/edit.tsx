@@ -4,10 +4,10 @@ import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
 import { getFirstOrValue } from '../../../../common/utils/array'
+import EditView from '../../../../modules/correction/components/EditView'
 import Layout from '../../../../modules/correction/components/Layout'
-import TreeView from '../../../../modules/correction/components/TreeView'
 
-const Tree: NextPage = () => {
+const Create: NextPage = () => {
   const router = useRouter()
 
   const correctionId = useMemo(() => {
@@ -18,15 +18,23 @@ const Tree: NextPage = () => {
     return id
   }, [router.query.id])
 
-  if (correctionId === undefined) {
+  const genreId = useMemo(() => {
+    const idStr = getFirstOrValue(router.query.genreId)
+    if (idStr === undefined) return
+    const id = Number.parseInt(idStr)
+    if (Number.isNaN(id)) return
+    return id
+  }, [router.query.genreId])
+
+  if (correctionId === undefined || genreId === undefined) {
     return <ErrorPage statusCode={404} />
   }
 
   return (
     <Layout correctionId={correctionId}>
-      <TreeView />
+      <EditView genreId={genreId} />
     </Layout>
   )
 }
 
-export default Tree
+export default Create

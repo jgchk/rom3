@@ -117,7 +117,7 @@ const Correction: FC<{ correction: CorrectionApiOutput }> = ({
   return (
     <>
       <li className='border border-stone-300 bg-white shadow-sm'>
-        <Link href={`/corrections/${correction.id}/edit/tree`}>
+        <Link href={`/corrections/${correction.id}/tree`}>
           <a className='font-bold text-lg hover:underline px-2 py-1'>
             {correction.name ?? defaultCorrectionName}
           </a>
@@ -125,7 +125,7 @@ const Correction: FC<{ correction: CorrectionApiOutput }> = ({
         {/* TODO: add small preview of create/edit/delete actions */}
         <div className='flex justify-between border-t border-stone-200'>
           <div className='flex'>
-            <Link href={`/corrections/${correction.id}/edit/tree`}>
+            <Link href={`/corrections/${correction.id}/tree`}>
               <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
                 Edit
               </a>

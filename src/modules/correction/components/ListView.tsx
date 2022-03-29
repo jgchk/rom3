@@ -84,7 +84,7 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
         <div className='text-lg font-medium mt-0.5'>
           <Link
             href={{
-              pathname: `/corrections/${correctionId}/edit/genres/${
+              pathname: `/corrections/${correctionId}/genres/${
                 isMyCorrection ? 'edit' : 'view'
               }`,
               query: { genreId: genre.id },
@@ -99,7 +99,7 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
         <div className='flex justify-between border-t border-stone-200'>
           <Link
             href={{
-              pathname: `/corrections/${correctionId}/edit/genres/edit`,
+              pathname: `/corrections/${correctionId}/genres/edit`,
               query: { genreId: genre.id },
             }}
           >
@@ -214,7 +214,7 @@ const EditItem: FC<{
         <div className='text-lg font-medium mt-0.5'>
           <Link
             href={{
-              pathname: `/corrections/${correctionId}/edit/genres/${
+              pathname: `/corrections/${correctionId}/genres/${
                 isMyCorrection ? 'edit' : 'view'
               }`,
               query: { genreId: targetGenre.id },
@@ -229,7 +229,7 @@ const EditItem: FC<{
         <div className='flex justify-between border-t border-stone-200'>
           <Link
             href={{
-              pathname: `/corrections/${correctionId}/edit/genres/edit`,
+              pathname: `/corrections/${correctionId}/genres/edit`,
               query: { genreId: targetGenre.id },
             }}
           >

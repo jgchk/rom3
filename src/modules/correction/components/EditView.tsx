@@ -19,7 +19,7 @@ const EditView: FC<{ genreId: number }> = ({ genreId }) => {
     if (isMyCorrection === undefined) return
     if (!isMyCorrection) {
       void navigate({
-        pathname: `/corrections/${correctionId}/edit/genres/view`,
+        pathname: `/corrections/${correctionId}/genres/view`,
         query: { genreId },
       })
     }
@@ -54,7 +54,7 @@ const Loaded: FC<{
         { id: correctionId, genreId, data: uiState },
         {
           onSuccess: () => {
-            void router.push(`/corrections/${correctionId}/edit/tree`)
+            void router.push(`/corrections/${correctionId}/tree`)
           },
           onError: (error) => {
             toast.error(error.message)
@@ -65,7 +65,7 @@ const Loaded: FC<{
   )
 
   const handleCancel = useCallback(
-    () => void router.push(`/corrections/${correctionId}/edit/tree`),
+    () => void router.push(`/corrections/${correctionId}/tree`),
     [correctionId, router]
   )
 
