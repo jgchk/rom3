@@ -1,27 +1,62 @@
 import clsx from 'clsx'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { FC, MouseEvent, useCallback, useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { HiChevronDown, HiChevronRight } from 'react-icons/hi'
 
+import ButtonSecondary from '../../../common/components/ButtonSecondary'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import { GenreApiOutput } from '../../../common/model'
+import { useCreateCorrectionMutation } from '../../../common/services/corrections'
 import { useGenreQuery, useGenresQuery } from '../../../common/services/genres'
 
 const TreeView: FC = () => {
+  const { push: navigate } = useRouter()
+
   const { data } = useGenresQuery({ filters: { topLevel: true } })
 
-  if (!data) {
-    return <div>Loading...</div>
-  }
+  const { mutate, isLoading } = useCreateCorrectionMutation()
+  const handleAddNewGenre = useCallback(
+    () =>
+      mutate(
+        {},
+        {
+          onSuccess: (res) => {
+            void navigate({
+              pathname: `/corrections/${res.id}/genres/create`,
+              query: { type: 'STYLE' },
+            })
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [mutate, navigate]
+  )
 
   return (
-    <ul className='space-y-8'>
-      {data.map((genre) => (
-        <li key={genre.id}>
-          <Node id={genre.id} />
-        </li>
-      ))}
-    </ul>
+    <div>
+      <ButtonSecondary
+        className='mb-6'
+        onClick={() => handleAddNewGenre()}
+        disabled={isLoading}
+      >
+        Add New Genre
+      </ButtonSecondary>
+      {data ? (
+        <ul className='space-y-6'>
+          {data.map((genre) => (
+            <li key={genre.id}>
+              <Node id={genre.id} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div>Loading...</div>
+      )}
+    </div>
   )
 }
 
