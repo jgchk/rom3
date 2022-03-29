@@ -15,7 +15,7 @@ const TreeView: FC = () => {
   }
 
   return (
-    <ul className='space-y-2'>
+    <ul className='space-y-8'>
       {data.map((genre) => (
         <li key={genre.id}>
           <Node id={genre.id} />
@@ -71,9 +71,9 @@ const LoadedNode: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
         </div>
       </div>
       {genre.children.length > 0 && expanded && (
-        <ul className='mt-2 ml-12 space-y-2 border-l border-stone-400'>
+        <ul className='mt-2 ml-4 space-y-2 border-l border-stone-400'>
           {genre.children.map((id) => (
-            <li className='pl-0' key={id}>
+            <li className='pl-4' key={id}>
               <Node id={id} />
             </li>
           ))}
