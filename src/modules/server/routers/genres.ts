@@ -32,11 +32,11 @@ export const ApiInfluenceType = z.union([
   z.literal('HISTORICAL'),
   z.literal('SONIC'),
 ])
-const ApiGenreInfluence = z.object({
+export const ApiGenreInfluence = z.object({
   id: z.number(),
   influenceType: ApiInfluenceType.optional(),
 })
-type ApiGenreInfluence = z.infer<typeof ApiGenreInfluence>
+export type ApiGenreInfluence = z.infer<typeof ApiGenreInfluence>
 
 export const ApiLocation = z.object({
   city: z.string(),

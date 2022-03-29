@@ -82,10 +82,11 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
           {genre.trial && <> (TRIAL)</>}
         </div>
         <div className='text-lg font-medium mt-0.5'>
-          {/* TODO: Link to genre view page when not your correction */}
           <Link
             href={{
-              pathname: `/corrections/${correctionId}/edit/genres/edit`,
+              pathname: `/corrections/${correctionId}/edit/genres/${
+                isMyCorrection ? 'edit' : 'view'
+              }`,
               query: { genreId: genre.id },
             }}
           >
@@ -211,10 +212,11 @@ const EditItem: FC<{
       <div className='p-2'>
         <div className={'text-xs font-semibold text-stone-500'}>{type}</div>
         <div className='text-lg font-medium mt-0.5'>
-          {/* TODO: Link to genre view page when not your correction */}
           <Link
             href={{
-              pathname: `/corrections/${correctionId}/edit/genres/edit`,
+              pathname: `/corrections/${correctionId}/edit/genres/${
+                isMyCorrection ? 'edit' : 'view'
+              }`,
               query: { genreId: targetGenre.id },
             }}
           >

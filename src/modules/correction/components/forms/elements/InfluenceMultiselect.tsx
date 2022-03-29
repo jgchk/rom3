@@ -10,18 +10,16 @@ import {
   genreInfluencedByTypes,
   influenceTypes,
 } from '../../../../../common/model/influences'
+import { ApiGenreInfluence } from '../../../../../common/services/genres'
 import { capitalize } from '../../../../../common/utils/string'
-import { InferMutationInput } from '../../../../../common/utils/trpc'
 import { useCorrectionContext } from '../../../contexts/CorrectionContext'
 import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
 
-type InfluenceUiState = InferMutationInput<'genres.add'>['influencedBy'][number]
-
 const InfluenceMultiselect: FC<{
   id?: string
-  influences: InfluenceUiState[]
-  onChange: (value: InfluenceUiState[]) => void
+  influences: ApiGenreInfluence[]
+  onChange: (value: ApiGenreInfluence[]) => void
   childType: GenreType
   selfId?: number
 }> = ({ id, influences, onChange, childType, selfId }) => {
@@ -36,18 +34,18 @@ const InfluenceMultiselect: FC<{
   )
 
   const addInfluence = useCallback(
-    (add: InfluenceUiState) => onChange([...influences, add]),
+    (add: ApiGenreInfluence) => onChange([...influences, add]),
     [onChange, influences]
   )
 
   const removeInfluence = useCallback(
-    (remove: InfluenceUiState) =>
+    (remove: ApiGenreInfluence) =>
       onChange(influences.filter((item) => item.id !== remove.id)),
     [onChange, influences]
   )
 
   const updateInfluence = useCallback(
-    (update: InfluenceUiState) =>
+    (update: ApiGenreInfluence) =>
       onChange(
         influences.map((item) => (item.id === update.id ? update : item))
       ),
@@ -155,8 +153,8 @@ const InfluenceMultiselect: FC<{
 }
 
 const SelectedInfluence: FC<{
-  influence: InfluenceUiState
-  onChange: (value: InfluenceUiState) => void
+  influence: ApiGenreInfluence
+  onChange: (value: ApiGenreInfluence) => void
   onRemove: () => void
   childType: GenreType
 }> = ({ influence, onChange, onRemove, childType }) => {

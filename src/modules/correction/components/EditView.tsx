@@ -18,9 +18,12 @@ const EditView: FC<{ genreId: number }> = ({ genreId }) => {
   useEffect(() => {
     if (isMyCorrection === undefined) return
     if (!isMyCorrection) {
-      void navigate(`/corrections/${correctionId}/edit/tree`)
+      void navigate({
+        pathname: `/corrections/${correctionId}/edit/genres/view`,
+        query: { genreId },
+      })
     }
-  }, [correctionId, isMyCorrection, navigate])
+  }, [correctionId, genreId, isMyCorrection, navigate])
 
   const [data, setData] = useState<GenreApiOutput>()
   const fetchData = useCallback(async () => {

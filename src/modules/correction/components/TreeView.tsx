@@ -114,10 +114,11 @@ const Node: FC<{ id: number }> = ({ id }) => {
             )}
           </div>
           <div className='text-lg font-medium mt-0.5'>
-            {/* TODO: Link to genre view page when not your correction */}
             <Link
               href={{
-                pathname: `/corrections/${correctionId}/edit/genres/edit`,
+                pathname: `/corrections/${correctionId}/edit/genres/${
+                  isMyCorrection ? 'edit' : 'view'
+                }`,
                 query: { genreId: id },
               }}
             >
