@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import Link from 'next/link'
-import { FC, useState } from 'react'
+import { FC, MouseEvent, useCallback, useEffect, useState } from 'react'
 import { HiChevronDown, HiChevronRight } from 'react-icons/hi'
 
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
@@ -25,20 +25,45 @@ const TreeView: FC = () => {
   )
 }
 
-const Node: FC<{ id: number }> = ({ id }) => {
+const Node: FC<{ id: number; expanded?: ExpandState }> = ({ id, expanded }) => {
   const { data } = useGenreQuery(id)
 
   if (!data) {
     return <div>Loading...</div>
   }
 
-  return <LoadedNode genre={data} />
+  return <LoadedNode genre={data} expanded={expanded} />
 }
 
-const LoadedNode: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
-  const [expanded, setExpanded] = useState(false)
+type ExpandState = false | 'single' | 'all'
+
+const LoadedNode: FC<{ genre: GenreApiOutput; expanded?: ExpandState }> = ({
+  genre,
+  expanded: passedExpanded,
+}) => {
+  const [expanded, setExpanded] = useState<ExpandState>(false)
+  useEffect(() => {
+    if (passedExpanded !== undefined) {
+      setExpanded(passedExpanded)
+    }
+  }, [passedExpanded])
 
   const color = useGenreTypeColor(genre.type)
+
+  const handleExpand = useCallback(
+    (e: MouseEvent) => {
+      if (expanded) {
+        setExpanded(false)
+      } else {
+        if (e.altKey) {
+          setExpanded('all')
+        } else {
+          setExpanded('single')
+        }
+      }
+    },
+    [expanded]
+  )
 
   return (
     <div>
@@ -48,7 +73,7 @@ const LoadedNode: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
             'p-2 text-stone-600 hover:text-primary-600',
             genre.children.length === 0 && 'invisible'
           )}
-          onClick={() => setExpanded(!expanded)}
+          onClick={(e) => handleExpand(e)}
         >
           {expanded ? <HiChevronDown /> : <HiChevronRight />}
         </button>
@@ -74,7 +99,10 @@ const LoadedNode: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
         <ul className='mt-2 ml-4 space-y-2 border-l border-stone-400'>
           {genre.children.map((id) => (
             <li className='pl-4' key={id}>
-              <Node id={id} />
+              <Node
+                id={id}
+                expanded={expanded === 'all' ? expanded : undefined}
+              />
             </li>
           ))}
         </ul>
