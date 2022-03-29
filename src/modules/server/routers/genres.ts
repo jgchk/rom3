@@ -302,6 +302,14 @@ const getGenres = async (): Promise<GenreApiOutput[]> => {
   return genres.map(toGenreApiOutput)
 }
 
+const getTopLevelGenres = async (): Promise<GenreApiOutput[]> => {
+  const genres = await prisma.genre.findMany({
+    where: { parents: { none: {} } },
+    include: genreInclude,
+  })
+  return genres.map(toGenreApiOutput)
+}
+
 const editGenre = async (
   id: number,
   input: GenreApiInput
@@ -325,8 +333,10 @@ const genresRouter = createRouter()
     input: GenreApiInput,
     resolve: ({ input }) => addGenre(input),
   })
-  .query('all', {
-    resolve: async () => getGenres(),
+  .query('list', {
+    input: z.object({ topLevel: z.boolean() }).optional(),
+    resolve: async ({ input }) =>
+      input?.topLevel ? getTopLevelGenres() : getGenres(),
   })
   .query('byId', {
     input: z.object({ id: z.number() }),

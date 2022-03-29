@@ -1,13 +1,19 @@
-import trpc, { InferQueryOptions } from '../utils/trpc'
+import trpc, { InferQueryInput, InferQueryOptions } from '../utils/trpc'
 
 export type {
   ApiGenreInfluence,
   GenreApiInput,
 } from '../../modules/server/routers/genres'
 
-export const useGenresQuery = (opts?: InferQueryOptions<'genres.all'>) => {
+export const useGenresQuery = ({
+  filters,
+  opts,
+}: {
+  filters?: InferQueryInput<'genres.list'>
+  opts?: InferQueryOptions<'genres.list'>
+} = {}) => {
   const utils = trpc.useContext()
-  return trpc.useQuery(['genres.all'], {
+  return trpc.useQuery(['genres.list', filters ?? undefined], {
     ...opts,
     useErrorBoundary: opts?.useErrorBoundary ?? true,
     onSuccess: (res) => {

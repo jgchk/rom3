@@ -171,7 +171,7 @@ export const useMergeCorrectionMutation = () => {
       void utils.invalidateQueries('corrections.drafts')
       void utils.invalidateQueries('corrections.submitted')
       void utils.invalidateQueries(['corrections.byId', { id: input.id }])
-      void utils.invalidateQueries('genres.all')
+      void utils.invalidateQueries('genres.list')
       void utils.invalidateQueries('genres.byId')
     },
   })
