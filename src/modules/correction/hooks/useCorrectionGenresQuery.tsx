@@ -44,6 +44,11 @@ const useCorrectionGenresQuery = (
             .filter((parentId) => !deletedIds.has(parentId))
             // replace ids of genres that have pending edits with the edited genre id
             .map((parentId) => editedIds[parentId]?.id ?? parentId),
+          children: genre.children
+            // remove deleted genres
+            .filter((childId) => !deletedIds.has(childId))
+            // replace ids of genres that have pending edits with the edited genre id
+            .map((childId) => editedIds[childId]?.id ?? childId),
           influencedBy: genre.influencedBy
             // remove deleted genres
             .filter((inf) => !deletedIds.has(inf.id))
