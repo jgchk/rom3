@@ -25,9 +25,6 @@ export const GenreType = z.union([
   z.literal('TREND'),
 ])
 
-const ApiGenreParent = z.number()
-type ApiGenreParent = z.infer<typeof ApiGenreParent>
-
 export const ApiInfluenceType = z.union([
   z.literal('HISTORICAL'),
   z.literal('SONIC'),
@@ -63,7 +60,8 @@ export type GenreApiOutput = Omit<Genre, 'shortDesc' | 'longDesc'> & {
   alternateNames: string[]
   shortDesc: string | undefined
   longDesc: string | undefined
-  parents: ApiGenreParent[]
+  parents: number[]
+  children: number[]
   influencedBy: ApiGenreInfluence[]
   locations: ApiLocation[]
   cultures: string[]
@@ -72,6 +70,7 @@ export type GenreApiOutput = Omit<Genre, 'shortDesc' | 'longDesc'> & {
 export type GenreInclude = Genre & {
   alternateNames: GenreName[]
   parents: GenreParent[]
+  children: GenreParent[]
   influencedBy: GenreInfluence[]
   locations: (GenreLocation & { location: Location })[]
   cultures: (GenreCulture & { culture: Culture })[]
@@ -79,6 +78,7 @@ export type GenreInclude = Genre & {
 export const genreInclude = {
   alternateNames: true,
   parents: true,
+  children: true,
   influencedBy: true,
   locations: { include: { location: true } },
   cultures: { include: { culture: true } },
@@ -262,6 +262,7 @@ export const toGenreApiOutput = (genre: GenreInclude): GenreApiOutput => ({
   shortDesc: genre.shortDesc ?? undefined,
   longDesc: genre.longDesc ?? undefined,
   parents: genre.parents.map((p) => p.parentId),
+  children: genre.children.map((p) => p.childId),
   influencedBy: genre.influencedBy.map((p) => ({
     id: p.influencerId,
     influenceType: p.influenceType ?? undefined,
