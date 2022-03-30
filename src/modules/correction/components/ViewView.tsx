@@ -6,6 +6,7 @@ import { GenreApiOutput } from '../../../common/model'
 import { ApiGenreInfluence } from '../../../common/services/genres'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import useCorrectionGenreQuery from '../hooks/useCorrectionGenreQuery'
+import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 
 const ViewView: FC<{ genreId: number }> = ({ genreId }) => {
   const { id: correctionId } = useCorrectionContext()
@@ -22,6 +23,9 @@ const ViewView: FC<{ genreId: number }> = ({ genreId }) => {
 const Loaded: FC<{
   genre: GenreApiOutput
 }> = ({ genre }) => {
+  const { id: correctionId } = useCorrectionContext()
+  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
+
   const [expanded, setExpanded] = useState(false)
 
   const color = useGenreTypeColor(genre.type)
@@ -66,6 +70,17 @@ const Loaded: FC<{
 
   return (
     <div>
+      {isMyCorrection && (
+        <Link
+          href={{
+            pathname: `/corrections/${correctionId}/genres/edit`,
+            query: { genreId: genre.id },
+          }}
+        >
+          <a>Edit</a>
+        </Link>
+      )}
+
       <div className='text-xs font-bold'>
         <span className={color}>{genre.type}</span>
         {genre.trial && (
