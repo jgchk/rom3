@@ -51,6 +51,10 @@ const DraftsList: FC = () => {
           .toLowerCase()
           .localeCompare((b.name ?? defaultCorrectionName).toLowerCase())
       ),
+
+    // TODO: Temporarily fixes a race condition where this query would refetch after clicking the confirm
+    // button for removing a change. Ideally we build some sort of confirm dialog so focus is not lost.
+    refetchOnWindowFocus: false,
   })
 
   if (data)
@@ -73,6 +77,10 @@ const SubmittedList: FC = () => {
           .toLowerCase()
           .localeCompare((b.name ?? defaultCorrectionName).toLowerCase())
       ),
+
+    // TODO: Temporarily fixes a race condition where this query would refetch after clicking the confirm
+    // button for removing a change. Ideally we build some sort of confirm dialog so focus is not lost.
+    refetchOnWindowFocus: false,
   })
 
   if (data)

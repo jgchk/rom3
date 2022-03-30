@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -7,12 +8,12 @@ import { useFromQueryParams } from '../../../common/hooks/useFromQueryParam'
 import useLoggedInQuery from '../../../common/hooks/useLoggedInQuery'
 import {
   CorrectionApiOutput,
+  useCreateCorrectionMutation,
   useDeleteCorrectionMutation,
   useSubmittedCorrectionsQuery,
 } from '../../../common/services/corrections'
 import { defaultCorrectionName } from '../constants'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
-import CreateCorrectionDialog from './CreateCorrectionDialog'
 import UpdateNameDialog from './UpdateNameDialog'
 
 const CorrectionsList: FC = () => {
@@ -26,9 +27,29 @@ const CorrectionsList: FC = () => {
           .toLowerCase()
           .localeCompare((b.name ?? defaultCorrectionName).toLowerCase())
       ),
+
+    // TODO: Temporarily fixes a race condition where this query would refetch after clicking the confirm
+    // button for removing a change. Ideally we build some sort of confirm dialog so focus is not lost.
+    refetchOnWindowFocus: false,
   })
 
-  const [showNameDialog, setShowNameDialog] = useState(false)
+  const { mutate, isLoading } = useCreateCorrectionMutation()
+  const { push: navigate } = useRouter()
+  const handleCreateCorrection = useCallback(
+    () =>
+      mutate(
+        {},
+        {
+          onSuccess: (res) => {
+            void navigate(`/corrections/${res.id}/tree`)
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [mutate, navigate]
+  )
 
   const renderList = useCallback(() => {
     if (data) {
@@ -45,33 +66,27 @@ const CorrectionsList: FC = () => {
   }, [data])
 
   return (
-    <>
-      <div className='space-y-4'>
-        {isLoggedIn ? (
-          <ButtonSecondary
-            onClick={() => setShowNameDialog(true)}
-            disabled={!isLoggedIn}
-          >
-            New Correction
-          </ButtonSecondary>
-        ) : (
-          <div className='text-stone-700'>
-            <Link href={{ pathname: '/register', query }}>
-              <a className='text-primary-600 font-bold hover:underline'>
-                Register
-              </a>
-            </Link>{' '}
-            to create a correction
-          </div>
-        )}
-
-        {renderList()}
-      </div>
-
-      {showNameDialog && (
-        <CreateCorrectionDialog onClose={() => setShowNameDialog(false)} />
+    <div className='space-y-4'>
+      {isLoggedIn ? (
+        <ButtonSecondary
+          onClick={() => handleCreateCorrection()}
+          disabled={isLoading}
+        >
+          New Correction
+        </ButtonSecondary>
+      ) : (
+        <div className='text-stone-700'>
+          <Link href={{ pathname: '/register', query }}>
+            <a className='text-primary-600 font-bold hover:underline'>
+              Register
+            </a>
+          </Link>{' '}
+          to create a correction
+        </div>
       )}
-    </>
+
+      {renderList()}
+    </div>
   )
 }
 
