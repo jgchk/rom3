@@ -252,7 +252,7 @@ const Child: FC<{ id: number }> = ({ id }) => {
 const Children: FC<{ childIds: number[] }> = ({ childIds }) => (
   <ul className='mt-4 space-y-4'>
     {childIds.map((id) => (
-      <li key={id} className='pl-6 border-l-2 border-primary-600'>
+      <li className='pl-6 border-l-2 border-primary-600' key={id}>
         <Child id={id} />
       </li>
     ))}
