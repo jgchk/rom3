@@ -144,33 +144,6 @@ const Loaded: FC<{
 
 export default ViewView
 
-const Parent: FC<{ id: number }> = ({ id }) => {
-  const { id: correctionId } = useCorrectionContext()
-  const { data } = useCorrectionGenreQuery(id, correctionId)
-
-  if (!data) return <div>Loading...</div>
-
-  return (
-    <div>
-      <Link
-        href={{
-          pathname: `/corrections/${correctionId}/genres/view`,
-          query: { genreId: id },
-        }}
-      >
-        <a className='font-semibold text-primary-600 hover:underline'>
-          {data.name}
-        </a>
-      </Link>
-      {data.shortDesc && (
-        <div className='text-sm font-medium text-stone-700'>
-          {data.shortDesc}
-        </div>
-      )}
-    </div>
-  )
-}
-
 const Influence: FC<ApiGenreInfluence> = ({ id, influenceType }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data } = useCorrectionGenreQuery(id, correctionId)
