@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
+import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
 
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
@@ -89,6 +90,8 @@ const Loaded: FC<{
 
   return (
     <div className='space-y-4'>
+      <Breadcrumbs genre={genre} />
+
       <div className='bg-white border border-stone-300 shadow-sm p-6'>
         <div className='text-xs font-bold'>
           <span className={color}>{genre.type}</span>
@@ -135,6 +138,42 @@ const Loaded: FC<{
 }
 
 export default Genre
+
+const Breadcrumbs: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
+  return (
+    <ol className='flex items-center text-sm text-stone-500'>
+      <li>
+        <Link href='/genres/tree'>
+          <a className='font-medium group flex items-center px-2 py-1'>
+            <HiChevronLeft className='mr-1' />
+            <span className='group-hover:underline'>All Genres</span>
+          </a>
+        </Link>
+      </li>
+      {genre.parents.length > 0 && <HiChevronRight />}
+      {genre.parents.map((id, i) => (
+        <li key={id}>
+          {i !== 0 && '|'}
+          <Breadcrumb id={id} />
+        </li>
+      ))}
+      <HiChevronRight />
+      <div className='font-semibold px-2 py-1'>{genre.name}</div>
+    </ol>
+  )
+}
+
+const Breadcrumb: FC<{ id: number }> = ({ id }) => {
+  const { data } = useGenreQuery(id)
+
+  return (
+    <Link href={`/genres/${id}`}>
+      <a className='text-sm text-stone-500 font-medium inline-flex items-center px-2 py-1 hover:underline'>
+        {data ? data.name : 'Loading...'}
+      </a>
+    </Link>
+  )
+}
 
 const Hierarchy: FC<{ genre: GenreApiOutput }> = ({ genre }) => (
   <div className='bg-white shadow-sm border border-stone-300'>
