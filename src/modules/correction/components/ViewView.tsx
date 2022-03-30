@@ -124,6 +124,18 @@ const Loaded: FC<{
           </ul>
         </div>
       )}
+      {genre.children.length > 0 && (
+        <div className='space-y-3 bg-stone-100 px-4 py-3 mt-6'>
+          <div className='text-stone-600 font-medium'>Children</div>
+          <ul className='space-y-3'>
+            {genre.children.map((childId) => (
+              <li key={childId}>
+                <Parent id={childId} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {genre.influencedBy.length > 0 && (
         <div className='space-y-3 bg-stone-100 px-4 py-3 mt-6'>
           <div className='text-stone-600 font-medium'>Influences</div>

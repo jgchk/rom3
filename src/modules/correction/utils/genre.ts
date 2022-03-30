@@ -42,7 +42,24 @@ export const makeCorrectionGenre = (
 
   const editedGenre = editedIds[originalGenre.id]
   const genre: CorrectionGenre = editedGenre
-    ? { ...editedGenre, id: originalGenre.id, changes: 'edited' }
+    ? {
+        ...editedGenre,
+        id: originalGenre.id,
+        children: originalGenre.children.filter((childId) => {
+          const editedChild = editedIds[childId]
+          return !editedChild || editedChild.parents.includes(originalGenre.id)
+        }),
+        influences: originalGenre.influences.filter((inf) => {
+          const editedInfluenced = editedIds[inf.id]
+          return (
+            !editedInfluenced ||
+            editedInfluenced.influencedBy
+              .map((inf) => inf.id)
+              .includes(originalGenre.id)
+          )
+        }),
+        changes: 'edited',
+      }
     : { ...originalGenre, changes: undefined }
 
   return {

@@ -7,8 +7,9 @@ import { TError } from '../../../common/utils/trpc'
 import { makeCorrectionGenre } from '../utils/genre'
 
 export type CorrectionGenre = GenreApiOutput & {
-  changes: 'created' | 'edited' | undefined
+  changes: ChangeType | undefined
 }
+export type ChangeType = 'created' | 'edited'
 
 const useCorrectionGenreQuery = (
   genreId: number,
