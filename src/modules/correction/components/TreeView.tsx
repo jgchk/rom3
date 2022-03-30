@@ -55,9 +55,12 @@ const Tree: FC<{ tree: GenreTree; parentGenre?: CorrectionGenre }> = ({
 
   const topLevelGenres = useMemo(
     () =>
-      parentGenre
+      (parentGenre
         ? parentGenre.children.map((id) => tree[id])
-        : Object.values(tree).filter((genre) => genre.parents.length === 0),
+        : Object.values(tree).filter((genre) => genre.parents.length === 0)
+      ).sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+      ),
     [parentGenre, tree]
   )
 
@@ -65,7 +68,10 @@ const Tree: FC<{ tree: GenreTree; parentGenre?: CorrectionGenre }> = ({
     () =>
       new Set(
         topLevelGenres
-          .filter((genre) => getDescendantChanges(genre.id, tree).size > 0)
+          .filter(
+            (genre) =>
+              genre.changes || getDescendantChanges(genre.id, tree).size > 0
+          )
           .map((genre) => genre.id)
       ),
     [topLevelGenres, tree]
