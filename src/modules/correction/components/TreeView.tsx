@@ -72,14 +72,6 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
 
   const [showUnchanged, setShowUnchanged] = useState(false)
 
-  const renderedGenres = useMemo(
-    () =>
-      showUnchanged
-        ? [...changedTopLevelGenres, ...unchangedTopLevelGenres]
-        : changedTopLevelGenres,
-    [changedTopLevelGenres, showUnchanged, unchangedTopLevelGenres]
-  )
-
   const renderToolbar = useCallback(
     () => (
       <div className='flex border border-stone-300 bg-white shadow-sm w-fit'>
@@ -103,19 +95,34 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
 
   return (
     <TreeProvider tree={tree}>
-      <div className='space-y-4'>
+      <div>
         {isMyCorrection && renderToolbar()}
-        <button onClick={() => setShowUnchanged(!showUnchanged)}>
-          {showUnchanged ? 'Hide Unchanged' : 'Show Unchanged'}
-        </button>
-        <ul className='space-y-2'>
-          {renderedGenres.map((genre) => (
-            <li key={genre.id}>
-              <Node id={genre.id} />
-            </li>
-          ))}
-        </ul>
-        {isMyCorrection && topLevelGenres.length > 0 && renderToolbar()}
+        {changedTopLevelGenres.length > 0 && (
+          <ul className='space-y-8 mt-8'>
+            {changedTopLevelGenres.map((genre) => (
+              <li key={genre.id}>
+                <Node id={genre.id} />
+              </li>
+            ))}
+          </ul>
+        )}
+        {unchangedTopLevelGenres.length > 0 && (
+          <button
+            className='mt-8 w-full text-left border border-stone-300 bg-white shadow-sm px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'
+            onClick={() => setShowUnchanged(!showUnchanged)}
+          >
+            {showUnchanged ? 'Hide Unchanged' : 'Show Unchanged'}
+          </button>
+        )}
+        {showUnchanged && unchangedTopLevelGenres.length > 0 && (
+          <ul className='space-y-8 mt-2'>
+            {unchangedTopLevelGenres.map((genre) => (
+              <li key={genre.id}>
+                <Node id={genre.id} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </TreeProvider>
   )
@@ -166,16 +173,6 @@ const Node: FC<{ id: number }> = ({ id }) => {
 
     return [changed, unchanged]
   }, [changedChildIds, genre.children, tree])
-
-  const [showUnchanged, setShowUnchanged] = useState(false)
-
-  const renderedChildren = useMemo(
-    () =>
-      showUnchanged
-        ? [...changedChildren, ...unchangedChildren]
-        : changedChildren,
-    [changedChildren, showUnchanged, unchangedChildren]
-  )
 
   const { mutate } = useDeleteCorrectionGenreMutation()
   const handleDelete = useCallback(
@@ -282,14 +279,18 @@ const Node: FC<{ id: number }> = ({ id }) => {
           </div>
         )}
       </div>
-      {unchangedChildren.length > 0 && (
-        <button onClick={() => setShowUnchanged(!showUnchanged)}>
-          {showUnchanged ? 'Hide Unchanged' : 'Show Unchanged'}
-        </button>
-      )}
-      {renderedChildren.length > 0 && (
+      {changedChildren.length > 0 && (
         <ul className='mt-2 space-y-2'>
-          {renderedChildren.map((genre) => (
+          {changedChildren.map((genre) => (
+            <li className='pl-8' key={genre.id}>
+              <Node id={genre.id} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {unchangedChildren.length > 0 && (
+        <ul className='mt-2 space-y-2'>
+          {unchangedChildren.map((genre) => (
             <li className='pl-8' key={genre.id}>
               <Node id={genre.id} />
             </li>
