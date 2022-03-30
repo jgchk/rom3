@@ -1,178 +1,86 @@
-import clsx from 'clsx'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { FC, MouseEvent, useCallback, useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
-import { HiChevronDown, HiChevronRight } from 'react-icons/hi'
+import { FC, useMemo } from 'react'
 
-import ButtonSecondary from '../../../common/components/ButtonSecondary'
-import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import { GenreApiOutput } from '../../../common/model'
-import { useCreateCorrectionMutation } from '../../../common/services/corrections'
-import { useGenreQuery, useGenresQuery } from '../../../common/services/genres'
+import { useGenreQuery } from '../../../common/services/genres'
+import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
+import useGenreTreeQuery, { GenreTree } from '../hooks/useGenreTreeQuery'
 
-const TreeView: FC = () => {
-  const { data } = useGenresQuery({ filters: { topLevel: true } })
+const TreeView: FC<{ parentId?: number }> = ({ parentId }) =>
+  parentId !== undefined ? <HasParent parentId={parentId} /> : <NoParent />
 
-  const { mutate, isLoading } = useCreateCorrectionMutation()
-  const { push: navigate } = useRouter()
-  const handleAddNewGenre = useCallback(
-    () =>
-      mutate(
-        {},
-        {
-          onSuccess: (res) => {
-            void navigate({
-              pathname: `/corrections/${res.id}/genres/create`,
-              query: { type: 'STYLE' },
-            })
-          },
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
-    [mutate, navigate]
-  )
+const HasParent: FC<{ parentId: number }> = ({ parentId }) => {
+  const { data: treeData } = useGenreTreeQuery()
+  const { data: genreData } = useGenreQuery(parentId)
 
-  return (
-    <div>
-      <ButtonSecondary
-        className='mb-6'
-        onClick={() => handleAddNewGenre()}
-        disabled={isLoading}
-      >
-        Add New Genre
-      </ButtonSecondary>
-      {data ? (
-        <ul className='space-y-6'>
-          {data.map((genre) => (
-            <li key={genre.id}>
-              <Node id={genre.id} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div>Loading...</div>
-      )}
-    </div>
-  )
-}
-
-const Node: FC<{ id: number; expanded?: ExpandState }> = ({ id, expanded }) => {
-  const { data } = useGenreQuery(id)
-
-  if (!data) {
-    return <div>Loading...</div>
+  if (treeData) {
+    return <Tree tree={treeData} parentGenre={genreData} />
   }
 
-  return <LoadedNode genre={data} expanded={expanded} />
+  return <div>Loading...</div>
 }
 
-type ExpandState = false | 'single' | 'all'
+const NoParent: FC = () => {
+  const { data: treeData } = useGenreTreeQuery()
 
-const LoadedNode: FC<{ genre: GenreApiOutput; expanded?: ExpandState }> = ({
-  genre,
-  expanded: passedExpanded,
+  if (treeData) {
+    return <Tree tree={treeData} />
+  }
+
+  return <div>Loading...</div>
+}
+
+const Tree: FC<{ tree: GenreTree; parentGenre?: GenreApiOutput }> = ({
+  tree,
+  parentGenre,
 }) => {
-  const [expanded, setExpanded] = useState<ExpandState>(false)
-  useEffect(() => {
-    if (passedExpanded !== undefined) {
-      setExpanded(passedExpanded)
-    }
-  }, [passedExpanded])
-
-  const color = useGenreTypeColor(genre.type)
-
-  const handleExpand = useCallback(
-    (e: MouseEvent) => {
-      if (expanded) {
-        setExpanded(false)
-      } else {
-        if (e.altKey) {
-          setExpanded('all')
-        } else {
-          setExpanded('single')
-        }
-      }
-    },
-    [expanded]
-  )
-
-  const { mutate, isLoading } = useCreateCorrectionMutation()
-  const { push: navigate } = useRouter()
-  const handleEditGenre = useCallback(
+  const topLevelGenres = useMemo(
     () =>
-      mutate(
-        {},
-        {
-          onSuccess: (res) => {
-            void navigate({
-              pathname: `/corrections/${res.id}/genres/edit`,
-              query: { genreId: genre.id },
-            })
-          },
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
+      (parentGenre
+        ? parentGenre.children.map((id) => tree[id])
+        : Object.values(tree).filter((genre) => genre.parents.length === 0)
+      ).sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
       ),
-    [genre.id, mutate, navigate]
+    [parentGenre, tree]
   )
 
   return (
-    <div>
-      <div className='flex'>
-        <button
-          className={clsx(
-            'p-2 text-stone-600 hover:text-primary-600',
-            genre.children.length === 0 && 'invisible'
-          )}
-          onClick={(e) => handleExpand(e)}
-        >
-          {expanded ? <HiChevronDown /> : <HiChevronRight />}
-        </button>
-        <div className='flex-1 border border-stone-300 bg-white shadow-sm'>
-          <div className='p-2'>
-            <div className='text-xs font-bold'>
-              <span className={color}>{genre.type}</span>
-              {genre.trial && (
-                <>
-                  {' '}
-                  <span className='text-stone-500'>(TRIAL)</span>
-                </>
-              )}
-            </div>
-            <div className='text-lg font-medium mt-0.5'>
-              <Link href={`/genres/${genre.id}`}>
-                <a className='hover:underline'>{genre.name}</a>
-              </Link>
-            </div>
-            <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
-          </div>
-          <div className='flex justify-between border-t border-stone-200'>
-            <button
-              className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'
-              onClick={() => handleEditGenre()}
-              disabled={isLoading}
-            >
-              Edit
-            </button>
-          </div>
-        </div>
+    <TreeProvider tree={tree}>
+      <div className='space-y-4'>
+        {topLevelGenres.length > 0 && (
+          <ul className='space-y-4'>
+            {topLevelGenres.map((genre) => (
+              <li key={genre.id}>
+                <Node id={genre.id} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      {genre.children.length > 0 && expanded && (
-        <ul className='mt-2 ml-4 space-y-2 border-l border-stone-400'>
-          {genre.children.map((id) => (
-            <li className='pl-4' key={id}>
-              <Node
-                id={id}
-                expanded={expanded === 'all' ? expanded : undefined}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
+    </TreeProvider>
+  )
+}
+
+const Node: FC<{ id: number }> = ({ id }) => {
+  const tree = useGenreTree()
+
+  const genre = useMemo(() => tree[id], [id, tree])
+
+  return (
+    <div className='border border-stone-300 bg-white shadow-sm'>
+      <div className='p-2'>
+        <div className='text-xs font-bold text-stone-500'>
+          {genre.type}
+          {genre.trial && <> (TRIAL)</>}
+        </div>
+        <div className='text-lg font-medium mt-0.5'>
+          <Link href={`/genres/${id}`}>
+            <a className='hover:underline'>{genre.name}</a>
+          </Link>
+        </div>
+        <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
+      </div>
     </div>
   )
 }

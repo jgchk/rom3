@@ -24,7 +24,7 @@ const GenrePage: NextPage = () => {
   return (
     <div className='flex justify-center p-3'>
       <div className='flex-1 max-w-screen-lg'>
-        <Genre id={id} />
+        <Genre genreId={id} />
       </div>
     </div>
   )
