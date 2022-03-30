@@ -8,7 +8,6 @@ import { genreTypes } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
 import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
 import { capitalize } from '../../../common/utils/string'
-import { isDefined } from '../../../common/utils/types'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
 import { ChangeType } from '../hooks/useCorrectionGenreQuery'
@@ -16,29 +15,7 @@ import useCorrectionGenreTreeQuery, {
   GenreTree,
 } from '../hooks/useCorrectionGenreTreeQuery'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
-
-const getDescendantIds = (id: number, tree: GenreTree) => {
-  const descendantIds = []
-
-  const queue = [id]
-  while (queue.length > 0) {
-    const descendantId = queue.pop()
-    if (descendantId === undefined) continue
-
-    const descendant = tree[descendantId]
-    descendantIds.push(...descendant.children)
-    queue.push(...descendant.children)
-  }
-
-  return descendantIds
-}
-
-const getDescendantChanges = (id: number, tree: GenreTree) =>
-  new Set(
-    getDescendantIds(id, tree)
-      .map((id) => tree[id].changes)
-      .filter(isDefined)
-  )
+import { getDescendantChanges } from '../utils/genre'
 
 const TreeView: FC = () => {
   const { id: correctionId } = useCorrectionContext()
@@ -173,13 +150,13 @@ const Node: FC<{ id: number }> = ({ id }) => {
   const topbarText: string = useMemo(() => {
     switch (genre.changes) {
       case undefined:
-        return descendantChanges.size > 0 ? 'Changed' : 'Unchanged'
+        return 'Unchanged'
       case 'created':
         return 'Created'
       case 'edited':
         return 'Edited'
     }
-  }, [descendantChanges.size, genre.changes])
+  }, [genre.changes])
 
   const topbarColor: string = useMemo(() => {
     switch (genre.changes) {

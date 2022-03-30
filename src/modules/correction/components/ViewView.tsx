@@ -7,6 +7,7 @@ import { ApiGenreInfluence } from '../../../common/services/genres'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import useCorrectionGenreQuery from '../hooks/useCorrectionGenreQuery'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
+import TreeView from './TreeView'
 
 const ViewView: FC<{ genreId: number }> = ({ genreId }) => {
   const { id: correctionId } = useCorrectionContext()
@@ -127,13 +128,14 @@ const Loaded: FC<{
       {genre.children.length > 0 && (
         <div className='space-y-3 bg-stone-100 px-4 py-3 mt-6'>
           <div className='text-stone-600 font-medium'>Children</div>
-          <ul className='space-y-3'>
+          {/* <ul className='space-y-3'>
             {genre.children.map((childId) => (
               <li key={childId}>
                 <Parent id={childId} />
               </li>
             ))}
-          </ul>
+          </ul> */}
+          <TreeView parentId={genre.id} />
         </div>
       )}
       {genre.influencedBy.length > 0 && (

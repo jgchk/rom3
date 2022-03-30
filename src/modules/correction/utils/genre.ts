@@ -5,6 +5,7 @@ import { CorrectionApiOutput } from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
 import { isDefined } from '../../../common/utils/types'
 import { CorrectionGenre } from '../hooks/useCorrectionGenreQuery'
+import { GenreTree } from '../hooks/useCorrectionGenreTreeQuery'
 
 export const makeUiData = (
   type: GenreType,
@@ -94,3 +95,26 @@ export const makeCorrectionGenre = (
     ],
   }
 }
+
+export const getDescendantIds = (id: number, tree: GenreTree) => {
+  const descendantIds = []
+
+  const queue = [id]
+  while (queue.length > 0) {
+    const descendantId = queue.pop()
+    if (descendantId === undefined) continue
+
+    const descendant = tree[descendantId]
+    descendantIds.push(...descendant.children)
+    queue.push(...descendant.children)
+  }
+
+  return descendantIds
+}
+
+export const getDescendantChanges = (id: number, tree: GenreTree) =>
+  new Set(
+    getDescendantIds(id, tree)
+      .map((id) => tree[id].changes)
+      .filter(isDefined)
+  )

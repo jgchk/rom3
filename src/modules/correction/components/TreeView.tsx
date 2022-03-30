@@ -3,57 +3,55 @@ import Link from 'next/link'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import { genreTypes } from '../../../common/model'
+import Tooltip from '../../../common/components/Tooltip'
 import { genreChildTypes } from '../../../common/model/parents'
 import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
 import { capitalize } from '../../../common/utils/string'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
+import useCorrectionGenreQuery, {
+  ChangeType,
+  CorrectionGenre,
+} from '../hooks/useCorrectionGenreQuery'
 import useCorrectionGenreTreeQuery, {
   GenreTree,
 } from '../hooks/useCorrectionGenreTreeQuery'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
+import { getDescendantChanges } from '../utils/genre'
 
-const TreeView: FC = () => {
+const TreeView: FC<{ parentId: number }> = ({ parentId }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data: treeData } = useCorrectionGenreTreeQuery(correctionId)
+  const { data: genreData } = useCorrectionGenreQuery(parentId, correctionId)
 
-  if (treeData) {
-    return <Tree tree={treeData} />
+  if (treeData && genreData) {
+    return <Tree tree={treeData} parentGenre={genreData} />
   }
 
   return <div>Loading...</div>
 }
 
-const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
+const Tree: FC<{ tree: GenreTree; parentGenre: CorrectionGenre }> = ({
+  tree,
+  parentGenre,
+}) => {
   const { id: correctionId } = useCorrectionContext()
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
 
   const topLevelGenres = useMemo(
-    () => Object.values(tree).filter((genre) => genre.parents.length === 0),
-    [tree]
+    () => parentGenre.children.map((id) => tree[id]),
+    [parentGenre.children, tree]
   )
 
-  const changedTopLevelIds = useMemo(() => {
-    const changedGenres = Object.values(tree).filter((genre) => genre.changes)
-
-    const topLevelIds = new Set()
-
-    const queue = changedGenres.map((genre) => genre.id)
-    while (queue.length > 0) {
-      const id = queue.pop()
-      if (id === undefined) continue
-
-      const genre = tree[id]
-      if (genre.parents.length === 0) {
-        topLevelIds.add(id)
-      }
-
-      queue.push(...genre.parents)
-    }
-
-    return topLevelIds
-  }, [tree])
+  const changedTopLevelIds = useMemo(
+    () =>
+      new Set(
+        topLevelGenres
+          .filter((genre) => getDescendantChanges(genre.id, tree).size > 0)
+          .map((genre) => genre.id)
+      ),
+    [topLevelGenres, tree]
+  )
 
   const [changedTopLevelGenres, unchangedTopLevelGenres] = useMemo(() => {
     const changed = []
@@ -70,17 +68,20 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
     return [changed, unchanged]
   }, [changedTopLevelIds, topLevelGenres])
 
-  const [showUnchanged, setShowUnchanged] = useState(false)
+  const childTypes = useMemo(
+    () => genreChildTypes[parentGenre.type],
+    [parentGenre.type]
+  )
 
   const renderToolbar = useCallback(
     () => (
       <div className='flex border border-stone-300 bg-white shadow-sm w-fit'>
-        {genreTypes.map((genreType) => (
+        {childTypes.map((genreType) => (
           <Link
             key={genreType}
             href={{
               pathname: `/corrections/${correctionId}/genres/create`,
-              query: { type: genreType },
+              query: { type: genreType, parentId: parentGenre.id },
             }}
           >
             <a className='border-r last:border-0 border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
@@ -90,15 +91,15 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
         ))}
       </div>
     ),
-    [correctionId]
+    [childTypes, correctionId, parentGenre.id]
   )
 
   return (
     <TreeProvider tree={tree}>
-      <div>
+      <div className='space-y-4'>
         {isMyCorrection && renderToolbar()}
         {changedTopLevelGenres.length > 0 && (
-          <ul className='space-y-8 mt-8'>
+          <ul className='space-y-4'>
             {changedTopLevelGenres.map((genre) => (
               <li key={genre.id}>
                 <Node id={genre.id} />
@@ -107,15 +108,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
           </ul>
         )}
         {unchangedTopLevelGenres.length > 0 && (
-          <button
-            className='mt-8 w-full text-left border border-stone-300 bg-white shadow-sm px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'
-            onClick={() => setShowUnchanged(!showUnchanged)}
-          >
-            {showUnchanged ? 'Hide Unchanged' : 'Show Unchanged'}
-          </button>
-        )}
-        {showUnchanged && unchangedTopLevelGenres.length > 0 && (
-          <ul className='space-y-8 mt-2'>
+          <ul className='space-y-4'>
             {unchangedTopLevelGenres.map((genre) => (
               <li key={genre.id}>
                 <Node id={genre.id} />
@@ -128,6 +121,15 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
   )
 }
 
+const getChangeColor = (type: ChangeType): string => {
+  switch (type) {
+    case 'created':
+      return 'bg-green-600'
+    case 'edited':
+      return 'bg-blue-600'
+  }
+}
+
 const Node: FC<{ id: number }> = ({ id }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
@@ -135,44 +137,12 @@ const Node: FC<{ id: number }> = ({ id }) => {
   const tree = useGenreTree()
 
   const genre = useMemo(() => tree[id], [id, tree])
-
   const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
 
-  const changedChildIds = useMemo(() => {
-    const changedGenres = Object.values(tree).filter((genre) => genre.changes)
-
-    const childIds = new Set<number>()
-
-    const queue = changedGenres.map((genre) => genre.id)
-    while (queue.length > 0) {
-      const descendantId = queue.pop()
-      if (descendantId === undefined) continue
-
-      const genre = tree[descendantId]
-      if (genre.parents.includes(id)) {
-        childIds.add(descendantId)
-      }
-
-      queue.push(...genre.parents)
-    }
-
-    return childIds
-  }, [id, tree])
-
-  const [changedChildren, unchangedChildren] = useMemo(() => {
-    const changed = []
-    const unchanged = []
-
-    for (const childId of genre.children) {
-      if (changedChildIds.has(childId)) {
-        changed.push(tree[childId])
-      } else {
-        unchanged.push(tree[childId])
-      }
-    }
-
-    return [changed, unchanged]
-  }, [changedChildIds, genre.children, tree])
+  const descendantChanges = useMemo(
+    () => getDescendantChanges(id, tree),
+    [id, tree]
+  )
 
   const { mutate } = useDeleteCorrectionGenreMutation()
   const handleDelete = useCallback(
@@ -204,98 +174,102 @@ const Node: FC<{ id: number }> = ({ id }) => {
       case undefined:
         return 'bg-stone-200 text-stone-400'
       case 'created':
-        return 'bg-green-600 text-white'
       case 'edited':
-        return 'bg-blue-600 text-white'
+        return clsx(getChangeColor(genre.changes), 'text-white')
     }
   }, [genre.changes])
 
   return (
-    <div>
-      <div className='border border-stone-300 bg-white shadow-sm'>
-        <div
-          className={clsx(
-            'border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold',
-            topbarColor
-          )}
-        >
-          {topbarText}
+    <div className='border border-stone-300 bg-white shadow-sm'>
+      <div
+        className={clsx(
+          'border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold flex items-stretch',
+          topbarColor
+        )}
+      >
+        <div>{topbarText}</div>
+        {descendantChanges.size > 0 && <Changes changes={descendantChanges} />}
+      </div>
+      <div className='p-2'>
+        <div className='text-xs font-bold text-stone-500'>
+          {genre.type}
+          {genre.trial && <> (TRIAL)</>}
         </div>
-        <div className='p-2'>
-          <div className='text-xs font-bold text-stone-500'>
-            {genre.type}
-            {genre.trial && <> (TRIAL)</>}
-          </div>
-          <div className='text-lg font-medium mt-0.5'>
+        <div className='text-lg font-medium mt-0.5'>
+          <Link
+            href={{
+              pathname: `/corrections/${correctionId}/genres/view`,
+              query: { genreId: id },
+            }}
+          >
+            <a className='hover:underline'>{genre.name}</a>
+          </Link>
+        </div>
+        <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
+      </div>
+      {isMyCorrection && (
+        <div className='flex justify-between border-t border-stone-200'>
+          <div className='flex'>
             <Link
               href={{
-                pathname: `/corrections/${correctionId}/genres/view`,
+                pathname: `/corrections/${correctionId}/genres/edit`,
                 query: { genreId: id },
               }}
             >
-              <a className='hover:underline'>{genre.name}</a>
+              <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
+                Edit
+              </a>
             </Link>
-          </div>
-          <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
-        </div>
-        {isMyCorrection && (
-          <div className='flex justify-between border-t border-stone-200'>
-            <div className='flex'>
+            {childTypes.map((childType) => (
               <Link
+                key={childType}
                 href={{
-                  pathname: `/corrections/${correctionId}/genres/edit`,
-                  query: { genreId: id },
+                  pathname: `/corrections/${correctionId}/genres/create`,
+                  query: {
+                    type: childType,
+                    parentId: id,
+                  },
                 }}
               >
                 <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-                  Edit
+                  Add Child {capitalize(childType)}
                 </a>
               </Link>
-              {childTypes.map((childType) => (
-                <Link
-                  key={childType}
-                  href={{
-                    pathname: `/corrections/${correctionId}/genres/create`,
-                    query: {
-                      type: childType,
-                      parentId: id,
-                    },
-                  }}
-                >
-                  <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-                    Add Child {capitalize(childType)}
-                  </a>
-                </Link>
-              ))}
-            </div>
-            <button
-              className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
-              onClick={() => handleDelete()}
-            >
-              Delete
-            </button>
+            ))}
           </div>
-        )}
-      </div>
-      {changedChildren.length > 0 && (
-        <ul className='mt-2 space-y-2'>
-          {changedChildren.map((genre) => (
-            <li className='pl-8' key={genre.id}>
-              <Node id={genre.id} />
-            </li>
-          ))}
-        </ul>
-      )}
-      {unchangedChildren.length > 0 && (
-        <ul className='mt-2 space-y-2'>
-          {unchangedChildren.map((genre) => (
-            <li className='pl-8' key={genre.id}>
-              <Node id={genre.id} />
-            </li>
-          ))}
-        </ul>
+          <button
+            className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
+            onClick={() => handleDelete()}
+          >
+            Delete
+          </button>
+        </div>
       )}
     </div>
+  )
+}
+
+const Changes: FC<{ changes: Set<ChangeType> }> = ({ changes }) => {
+  const sorted = useMemo(() => [...changes].sort(), [changes])
+
+  const [ref, setRef] = useState<HTMLDivElement | null>(null)
+
+  return (
+    <>
+      <div className='flex items-center space-x-1 px-2' ref={setRef}>
+        {sorted.map((type) => (
+          <div
+            className={clsx(
+              'w-1.5 h-1.5 rounded-full ring-1 ring-stone-200',
+              getChangeColor(type)
+            )}
+            key={type}
+          />
+        ))}
+      </div>
+
+      <Tooltip referenceElement={ref}>Has changes in subtree</Tooltip>
+    </>
   )
 }
 
