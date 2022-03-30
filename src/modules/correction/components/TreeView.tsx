@@ -105,7 +105,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
   )
 
   return (
-    <TreeProvider tree={tree}>
+    <TreeProvider tree={tree} showUnchanged={showUnchanged}>
       <div className='space-y-4'>
         {isMyCorrection && renderToolbar()}
         <button onClick={() => setShowUnchanged(!showUnchanged)}>
@@ -131,9 +131,54 @@ const Node: FC<{ id: number }> = ({ id }) => {
   const tree = useGenreTree()
 
   const genre = useMemo(() => tree.genres[id], [id, tree.genres])
-  const children = useMemo(() => tree.children[id] ?? [], [id, tree.children])
 
   const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
+
+  const changedChildIds = useMemo(() => {
+    const changedGenres = Object.values(tree.genres).filter(
+      (genre) => genre.changes
+    )
+
+    const childIds = new Set<number>()
+
+    const queue = changedGenres.map((genre) => genre.id)
+    while (queue.length > 0) {
+      const descendantId = queue.pop()
+      if (descendantId === undefined) continue
+
+      const genre = tree.genres[descendantId]
+      if (genre.parents.includes(id)) {
+        childIds.add(descendantId)
+      }
+
+      queue.push(...genre.parents)
+    }
+
+    return childIds
+  }, [id, tree.genres])
+
+  const [changedChildren, unchangedChildren] = useMemo(() => {
+    const changed = []
+    const unchanged = []
+
+    for (const childId of genre.children) {
+      if (changedChildIds.has(childId)) {
+        changed.push(tree.genres[childId])
+      } else {
+        unchanged.push(tree.genres[childId])
+      }
+    }
+
+    return [changed, unchanged]
+  }, [changedChildIds, genre.children, tree.genres])
+
+  const renderedChildren = useMemo(
+    () =>
+      tree.showUnchanged
+        ? [...changedChildren, ...unchangedChildren]
+        : changedChildren,
+    [changedChildren, tree.showUnchanged, unchangedChildren]
+  )
 
   const { mutate } = useDeleteCorrectionGenreMutation()
   const handleDelete = useCallback(
@@ -163,11 +208,11 @@ const Node: FC<{ id: number }> = ({ id }) => {
   const topbarColor: string = useMemo(() => {
     switch (genre.changes) {
       case undefined:
-        return 'bg-stone-600'
+        return 'bg-stone-200 text-stone-400'
       case 'created':
-        return 'bg-green-600'
+        return 'bg-green-600 text-white'
       case 'edited':
-        return 'bg-blue-600'
+        return 'bg-blue-600 text-white'
     }
   }, [genre.changes])
 
@@ -176,7 +221,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
       <div className='border border-stone-300 bg-white shadow-sm'>
         <div
           className={clsx(
-            'border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white',
+            'border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold',
             topbarColor
           )}
         >
@@ -240,11 +285,11 @@ const Node: FC<{ id: number }> = ({ id }) => {
           </div>
         )}
       </div>
-      {children.length > 0 && (
+      {renderedChildren.length > 0 && (
         <ul className='mt-2 space-y-2'>
-          {children.map((id) => (
-            <li className='pl-8' key={id}>
-              <Node id={id} />
+          {renderedChildren.map((genre) => (
+            <li className='pl-8' key={genre.id}>
+              <Node id={genre.id} />
             </li>
           ))}
         </ul>
