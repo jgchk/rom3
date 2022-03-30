@@ -1,16 +1,60 @@
 import clsx from 'clsx'
 import Link from 'next/link'
-import { FC, useMemo, useState } from 'react'
+import { useRouter } from 'next/router'
+import { FC, useCallback, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 
+import ButtonSecondary from '../../../common/components/ButtonSecondary'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
+import useLoggedInQuery from '../../../common/hooks/useLoggedInQuery'
 import { GenreApiOutput } from '../../../common/model'
+import { useCreateCorrectionMutation } from '../../../common/services/corrections'
 import { useGenreQuery } from '../../../common/services/genres'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
 import useGenreTreeQuery, { GenreTree } from '../hooks/useGenreTreeQuery'
 import { getDescendantIds } from '../utils/genre'
 
-const TreeView: FC<{ parentId?: number }> = ({ parentId }) =>
-  parentId !== undefined ? <HasParent parentId={parentId} /> : <NoParent />
+const TreeView: FC<{ parentId?: number }> = ({ parentId }) => {
+  const { data: isLoggedIn } = useLoggedInQuery()
+
+  const { mutate, isLoading } = useCreateCorrectionMutation()
+  const { push: navigate } = useRouter()
+  const handleCreate = useCallback(
+    () =>
+      mutate(
+        {},
+        {
+          onSuccess: (res) => {
+            void navigate(`/corrections/${res.id}/genres/create`)
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [mutate, navigate]
+  )
+
+  return (
+    <div>
+      {parentId !== undefined ? (
+        <HasParent parentId={parentId} />
+      ) : (
+        <NoParent />
+      )}
+
+      {isLoggedIn && (
+        <ButtonSecondary
+          className='mt-4'
+          onClick={() => handleCreate()}
+          disabled={isLoading}
+        >
+          Add New Genre
+        </ButtonSecondary>
+      )}
+    </div>
+  )
+}
 
 const HasParent: FC<{ parentId: number }> = ({ parentId }) => {
   const { data: treeData } = useGenreTreeQuery()
