@@ -12,11 +12,10 @@ import { useCreateCorrectionMutation } from '../../../common/services/correction
 import { useGenreQuery, useGenresQuery } from '../../../common/services/genres'
 
 const TreeView: FC = () => {
-  const { push: navigate } = useRouter()
-
   const { data } = useGenresQuery({ filters: { topLevel: true } })
 
   const { mutate, isLoading } = useCreateCorrectionMutation()
+  const { push: navigate } = useRouter()
   const handleAddNewGenre = useCallback(
     () =>
       mutate(
@@ -100,6 +99,27 @@ const LoadedNode: FC<{ genre: GenreApiOutput; expanded?: ExpandState }> = ({
     [expanded]
   )
 
+  const { mutate, isLoading } = useCreateCorrectionMutation()
+  const { push: navigate } = useRouter()
+  const handleEditGenre = useCallback(
+    () =>
+      mutate(
+        {},
+        {
+          onSuccess: (res) => {
+            void navigate({
+              pathname: `/corrections/${res.id}/genres/edit`,
+              query: { genreId: genre.id },
+            })
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [genre.id, mutate, navigate]
+  )
+
   return (
     <div>
       <div className='flex'>
@@ -112,22 +132,33 @@ const LoadedNode: FC<{ genre: GenreApiOutput; expanded?: ExpandState }> = ({
         >
           {expanded ? <HiChevronDown /> : <HiChevronRight />}
         </button>
-        <div className='flex-1 border border-stone-300 bg-white shadow-sm p-2'>
-          <div className='text-xs font-bold'>
-            <span className={color}>{genre.type}</span>
-            {genre.trial && (
-              <>
-                {' '}
-                <span className='text-stone-500'>(TRIAL)</span>
-              </>
-            )}
+        <div className='flex-1 border border-stone-300 bg-white shadow-sm'>
+          <div className='p-2'>
+            <div className='text-xs font-bold'>
+              <span className={color}>{genre.type}</span>
+              {genre.trial && (
+                <>
+                  {' '}
+                  <span className='text-stone-500'>(TRIAL)</span>
+                </>
+              )}
+            </div>
+            <div className='text-lg font-medium mt-0.5'>
+              <Link href={`/genres/${genre.id}`}>
+                <a className='hover:underline'>{genre.name}</a>
+              </Link>
+            </div>
+            <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
           </div>
-          <div className='text-lg font-medium mt-0.5'>
-            <Link href={`/genres/${genre.id}`}>
-              <a className='hover:underline'>{genre.name}</a>
-            </Link>
+          <div className='flex justify-between border-t border-stone-200'>
+            <button
+              className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'
+              onClick={() => handleEditGenre()}
+              disabled={isLoading}
+            >
+              Edit
+            </button>
           </div>
-          <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
         </div>
       </div>
       {genre.children.length > 0 && expanded && (
