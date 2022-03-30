@@ -1,43 +1,58 @@
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
 import {
   CorrectionApiOutput,
+  useCreateCorrectionMutation,
   useDeleteCorrectionMutation,
   useDraftCorrectionsQuery,
 } from '../../../common/services/corrections'
 import { defaultCorrectionName } from '../constants'
 import useAccountSubmittedCorrectionsQuery from '../hooks/useAccountSubmittedCorrectionsQuery'
-import CreateCorrectionDialog from './CreateCorrectionDialog'
 import UpdateNameDialog from './UpdateNameDialog'
 
 const CorrectionsListMine: FC = () => {
-  const [showNameDialog, setShowNameDialog] = useState(false)
+  const { mutate, isLoading } = useCreateCorrectionMutation()
+  const { push: navigate } = useRouter()
+  const handleCreateCorrection = useCallback(
+    () =>
+      mutate(
+        {},
+        {
+          onSuccess: (res) => {
+            toast.success('Created new correction')
+            void navigate(`/corrections/${res.id}/tree`)
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [mutate, navigate]
+  )
 
   return (
-    <>
-      <div className='space-y-4'>
-        <ButtonSecondary onClick={() => setShowNameDialog(true)}>
-          New Correction
-        </ButtonSecondary>
+    <div className='space-y-4'>
+      <ButtonSecondary
+        onClick={() => handleCreateCorrection()}
+        disabled={isLoading}
+      >
+        New Correction
+      </ButtonSecondary>
 
-        <div>
-          <div className='text-lg text-semibold text-stone-600'>Drafts</div>
-          <DraftsList />
-        </div>
-
-        <div>
-          <div className='text-lg text-semibold text-stone-600'>Submitted</div>
-          <SubmittedList />
-        </div>
+      <div>
+        <div className='text-lg text-semibold text-stone-600'>Drafts</div>
+        <DraftsList />
       </div>
 
-      {showNameDialog && (
-        <CreateCorrectionDialog onClose={() => setShowNameDialog(false)} />
-      )}
-    </>
+      <div>
+        <div className='text-lg text-semibold text-stone-600'>Submitted</div>
+        <SubmittedList />
+      </div>
+    </div>
   )
 }
 

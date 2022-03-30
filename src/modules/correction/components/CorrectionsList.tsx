@@ -41,6 +41,7 @@ const CorrectionsList: FC = () => {
         {},
         {
           onSuccess: (res) => {
+            toast.success('Created new correction')
             void navigate(`/corrections/${res.id}/tree`)
           },
           onError: (error) => {
