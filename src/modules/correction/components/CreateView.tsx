@@ -13,7 +13,8 @@ import GenreForm from './forms/GenreForm'
 const CreateView: FC<{
   type?: GenreType
   parentId?: number
-}> = ({ type, parentId }) => {
+  from?: string
+}> = ({ type, parentId, from }) => {
   const { id: correctionId } = useCorrectionContext()
 
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
@@ -21,7 +22,7 @@ const CreateView: FC<{
   useEffect(() => {
     if (isMyCorrection === undefined) return
     if (!isMyCorrection) {
-      void navigate(`/corrections/${correctionId}/tree`)
+      void navigate(`/corrections/${correctionId}`)
     }
   }, [correctionId, isMyCorrection, navigate])
 
@@ -29,28 +30,29 @@ const CreateView: FC<{
     makeUiData(type ?? 'META', parentId)
   )
 
+  const navigateBack = useCallback(
+    () => void navigate(from ?? `/corrections/${correctionId}`),
+    [correctionId, from, navigate]
+  )
+
   const { mutate } = useAddCreatedGenreMutation()
-  const router = useRouter()
   const handleCreate = useCallback(
     () =>
       mutate(
         { id: correctionId, data: uiState },
         {
           onSuccess: () => {
-            void router.push(`/corrections/${correctionId}/tree`)
+            navigateBack()
           },
           onError: (error) => {
             toast.error(error.message)
           },
         }
       ),
-    [correctionId, mutate, router, uiState]
+    [correctionId, mutate, navigateBack, uiState]
   )
 
-  const handleCancel = useCallback(
-    () => void router.push(`/corrections/${correctionId}/tree`),
-    [correctionId, router]
-  )
+  const handleCancel = useCallback(() => navigateBack(), [navigateBack])
 
   return (
     <GenreForm

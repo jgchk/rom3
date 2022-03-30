@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -127,6 +128,8 @@ const Toolbar: FC<{ parentGenre?: CorrectionGenre }> = ({ parentGenre }) => {
     [parentGenre]
   )
 
+  const { asPath } = useRouter()
+
   return (
     <div className='flex border border-stone-300 bg-white shadow-sm w-fit'>
       {creatableTypes.map((genreType) => (
@@ -137,6 +140,7 @@ const Toolbar: FC<{ parentGenre?: CorrectionGenre }> = ({ parentGenre }) => {
             query: {
               type: genreType,
               ...(parentGenre ? { parentId: parentGenre.id } : {}),
+              from: asPath,
             },
           }}
         >
@@ -161,6 +165,8 @@ const getChangeColor = (type: ChangeType): string => {
 const Node: FC<{ id: number }> = ({ id }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
+
+  const { asPath } = useRouter()
 
   const tree = useGenreTree()
 
@@ -239,7 +245,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
           <Link
             href={{
               pathname: `/corrections/${correctionId}/genres/edit`,
-              query: { genreId: id },
+              query: { genreId: id, from: asPath },
             }}
           >
             <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>

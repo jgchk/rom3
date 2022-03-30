@@ -100,7 +100,7 @@ const LoadedNode: FC<{ genre: GenreApiOutput; expanded?: ExpandState }> = ({
   )
 
   const { mutate, isLoading } = useCreateCorrectionMutation()
-  const { push: navigate } = useRouter()
+  const { push: navigate, asPath } = useRouter()
   const handleEditGenre = useCallback(
     () =>
       mutate(
@@ -109,7 +109,7 @@ const LoadedNode: FC<{ genre: GenreApiOutput; expanded?: ExpandState }> = ({
           onSuccess: (res) => {
             void navigate({
               pathname: `/corrections/${res.id}/genres/edit`,
-              query: { genreId: genre.id },
+              query: { genreId: genre.id, from: asPath },
             })
           },
           onError: (error) => {
@@ -117,7 +117,7 @@ const LoadedNode: FC<{ genre: GenreApiOutput; expanded?: ExpandState }> = ({
           },
         }
       ),
-    [genre.id, mutate, navigate]
+    [asPath, genre.id, mutate, navigate]
   )
 
   return (

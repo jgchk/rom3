@@ -10,7 +10,10 @@ import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 import fetchCorrectionGenre from '../services'
 import GenreForm from './forms/GenreForm'
 
-const EditView: FC<{ genreId: number }> = ({ genreId }) => {
+const EditView: FC<{ genreId: number; from?: string }> = ({
+  genreId,
+  from,
+}) => {
   const { id: correctionId } = useCorrectionContext()
 
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
@@ -33,7 +36,7 @@ const EditView: FC<{ genreId: number }> = ({ genreId }) => {
   useEffect(() => void fetchData(), [fetchData])
 
   if (data) {
-    return <Loaded genreId={genreId} data={data} />
+    return <Loaded genreId={genreId} data={data} from={from} />
   }
 
   return <div>Loading...</div>
@@ -42,32 +45,35 @@ const EditView: FC<{ genreId: number }> = ({ genreId }) => {
 const Loaded: FC<{
   genreId: number
   data: GenreApiInput
-}> = ({ genreId, data }) => {
+  from?: string
+}> = ({ genreId, data, from }) => {
   const { id: correctionId } = useCorrectionContext()
   const [uiState, setUiState] = useState<GenreApiInput>(data)
 
+  const { push: navigate } = useRouter()
+  const navigateBack = useCallback(
+    () => void navigate(from ?? `/corrections/${correctionId}`),
+    [correctionId, from, navigate]
+  )
+
   const { mutate } = useCorrectGenreMutation()
-  const router = useRouter()
   const handleEdit = useCallback(
     () =>
       mutate(
         { id: correctionId, genreId, data: uiState },
         {
           onSuccess: () => {
-            void router.push(`/corrections/${correctionId}/tree`)
+            navigateBack()
           },
           onError: (error) => {
             toast.error(error.message)
           },
         }
       ),
-    [correctionId, genreId, mutate, router, uiState]
+    [correctionId, genreId, mutate, navigateBack, uiState]
   )
 
-  const handleCancel = useCallback(
-    () => void router.push(`/corrections/${correctionId}/tree`),
-    [correctionId, router]
-  )
+  const handleCancel = useCallback(() => navigateBack(), [navigateBack])
 
   return (
     <GenreForm

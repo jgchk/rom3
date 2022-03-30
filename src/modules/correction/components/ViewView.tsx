@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
 
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
@@ -27,6 +28,8 @@ const Loaded: FC<{
 }> = ({ genre }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
+
+  const { asPath } = useRouter()
 
   const [expanded, setExpanded] = useState(false)
 
@@ -76,7 +79,7 @@ const Loaded: FC<{
         <Link
           href={{
             pathname: `/corrections/${correctionId}/genres/edit`,
-            query: { genreId: genre.id },
+            query: { genreId: genre.id, from: asPath },
           }}
         >
           <a>Edit</a>

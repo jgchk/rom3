@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -102,6 +103,8 @@ const Node: FC<{ id: number }> = ({ id }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
 
+  const { asPath } = useRouter()
+
   const tree = useGenreTree()
 
   const genre = useMemo(() => tree[id], [id, tree])
@@ -179,7 +182,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
           <Link
             href={{
               pathname: `/corrections/${correctionId}/genres/edit`,
-              query: { genreId: id },
+              query: { genreId: id, from: asPath },
             }}
           >
             <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>

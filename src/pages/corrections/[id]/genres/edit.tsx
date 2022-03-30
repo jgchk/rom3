@@ -7,24 +7,26 @@ import { getFirstOrValue } from '../../../../common/utils/array'
 import EditView from '../../../../modules/correction/components/EditView'
 import Layout from '../../../../modules/correction/components/Layout'
 
-const Create: NextPage = () => {
-  const router = useRouter()
+const Edit: NextPage = () => {
+  const { query } = useRouter()
 
   const correctionId = useMemo(() => {
-    const idStr = getFirstOrValue(router.query.id)
+    const idStr = getFirstOrValue(query.id)
     if (idStr === undefined) return
     const id = Number.parseInt(idStr)
     if (Number.isNaN(id)) return
     return id
-  }, [router.query.id])
+  }, [query.id])
 
   const genreId = useMemo(() => {
-    const idStr = getFirstOrValue(router.query.genreId)
+    const idStr = getFirstOrValue(query.genreId)
     if (idStr === undefined) return
     const id = Number.parseInt(idStr)
     if (Number.isNaN(id)) return
     return id
-  }, [router.query.genreId])
+  }, [query.genreId])
+
+  const from = useMemo(() => getFirstOrValue(query.from), [query.from])
 
   if (correctionId === undefined || genreId === undefined) {
     return <ErrorPage statusCode={404} />
@@ -32,9 +34,9 @@ const Create: NextPage = () => {
 
   return (
     <Layout correctionId={correctionId}>
-      <EditView genreId={genreId} />
+      <EditView genreId={genreId} from={from} />
     </Layout>
   )
 }
 
-export default Create
+export default Edit

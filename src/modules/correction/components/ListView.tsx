@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { RiArrowRightSLine } from 'react-icons/ri'
@@ -56,6 +57,8 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
 
+  const { asPath } = useRouter()
+
   const { mutate, isLoading } = useRemoveCreateGenreMutation()
   const handleRemove = useCallback(() => {
     const conf = confirm('Are you sure? (This action is irreversible)')
@@ -98,7 +101,7 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
           <Link
             href={{
               pathname: `/corrections/${correctionId}/genres/edit`,
-              query: { genreId: genre.id },
+              query: { genreId: genre.id, from: asPath },
             }}
           >
             <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
@@ -125,6 +128,8 @@ const EditItem: FC<{
 }> = ({ targetGenre, updatedGenre }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
+
+  const { asPath } = useRouter()
 
   const { mutate, isLoading } = useRemoveEditGenreMutation()
   const handleRemove = useCallback(() => {
@@ -226,7 +231,7 @@ const EditItem: FC<{
           <Link
             href={{
               pathname: `/corrections/${correctionId}/genres/edit`,
-              query: { genreId: targetGenre.id },
+              query: { genreId: targetGenre.id, from: asPath },
             }}
           >
             <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
