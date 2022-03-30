@@ -5,14 +5,18 @@ import { FC, useMemo, useState } from 'react'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
 
 import { ButtonSecondaryLink } from '../../../common/components/ButtonSecondary'
-import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import { GenreApiOutput } from '../../../common/model'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import useCorrectionGenreQuery, {
   CorrectionGenre,
 } from '../hooks/useCorrectionGenreQuery'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
-import { getTopbarColor, getTopbarText } from '../utils/display'
+import {
+  getChangeBorderColor,
+  getChangeTextColor,
+  getTopbarColor,
+  getTopbarText,
+} from '../utils/display'
 
 const ViewView: FC<{ genreId: number }> = ({ genreId }) => {
   const { id: correctionId } = useCorrectionContext()
@@ -33,8 +37,6 @@ const Loaded: FC<{
 
   const { id: correctionId } = useCorrectionContext()
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
-
-  const color = useGenreTypeColor(genre.type)
 
   const { asPath } = useRouter()
 
@@ -62,14 +64,9 @@ const Loaded: FC<{
         </div>
 
         <div className='p-5'>
-          <div className='text-xs font-bold'>
-            <span className={color}>{genre.type}</span>
-            {genre.trial && (
-              <>
-                {' '}
-                <span className='text-stone-500'>(TRIAL)</span>
-              </>
-            )}
+          <div className='text-xs font-bold text-stone-500'>
+            {genre.type}
+            {genre.trial && <> (TRIAL)</>}
           </div>
           <div className='text-2xl font-medium mt-0.5'>{genre.name}</div>
           {genre.alternateNames.length > 0 && (
@@ -234,14 +231,19 @@ const Parent: FC<{ id: number }> = ({ id }) => {
   }
 
   return (
-    <div>
+    <div className='py-1'>
       <Link
         href={{
           pathname: `/corrections/${correctionId}/genres/view`,
           query: { genreId: id },
         }}
       >
-        <a className='text-primary-600 font-semibold hover:underline'>
+        <a
+          className={clsx(
+            'font-semibold hover:underline',
+            getChangeTextColor(data.changes)
+          )}
+        >
           {data.name}
         </a>
       </Link>
@@ -260,7 +262,7 @@ const Child: FC<{ id: number }> = ({ id }) => {
   }
 
   return (
-    <div>
+    <li className={clsx('pl-6 border-l-2', getChangeBorderColor(data.changes))}>
       <div className='py-2'>
         <Link
           href={{
@@ -268,7 +270,12 @@ const Child: FC<{ id: number }> = ({ id }) => {
             query: { genreId: id },
           }}
         >
-          <a className='text-primary-600 font-semibold hover:underline'>
+          <a
+            className={clsx(
+              'font-semibold hover:underline',
+              getChangeTextColor(data.changes)
+            )}
+          >
             {data.name}
           </a>
         </Link>
@@ -277,16 +284,14 @@ const Child: FC<{ id: number }> = ({ id }) => {
       </div>
 
       <Children childIds={data.children} />
-    </div>
+    </li>
   )
 }
 
 const Children: FC<{ childIds: number[] }> = ({ childIds }) => (
   <ul className='mt-4 space-y-4'>
     {childIds.map((id) => (
-      <li className='pl-6 border-l-2 border-primary-600' key={id}>
-        <Child id={id} />
-      </li>
+      <Child key={id} id={id} />
     ))}
   </ul>
 )

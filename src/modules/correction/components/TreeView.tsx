@@ -19,7 +19,11 @@ import useCorrectionGenreTreeQuery, {
   GenreTree,
 } from '../hooks/useCorrectionGenreTreeQuery'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
-import { getChangeColor, getTopbarColor, getTopbarText } from '../utils/display'
+import {
+  getChangeBackgroundColor,
+  getTopbarColor,
+  getTopbarText,
+} from '../utils/display'
 import { getDescendantChanges } from '../utils/genre'
 
 const TreeView: FC<{ parentId?: number }> = ({ parentId }) =>
@@ -259,7 +263,7 @@ const Changes: FC<{ changes: Set<ChangeType> }> = ({ changes }) => {
           <div
             className={clsx(
               'w-2 h-2 rounded-full ring-1 ring-stone-200',
-              getChangeColor(type)
+              getChangeBackgroundColor(type)
             )}
             key={type}
           />
