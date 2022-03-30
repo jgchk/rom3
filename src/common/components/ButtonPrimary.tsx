@@ -22,9 +22,9 @@ export const ButtonPrimaryLink: FC<LinkProps & { className?: string }> = ({
   className,
   ...props
 }) => (
-  <div>
-    <Link {...props}>
-      <a className={clsx(defaultClassName, className)}>{children}</a>
-    </Link>
-  </div>
+  <Link {...props}>
+    <a className={clsx('inline-block', defaultClassName, className)}>
+      {children}
+    </a>
+  </Link>
 )
