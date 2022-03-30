@@ -4,37 +4,40 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import Tooltip from '../../../common/components/Tooltip'
-import { genreTypes } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
 import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
 import { capitalize } from '../../../common/utils/string'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
-import { ChangeType } from '../hooks/useCorrectionGenreQuery'
+import useCorrectionGenreQuery, {
+  ChangeType,
+  CorrectionGenre,
+} from '../hooks/useCorrectionGenreQuery'
 import useCorrectionGenreTreeQuery, {
   GenreTree,
 } from '../hooks/useCorrectionGenreTreeQuery'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 import { getDescendantChanges } from '../utils/genre'
 
-const TreeView: FC = () => {
+const ParentsView: FC<{ childId: number }> = ({ childId }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data: treeData } = useCorrectionGenreTreeQuery(correctionId)
+  const { data: genreData } = useCorrectionGenreQuery(childId, correctionId)
 
-  if (treeData) {
-    return <Tree tree={treeData} />
+  if (treeData && genreData) {
+    return <Tree tree={treeData} childGenre={genreData} />
   }
 
   return <div>Loading...</div>
 }
 
-const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
-  const { id: correctionId } = useCorrectionContext()
-  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
-
+const Tree: FC<{ tree: GenreTree; childGenre: CorrectionGenre }> = ({
+  tree,
+  childGenre,
+}) => {
   const topLevelGenres = useMemo(
-    () => Object.values(tree).filter((genre) => genre.parents.length === 0),
-    [tree]
+    () => childGenre.parents.map((id) => tree[id]),
+    [childGenre.parents, tree]
   )
 
   const changedTopLevelIds = useMemo(
@@ -62,33 +65,11 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
     return [changed, unchanged]
   }, [changedTopLevelIds, topLevelGenres])
 
-  const renderToolbar = useCallback(
-    () => (
-      <div className='flex border border-stone-300 bg-white shadow-sm w-fit'>
-        {genreTypes.map((genreType) => (
-          <Link
-            key={genreType}
-            href={{
-              pathname: `/corrections/${correctionId}/genres/create`,
-              query: { type: genreType },
-            }}
-          >
-            <a className='border-r last:border-0 border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-              Add {capitalize(genreType)}
-            </a>
-          </Link>
-        ))}
-      </div>
-    ),
-    [correctionId]
-  )
-
   return (
     <TreeProvider tree={tree}>
-      <div>
-        {isMyCorrection && renderToolbar()}
+      <div className='space-y-4'>
         {changedTopLevelGenres.length > 0 && (
-          <ul className='space-y-4 mt-8'>
+          <ul className='space-y-4'>
             {changedTopLevelGenres.map((genre) => (
               <li key={genre.id}>
                 <Node id={genre.id} />
@@ -97,7 +78,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
           </ul>
         )}
         {unchangedTopLevelGenres.length > 0 && (
-          <ul className='space-y-4 mt-4'>
+          <ul className='space-y-4'>
             {unchangedTopLevelGenres.map((genre) => (
               <li key={genre.id}>
                 <Node id={genre.id} />
@@ -262,4 +243,4 @@ const Changes: FC<{ changes: Set<ChangeType> }> = ({ changes }) => {
   )
 }
 
-export default TreeView
+export default ParentsView

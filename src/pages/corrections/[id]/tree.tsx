@@ -4,8 +4,8 @@ import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
 import { getFirstOrValue } from '../../../common/utils/array'
-import TreeView from '../../../modules/correction/components/FlatTree'
 import Layout from '../../../modules/correction/components/Layout'
+import TreeView from '../../../modules/correction/components/TreeView'
 
 const Tree: NextPage = () => {
   const router = useRouter()

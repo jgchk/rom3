@@ -4,6 +4,7 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import Tooltip from '../../../common/components/Tooltip'
+import { genreTypes } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
 import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
 import { capitalize } from '../../../common/utils/string'
@@ -19,7 +20,10 @@ import useCorrectionGenreTreeQuery, {
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 import { getDescendantChanges } from '../utils/genre'
 
-const TreeView: FC<{ parentId: number }> = ({ parentId }) => {
+const TreeView: FC<{ parentId?: number }> = ({ parentId }) =>
+  parentId !== undefined ? <HasParent parentId={parentId} /> : <NoParent />
+
+const HasParent: FC<{ parentId: number }> = ({ parentId }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data: treeData } = useCorrectionGenreTreeQuery(correctionId)
   const { data: genreData } = useCorrectionGenreQuery(parentId, correctionId)
@@ -31,7 +35,18 @@ const TreeView: FC<{ parentId: number }> = ({ parentId }) => {
   return <div>Loading...</div>
 }
 
-const Tree: FC<{ tree: GenreTree; parentGenre: CorrectionGenre }> = ({
+const NoParent: FC = () => {
+  const { id: correctionId } = useCorrectionContext()
+  const { data: treeData } = useCorrectionGenreTreeQuery(correctionId)
+
+  if (treeData) {
+    return <Tree tree={treeData} />
+  }
+
+  return <div>Loading...</div>
+}
+
+const Tree: FC<{ tree: GenreTree; parentGenre?: CorrectionGenre }> = ({
   tree,
   parentGenre,
 }) => {
@@ -39,8 +54,11 @@ const Tree: FC<{ tree: GenreTree; parentGenre: CorrectionGenre }> = ({
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
 
   const topLevelGenres = useMemo(
-    () => parentGenre.children.map((id) => tree[id]),
-    [parentGenre.children, tree]
+    () =>
+      parentGenre
+        ? parentGenre.children.map((id) => tree[id])
+        : Object.values(tree).filter((genre) => genre.parents.length === 0),
+    [parentGenre, tree]
   )
 
   const changedTopLevelIds = useMemo(
@@ -68,36 +86,10 @@ const Tree: FC<{ tree: GenreTree; parentGenre: CorrectionGenre }> = ({
     return [changed, unchanged]
   }, [changedTopLevelIds, topLevelGenres])
 
-  const childTypes = useMemo(
-    () => genreChildTypes[parentGenre.type],
-    [parentGenre.type]
-  )
-
-  const renderToolbar = useCallback(
-    () => (
-      <div className='flex border border-stone-300 bg-white shadow-sm w-fit'>
-        {childTypes.map((genreType) => (
-          <Link
-            key={genreType}
-            href={{
-              pathname: `/corrections/${correctionId}/genres/create`,
-              query: { type: genreType, parentId: parentGenre.id },
-            }}
-          >
-            <a className='border-r last:border-0 border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-              Add {capitalize(genreType)}
-            </a>
-          </Link>
-        ))}
-      </div>
-    ),
-    [childTypes, correctionId, parentGenre.id]
-  )
-
   return (
     <TreeProvider tree={tree}>
       <div className='space-y-4'>
-        {isMyCorrection && renderToolbar()}
+        {isMyCorrection && <Toolbar parentGenre={parentGenre} />}
         {changedTopLevelGenres.length > 0 && (
           <ul className='space-y-4'>
             {changedTopLevelGenres.map((genre) => (
@@ -118,6 +110,36 @@ const Tree: FC<{ tree: GenreTree; parentGenre: CorrectionGenre }> = ({
         )}
       </div>
     </TreeProvider>
+  )
+}
+
+const Toolbar: FC<{ parentGenre?: CorrectionGenre }> = ({ parentGenre }) => {
+  const { id: correctionId } = useCorrectionContext()
+
+  const creatableTypes = useMemo(
+    () => (parentGenre ? genreChildTypes[parentGenre.type] : genreTypes),
+    [parentGenre]
+  )
+
+  return (
+    <div className='flex border border-stone-300 bg-white shadow-sm w-fit'>
+      {creatableTypes.map((genreType) => (
+        <Link
+          key={genreType}
+          href={{
+            pathname: `/corrections/${correctionId}/genres/create`,
+            query: {
+              type: genreType,
+              ...(parentGenre ? { parentId: parentGenre.id } : {}),
+            },
+          }}
+        >
+          <a className='border-r last:border-0 border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
+            Add {capitalize(genreType)}
+          </a>
+        </Link>
+      ))}
+    </div>
   )
 }
 
