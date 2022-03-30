@@ -4,6 +4,7 @@ import { GenreApiOutput } from '../../../common/model'
 import { useCorrectionQuery } from '../../../common/services/corrections'
 import { useGenreQuery } from '../../../common/services/genres'
 import { TError } from '../../../common/utils/trpc'
+import { makeCorrectionGenre } from '../utils/genre'
 
 export type CorrectionGenre = GenreApiOutput & {
   changes: 'created' | 'edited' | undefined
@@ -24,39 +25,13 @@ const useCorrectionGenreQuery = (
     if (!correctionQuery.data) return
     if (!genreQuery.data) return
 
-    const deletedIds = new Set(
-      correctionQuery.data.delete.map((genre) => genre.id)
-    )
-    const editedIds: Record<number, GenreApiOutput | undefined> =
-      Object.fromEntries(
-        correctionQuery.data.edit.map(({ targetGenre, updatedGenre }) => [
-          targetGenre.id,
-          updatedGenre,
-        ])
-      )
+    const genre = makeCorrectionGenre(genreQuery.data, correctionQuery.data)
 
-    if (deletedIds.has(genreId)) {
+    if (genre === undefined) {
       throw new Error(`No account with id '${genreId}'`)
     }
 
-    const editedGenre = editedIds[genreId]
-
-    const genre: CorrectionGenre = editedGenre
-      ? { ...editedGenre, id: genreId, changes: 'edited' }
-      : { ...genreQuery.data, changes: undefined }
-
-    return {
-      ...genre,
-      parents: genre.parents
-        // remove deleted genres
-        .filter((parentId) => !deletedIds.has(parentId)),
-      children: genre.children
-        // remove deleted genres
-        .filter((childId) => !deletedIds.has(childId)),
-      influencedBy: genre.influencedBy
-        // remove deleted genres
-        .filter((inf) => !deletedIds.has(inf.id)),
-    }
+    return genre
   }, [correctionQuery.data, genreId, genreQuery.data])
 
   if (genre) {

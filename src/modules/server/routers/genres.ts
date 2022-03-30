@@ -63,23 +63,31 @@ export type GenreApiOutput = Omit<Genre, 'shortDesc' | 'longDesc'> & {
   parents: number[]
   children: number[]
   influencedBy: ApiGenreInfluence[]
+  influences: ApiGenreInfluence[]
   locations: ApiLocation[]
   cultures: string[]
 }
+
+const nonCorrectionGenreFilter = {
+  createdInCorrection: null,
+  editedInCorrection: null,
+} as const
 
 export type GenreInclude = Genre & {
   alternateNames: GenreName[]
   parents: GenreParent[]
   children: GenreParent[]
   influencedBy: GenreInfluence[]
+  influences: GenreInfluence[]
   locations: (GenreLocation & { location: Location })[]
   cultures: (GenreCulture & { culture: Culture })[]
 }
 export const genreInclude = {
   alternateNames: true,
-  parents: true,
-  children: true,
-  influencedBy: true,
+  parents: { where: { parent: nonCorrectionGenreFilter } },
+  children: { where: { child: nonCorrectionGenreFilter } },
+  influencedBy: { where: { influencer: nonCorrectionGenreFilter } },
+  influences: { where: { influenced: nonCorrectionGenreFilter } },
   locations: { include: { location: true } },
   cultures: { include: { culture: true } },
 } as const
@@ -263,9 +271,13 @@ export const toGenreApiOutput = (genre: GenreInclude): GenreApiOutput => ({
   longDesc: genre.longDesc ?? undefined,
   parents: genre.parents.map((p) => p.parentId),
   children: genre.children.map((p) => p.childId),
-  influencedBy: genre.influencedBy.map((p) => ({
-    id: p.influencerId,
-    influenceType: p.influenceType ?? undefined,
+  influencedBy: genre.influencedBy.map((inf) => ({
+    id: inf.influencerId,
+    influenceType: inf.influenceType ?? undefined,
+  })),
+  influences: genre.influences.map((inf) => ({
+    id: inf.influencedId,
+    influenceType: inf.influenceType ?? undefined,
   })),
   locations: genre.locations.map((loc) => loc.location),
   cultures: genre.cultures.map((c) => c.culture.name),
@@ -296,7 +308,7 @@ const getGenre = async (id: number): Promise<GenreApiOutput> => {
 
 const getGenres = async (): Promise<GenreApiOutput[]> => {
   const genres = await prisma.genre.findMany({
-    where: { createdInCorrection: null, editedInCorrection: null },
+    where: nonCorrectionGenreFilter,
     include: genreInclude,
   })
   return genres.map(toGenreApiOutput)
@@ -304,7 +316,11 @@ const getGenres = async (): Promise<GenreApiOutput[]> => {
 
 const getTopLevelGenres = async (): Promise<GenreApiOutput[]> => {
   const genres = await prisma.genre.findMany({
-    where: { parents: { none: {} } },
+    where: {
+      parents: { none: {} },
+      createdInCorrection: null,
+      editedInCorrection: null,
+    },
     include: genreInclude,
   })
   return genres.map(toGenreApiOutput)

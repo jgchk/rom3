@@ -1,6 +1,10 @@
 import { GenreType } from '@prisma/client'
 
+import { GenreApiOutput } from '../../../common/model'
+import { CorrectionApiOutput } from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
+import { isDefined } from '../../../common/utils/types'
+import { CorrectionGenre } from '../hooks/useCorrectionGenreQuery'
 
 export const makeUiData = (
   type: GenreType,
@@ -17,3 +21,59 @@ export const makeUiData = (
   locations: [],
   cultures: [],
 })
+
+export const makeCorrectionGenre = (
+  originalGenre: GenreApiOutput,
+  correction: CorrectionApiOutput
+): CorrectionGenre | undefined => {
+  const createdGenres = Object.values(correction.create)
+  const deletedIds = new Set(correction.delete.map((genre) => genre.id))
+  const editedIds: Record<number, GenreApiOutput | undefined> =
+    Object.fromEntries(
+      correction.edit.map(({ targetGenre, updatedGenre }) => [
+        targetGenre.id,
+        updatedGenre,
+      ])
+    )
+
+  if (deletedIds.has(originalGenre.id)) {
+    return
+  }
+
+  const editedGenre = editedIds[originalGenre.id]
+  const genre: CorrectionGenre = editedGenre
+    ? { ...editedGenre, id: originalGenre.id, changes: 'edited' }
+    : { ...originalGenre, changes: undefined }
+
+  return {
+    ...genre,
+    parents: [
+      ...genre.parents.filter((parentId) => !deletedIds.has(parentId)),
+      ...createdGenres
+        .filter((createdGenre) => createdGenre.children.includes(genre.id))
+        .map((createdGenre) => createdGenre.id),
+    ],
+    children: [
+      ...genre.children.filter((childId) => !deletedIds.has(childId)),
+      ...createdGenres
+        .filter((createdGenre) => createdGenre.parents.includes(genre.id))
+        .map((genre) => genre.id),
+    ],
+    influencedBy: [
+      ...genre.influencedBy.filter((inf) => !deletedIds.has(inf.id)),
+      ...createdGenres
+        .map((createdGenre) =>
+          createdGenre.influences.find((inf) => inf.id === genre.id)
+        )
+        .filter(isDefined),
+    ],
+    influences: [
+      ...genre.influences.filter((inf) => !deletedIds.has(inf.id)),
+      ...createdGenres
+        .map((createdGenre) =>
+          createdGenre.influencedBy.find((inf) => inf.id === genre.id)
+        )
+        .filter(isDefined),
+    ],
+  }
+}
