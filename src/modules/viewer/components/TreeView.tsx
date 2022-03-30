@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { FC, useMemo } from 'react'
 
+import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import { GenreApiOutput } from '../../../common/model'
 import { useGenreQuery } from '../../../common/services/genres'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
@@ -67,12 +68,19 @@ const Node: FC<{ id: number }> = ({ id }) => {
 
   const genre = useMemo(() => tree[id], [id, tree])
 
+  const color = useGenreTypeColor(genre.type)
+
   return (
     <div className='border border-stone-300 bg-white shadow-sm'>
       <div className='p-2'>
-        <div className='text-xs font-bold text-stone-500'>
-          {genre.type}
-          {genre.trial && <> (TRIAL)</>}
+        <div className='text-xs font-bold'>
+          <span className={color}>{genre.type}</span>
+          {genre.trial && (
+            <>
+              {' '}
+              <span className='text-stone-500'>(TRIAL)</span>
+            </>
+          )}
         </div>
         <div className='text-lg font-medium mt-0.5'>
           <Link href={`/genres/${id}`}>
