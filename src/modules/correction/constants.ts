@@ -1,1 +1,1 @@
-export const defaultCorrectionName = 'Untitled'
+export const defaultCorrectionName = 'Correction'

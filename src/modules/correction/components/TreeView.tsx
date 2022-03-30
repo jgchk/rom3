@@ -229,9 +229,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
           <div className='text-lg font-medium mt-0.5'>
             <Link
               href={{
-                pathname: `/corrections/${correctionId}/genres/${
-                  isMyCorrection ? 'edit' : 'view'
-                }`,
+                pathname: `/corrections/${correctionId}/genres/view`,
                 query: { genreId: id },
               }}
             >
