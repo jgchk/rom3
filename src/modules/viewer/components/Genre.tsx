@@ -65,7 +65,7 @@ const Loaded: FC<{
             </>
           )}
         </div>
-        <div className='text-xl font-medium mt-0.5'>{genre.name}</div>
+        <div className='text-2xl font-medium mt-0.5'>{genre.name}</div>
         {genre.alternateNames.length > 0 && (
           <div className='text-stone-600 font-medium text-sm mt-1'>
             AKA: {genre.alternateNames.join(', ')}
