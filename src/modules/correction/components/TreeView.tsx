@@ -30,15 +30,12 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
 
   const topLevelGenres = useMemo(
-    () =>
-      Object.values(tree.genres).filter((genre) => genre.parents.length === 0),
-    [tree.genres]
+    () => Object.values(tree).filter((genre) => genre.parents.length === 0),
+    [tree]
   )
 
   const changedTopLevelIds = useMemo(() => {
-    const changedGenres = Object.values(tree.genres).filter(
-      (genre) => genre.changes
-    )
+    const changedGenres = Object.values(tree).filter((genre) => genre.changes)
 
     const topLevelIds = new Set()
 
@@ -47,7 +44,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
       const id = queue.pop()
       if (id === undefined) continue
 
-      const genre = tree.genres[id]
+      const genre = tree[id]
       if (genre.parents.length === 0) {
         topLevelIds.add(id)
       }
@@ -56,7 +53,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
     }
 
     return topLevelIds
-  }, [tree.genres])
+  }, [tree])
 
   const [changedTopLevelGenres, unchangedTopLevelGenres] = useMemo(() => {
     const changed = []
@@ -105,7 +102,7 @@ const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
   )
 
   return (
-    <TreeProvider tree={tree} showUnchanged={showUnchanged}>
+    <TreeProvider tree={tree}>
       <div className='space-y-4'>
         {isMyCorrection && renderToolbar()}
         <button onClick={() => setShowUnchanged(!showUnchanged)}>
@@ -130,14 +127,13 @@ const Node: FC<{ id: number }> = ({ id }) => {
 
   const tree = useGenreTree()
 
-  const genre = useMemo(() => tree.genres[id], [id, tree.genres])
+  const genre = useMemo(() => tree[id], [id, tree])
+  console.log({ id, genre })
 
   const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
 
   const changedChildIds = useMemo(() => {
-    const changedGenres = Object.values(tree.genres).filter(
-      (genre) => genre.changes
-    )
+    const changedGenres = Object.values(tree).filter((genre) => genre.changes)
 
     const childIds = new Set<number>()
 
@@ -146,7 +142,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
       const descendantId = queue.pop()
       if (descendantId === undefined) continue
 
-      const genre = tree.genres[descendantId]
+      const genre = tree[descendantId]
       if (genre.parents.includes(id)) {
         childIds.add(descendantId)
       }
@@ -155,7 +151,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
     }
 
     return childIds
-  }, [id, tree.genres])
+  }, [id, tree])
 
   const [changedChildren, unchangedChildren] = useMemo(() => {
     const changed = []
@@ -163,21 +159,23 @@ const Node: FC<{ id: number }> = ({ id }) => {
 
     for (const childId of genre.children) {
       if (changedChildIds.has(childId)) {
-        changed.push(tree.genres[childId])
+        changed.push(tree[childId])
       } else {
-        unchanged.push(tree.genres[childId])
+        unchanged.push(tree[childId])
       }
     }
 
     return [changed, unchanged]
-  }, [changedChildIds, genre.children, tree.genres])
+  }, [changedChildIds, genre.children, tree])
+
+  const [showUnchanged, setShowUnchanged] = useState(false)
 
   const renderedChildren = useMemo(
     () =>
-      tree.showUnchanged
+      showUnchanged
         ? [...changedChildren, ...unchangedChildren]
         : changedChildren,
-    [changedChildren, tree.showUnchanged, unchangedChildren]
+    [changedChildren, showUnchanged, unchangedChildren]
   )
 
   const { mutate } = useDeleteCorrectionGenreMutation()
@@ -293,6 +291,9 @@ const Node: FC<{ id: number }> = ({ id }) => {
             </li>
           ))}
         </ul>
+      )}
+      {!showUnchanged && unchangedChildren.length > 0 && (
+        <button onClick={() => setShowUnchanged(true)}>Show Unchanged</button>
       )}
     </div>
   )
