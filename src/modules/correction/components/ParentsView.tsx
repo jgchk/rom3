@@ -4,9 +4,7 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import Tooltip from '../../../common/components/Tooltip'
-import { genreChildTypes } from '../../../common/model/parents'
 import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
-import { capitalize } from '../../../common/utils/string'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
 import useCorrectionGenreQuery, {
@@ -107,7 +105,6 @@ const Node: FC<{ id: number }> = ({ id }) => {
   const tree = useGenreTree()
 
   const genre = useMemo(() => tree[id], [id, tree])
-  const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
 
   const descendantChanges = useMemo(
     () => getDescendantChanges(id, tree),
@@ -179,34 +176,16 @@ const Node: FC<{ id: number }> = ({ id }) => {
       </div>
       {isMyCorrection && (
         <div className='flex justify-between border-t border-stone-200'>
-          <div className='flex'>
-            <Link
-              href={{
-                pathname: `/corrections/${correctionId}/genres/edit`,
-                query: { genreId: id },
-              }}
-            >
-              <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-                Edit
-              </a>
-            </Link>
-            {childTypes.map((childType) => (
-              <Link
-                key={childType}
-                href={{
-                  pathname: `/corrections/${correctionId}/genres/create`,
-                  query: {
-                    type: childType,
-                    parentId: id,
-                  },
-                }}
-              >
-                <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-                  Add Child {capitalize(childType)}
-                </a>
-              </Link>
-            ))}
-          </div>
+          <Link
+            href={{
+              pathname: `/corrections/${correctionId}/genres/edit`,
+              query: { genreId: id },
+            }}
+          >
+            <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
+              Edit
+            </a>
+          </Link>
           <button
             className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
             onClick={() => handleDelete()}
