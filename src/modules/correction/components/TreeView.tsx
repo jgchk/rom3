@@ -128,7 +128,6 @@ const Node: FC<{ id: number }> = ({ id }) => {
   const tree = useGenreTree()
 
   const genre = useMemo(() => tree[id], [id, tree])
-  console.log({ id, genre })
 
   const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
 
@@ -283,6 +282,11 @@ const Node: FC<{ id: number }> = ({ id }) => {
           </div>
         )}
       </div>
+      {unchangedChildren.length > 0 && (
+        <button onClick={() => setShowUnchanged(!showUnchanged)}>
+          {showUnchanged ? 'Hide Unchanged' : 'Show Unchanged'}
+        </button>
+      )}
       {renderedChildren.length > 0 && (
         <ul className='mt-2 space-y-2'>
           {renderedChildren.map((genre) => (
@@ -291,9 +295,6 @@ const Node: FC<{ id: number }> = ({ id }) => {
             </li>
           ))}
         </ul>
-      )}
-      {!showUnchanged && unchangedChildren.length > 0 && (
-        <button onClick={() => setShowUnchanged(true)}>Show Unchanged</button>
       )}
     </div>
   )
