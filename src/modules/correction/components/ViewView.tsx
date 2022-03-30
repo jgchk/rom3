@@ -120,12 +120,10 @@ const Loaded: FC<{
           <ParentsView childId={genre.id} />
         </div>
       )}
-      {genre.children.length > 0 && (
-        <div className='space-y-3 bg-stone-100 px-4 py-3 mt-6'>
-          <div className='text-stone-600 font-medium'>Children</div>
-          <TreeView parentId={genre.id} />
-        </div>
-      )}
+      <div className='space-y-3 bg-stone-100 px-4 py-3 mt-6'>
+        <div className='text-stone-600 font-medium'>Children</div>
+        <TreeView parentId={genre.id} />
+      </div>
       {genre.influencedBy.length > 0 && (
         <div className='space-y-3 bg-stone-100 px-4 py-3 mt-6'>
           <div className='text-stone-600 font-medium'>Influences</div>
