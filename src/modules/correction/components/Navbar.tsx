@@ -104,7 +104,7 @@ const Navbar: FC = () => {
                     : 'border-transparent'
                 )}
               >
-                Tree
+                {isMyCorrection ? 'Edit' : 'View'}
               </a>
             </Link>
             <Link href={`/corrections/${id}`}>
