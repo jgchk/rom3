@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { FC, useState } from 'react'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
 
-import ButtonSecondary from '../../../common/components/ButtonSecondary'
+import { ButtonSecondaryLink } from '../../../common/components/ButtonSecondary'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import { GenreApiOutput } from '../../../common/model'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
@@ -79,18 +79,14 @@ const Loaded: FC<{
       <Hierarchy genre={genre} />
 
       {isMyCorrection && (
-        <div>
-          <Link
-            href={{
-              pathname: `/corrections/${correctionId}/genres/edit`,
-              query: { genreId: genre.id, from: asPath },
-            }}
-          >
-            <a>
-              <ButtonSecondary>Edit</ButtonSecondary>
-            </a>
-          </Link>
-        </div>
+        <ButtonSecondaryLink
+          href={{
+            pathname: `/corrections/${correctionId}/genres/edit`,
+            query: { genreId: genre.id, from: asPath },
+          }}
+        >
+          Edit
+        </ButtonSecondaryLink>
       )}
     </div>
   )
