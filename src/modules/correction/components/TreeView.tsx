@@ -4,11 +4,9 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import { ButtonSecondaryLink } from '../../../common/components/ButtonSecondary'
 import Tooltip from '../../../common/components/Tooltip'
-import { genreTypes } from '../../../common/model'
-import { genreChildTypes } from '../../../common/model/parents'
 import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
-import { capitalize } from '../../../common/utils/string'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
 import useCorrectionGenreQuery, {
@@ -26,8 +24,37 @@ import {
 } from '../utils/display'
 import { getDescendantChanges } from '../utils/genre'
 
-const TreeView: FC<{ parentId?: number }> = ({ parentId }) =>
-  parentId !== undefined ? <HasParent parentId={parentId} /> : <NoParent />
+const TreeView: FC<{ parentId?: number }> = ({ parentId }) => {
+  const { id: correctionId } = useCorrectionContext()
+  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
+
+  const { asPath } = useRouter()
+
+  return (
+    <div>
+      {parentId !== undefined ? (
+        <HasParent parentId={parentId} />
+      ) : (
+        <NoParent />
+      )}
+
+      {isMyCorrection && (
+        <ButtonSecondaryLink
+          className='mt-4'
+          href={{
+            pathname: `/corrections/${correctionId}/genres/create`,
+            query: {
+              type: 'STYLE',
+              from: asPath,
+            },
+          }}
+        >
+          Add New Genre
+        </ButtonSecondaryLink>
+      )}
+    </div>
+  )
+}
 
 const HasParent: FC<{ parentId: number }> = ({ parentId }) => {
   const { id: correctionId } = useCorrectionContext()
@@ -56,9 +83,6 @@ const Tree: FC<{ tree: GenreTree; parentGenre?: CorrectionGenre }> = ({
   tree,
   parentGenre,
 }) => {
-  const { id: correctionId } = useCorrectionContext()
-  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
-
   const topLevelGenres = useMemo(
     () =>
       (parentGenre
@@ -101,7 +125,6 @@ const Tree: FC<{ tree: GenreTree; parentGenre?: CorrectionGenre }> = ({
   return (
     <TreeProvider tree={tree}>
       <div className='space-y-4'>
-        {isMyCorrection && <Toolbar parentGenre={parentGenre} />}
         {changedTopLevelGenres.length > 0 && (
           <ul className='space-y-4'>
             {changedTopLevelGenres.map((genre) => (
@@ -122,39 +145,6 @@ const Tree: FC<{ tree: GenreTree; parentGenre?: CorrectionGenre }> = ({
         )}
       </div>
     </TreeProvider>
-  )
-}
-
-const Toolbar: FC<{ parentGenre?: CorrectionGenre }> = ({ parentGenre }) => {
-  const { id: correctionId } = useCorrectionContext()
-
-  const creatableTypes = useMemo(
-    () => (parentGenre ? genreChildTypes[parentGenre.type] : genreTypes),
-    [parentGenre]
-  )
-
-  const { asPath } = useRouter()
-
-  return (
-    <div className='flex border border-stone-300 bg-white shadow-sm w-fit'>
-      {creatableTypes.map((genreType) => (
-        <Link
-          key={genreType}
-          href={{
-            pathname: `/corrections/${correctionId}/genres/create`,
-            query: {
-              type: genreType,
-              ...(parentGenre ? { parentId: parentGenre.id } : {}),
-              from: asPath,
-            },
-          }}
-        >
-          <a className='border-r last:border-0 border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-            Add {capitalize(genreType)}
-          </a>
-        </Link>
-      ))}
-    </div>
   )
 }
 

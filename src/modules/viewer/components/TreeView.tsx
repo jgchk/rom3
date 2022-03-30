@@ -25,7 +25,10 @@ const TreeView: FC<{ parentId?: number }> = ({ parentId }) => {
         {},
         {
           onSuccess: (res) => {
-            void navigate(`/corrections/${res.id}/genres/create`)
+            void navigate({
+              pathname: `/corrections/${res.id}/genres/create`,
+              query: { type: 'STYLE' },
+            })
           },
           onError: (error) => {
             toast.error(error.message)
