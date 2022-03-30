@@ -1,3 +1,4 @@
+import { Genre } from '@prisma/client'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useState } from 'react'
@@ -50,44 +51,6 @@ const Loaded: FC<{
     [genre.id, mutate, navigate]
   )
 
-  const renderDescription = useCallback(() => {
-    if (genre.shortDesc && genre.longDesc) {
-      return (
-        <div className='mt-3'>
-          {/* TODO: render markdown for long desc */}
-          <div>{expanded ? genre.longDesc : genre.shortDesc}</div>
-          <button
-            className='text-sm font-semibold text-stone-700 hover:text-primary-600'
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? 'Show Short Description' : 'Show Long Description'}
-          </button>
-        </div>
-      )
-    }
-
-    if (genre.shortDesc) {
-      return <div className='mt-3'>{genre.shortDesc}</div>
-    }
-
-    if (genre.longDesc) {
-      return (
-        <div className='mt-3'>
-          {/* TODO: render markdown for long desc */}
-          {expanded && <div>{genre.longDesc}</div>}
-          <button
-            className='text-sm font-semibold text-stone-700 hover:text-primary-600'
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? 'Show Short Description' : 'Show Long Description'}
-          </button>
-        </div>
-      )
-    }
-
-    return null
-  }, [expanded, genre.longDesc, genre.shortDesc])
-
   return (
     <div className='space-y-4'>
       <Breadcrumbs genre={genre} />
@@ -123,7 +86,11 @@ const Loaded: FC<{
             Cultures: {genre.cultures.join(', ')}
           </div>
         )}
-        {renderDescription()}
+        <Description
+          genre={genre}
+          expanded={expanded}
+          onExpandChange={(expanded) => setExpanded(expanded)}
+        />
       </div>
 
       <Hierarchy genre={genre} />
@@ -138,6 +105,48 @@ const Loaded: FC<{
 }
 
 export default Genre
+
+const Description: FC<{
+  genre: GenreApiOutput
+  expanded: boolean
+  onExpandChange: (expanded: boolean) => void
+}> = ({ genre, expanded, onExpandChange }) => {
+  if (genre.shortDesc && genre.longDesc) {
+    return (
+      <div className='mt-3'>
+        {/* TODO: render markdown for long desc */}
+        <div>{expanded ? genre.longDesc : genre.shortDesc}</div>
+        <button
+          className='text-sm font-semibold text-stone-700 hover:text-primary-600'
+          onClick={() => onExpandChange(!expanded)}
+        >
+          {expanded ? 'Show Short Description' : 'Show Long Description'}
+        </button>
+      </div>
+    )
+  }
+
+  if (genre.shortDesc) {
+    return <div className='mt-3'>{genre.shortDesc}</div>
+  }
+
+  if (genre.longDesc) {
+    return (
+      <div className='mt-3'>
+        {/* TODO: render markdown for long desc */}
+        {expanded && <div>{genre.longDesc}</div>}
+        <button
+          className='text-sm font-semibold text-stone-700 hover:text-primary-600'
+          onClick={() => onExpandChange(!expanded)}
+        >
+          {expanded ? 'Show Short Description' : 'Show Long Description'}
+        </button>
+      </div>
+    )
+  }
+
+  return null
+}
 
 const Breadcrumbs: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   return (
