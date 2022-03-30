@@ -19,6 +19,7 @@ import useCorrectionGenreTreeQuery, {
   GenreTree,
 } from '../hooks/useCorrectionGenreTreeQuery'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
+import { getChangeColor, getTopbarColor, getTopbarText } from '../utils/display'
 import { getDescendantChanges } from '../utils/genre'
 
 const TreeView: FC<{ parentId?: number }> = ({ parentId }) =>
@@ -153,15 +154,6 @@ const Toolbar: FC<{ parentGenre?: CorrectionGenre }> = ({ parentGenre }) => {
   )
 }
 
-const getChangeColor = (type: ChangeType): string => {
-  switch (type) {
-    case 'created':
-      return 'bg-green-600'
-    case 'edited':
-      return 'bg-blue-600'
-  }
-}
-
 const Node: FC<{ id: number }> = ({ id }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
@@ -191,26 +183,15 @@ const Node: FC<{ id: number }> = ({ id }) => {
     [correctionId, id, mutate]
   )
 
-  const topbarText: string = useMemo(() => {
-    switch (genre.changes) {
-      case undefined:
-        return 'Unchanged'
-      case 'created':
-        return 'Created'
-      case 'edited':
-        return 'Edited'
-    }
-  }, [genre.changes])
+  const topbarText: string = useMemo(
+    () => getTopbarText(genre.changes),
+    [genre.changes]
+  )
 
-  const topbarColor: string = useMemo(() => {
-    switch (genre.changes) {
-      case undefined:
-        return 'bg-stone-200 text-stone-400'
-      case 'created':
-      case 'edited':
-        return clsx(getChangeColor(genre.changes), 'text-white')
-    }
-  }, [genre.changes])
+  const topbarColor: string = useMemo(
+    () => getTopbarColor(genre.changes),
+    [genre.changes]
+  )
 
   return (
     <div className='border border-stone-300 bg-white shadow-sm'>
@@ -223,7 +204,8 @@ const Node: FC<{ id: number }> = ({ id }) => {
         <div>{topbarText}</div>
         {descendantChanges.size > 0 && <Changes changes={descendantChanges} />}
       </div>
-      <div className='p-2'>
+
+      <div className='p-5'>
         <div className='text-xs font-bold text-stone-500'>
           {genre.type}
           {genre.trial && <> (TRIAL)</>}
@@ -240,6 +222,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
         </div>
         <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
       </div>
+
       {isMyCorrection && (
         <div className='flex justify-between border-t border-stone-200'>
           <Link
@@ -275,7 +258,7 @@ const Changes: FC<{ changes: Set<ChangeType> }> = ({ changes }) => {
         {sorted.map((type) => (
           <div
             className={clsx(
-              'w-1.5 h-1.5 rounded-full ring-1 ring-stone-200',
+              'w-2 h-2 rounded-full ring-1 ring-stone-200',
               getChangeColor(type)
             )}
             key={type}

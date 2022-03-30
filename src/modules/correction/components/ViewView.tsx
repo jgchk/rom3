@@ -1,14 +1,18 @@
+import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useState } from 'react'
+import { FC, useMemo, useState } from 'react'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
 
 import { ButtonSecondaryLink } from '../../../common/components/ButtonSecondary'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import { GenreApiOutput } from '../../../common/model'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
-import useCorrectionGenreQuery from '../hooks/useCorrectionGenreQuery'
+import useCorrectionGenreQuery, {
+  CorrectionGenre,
+} from '../hooks/useCorrectionGenreQuery'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
+import { getTopbarColor, getTopbarText } from '../utils/display'
 
 const ViewView: FC<{ genreId: number }> = ({ genreId }) => {
   const { id: correctionId } = useCorrectionContext()
@@ -23,7 +27,7 @@ const ViewView: FC<{ genreId: number }> = ({ genreId }) => {
 }
 
 const Loaded: FC<{
-  genre: GenreApiOutput
+  genre: CorrectionGenre
 }> = ({ genre }) => {
   const [expanded, setExpanded] = useState(false)
 
@@ -34,46 +38,66 @@ const Loaded: FC<{
 
   const { asPath } = useRouter()
 
+  const topbarText: string = useMemo(
+    () => getTopbarText(genre.changes),
+    [genre.changes]
+  )
+
+  const topbarColor: string = useMemo(
+    () => getTopbarColor(genre.changes),
+    [genre.changes]
+  )
   return (
     <div className='space-y-4'>
       <Breadcrumbs genre={genre} />
 
-      <div className='bg-white border border-stone-300 shadow-sm p-6'>
-        <div className='text-xs font-bold'>
-          <span className={color}>{genre.type}</span>
-          {genre.trial && (
-            <>
-              {' '}
-              <span className='text-stone-500'>(TRIAL)</span>
-            </>
+      <div className='bg-white border border-stone-300 shadow-sm'>
+        <div
+          className={clsx(
+            'border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold flex items-stretch',
+            topbarColor
           )}
+        >
+          {topbarText}
         </div>
-        <div className='text-xl font-medium mt-0.5'>{genre.name}</div>
-        {genre.alternateNames.length > 0 && (
-          <div className='text-stone-600 font-medium text-sm mt-1'>
-            AKA: {genre.alternateNames.join(', ')}
-          </div>
-        )}
-        {genre.locations.length > 0 && (
-          <div className='text-stone-600 font-medium text-sm mt-1'>
-            Locations:{' '}
-            {genre.locations.map((loc) =>
-              [loc.city, loc.country, loc.region]
-                .filter((s) => s.length > 0)
-                .join(', ')
+
+        <div className='p-5'>
+          <div className='text-xs font-bold'>
+            <span className={color}>{genre.type}</span>
+            {genre.trial && (
+              <>
+                {' '}
+                <span className='text-stone-500'>(TRIAL)</span>
+              </>
             )}
           </div>
-        )}
-        {genre.cultures.length > 0 && (
-          <div className='text-stone-600 font-medium text-sm mt-1'>
-            Cultures: {genre.cultures.join(', ')}
-          </div>
-        )}
-        <Description
-          genre={genre}
-          expanded={expanded}
-          onExpandChange={(expanded) => setExpanded(expanded)}
-        />
+          <div className='text-xl font-medium mt-0.5'>{genre.name}</div>
+          {genre.alternateNames.length > 0 && (
+            <div className='text-stone-600 font-medium text-sm mt-1'>
+              AKA: {genre.alternateNames.join(', ')}
+            </div>
+          )}
+          {genre.locations.length > 0 && (
+            <div className='text-stone-600 font-medium text-sm mt-1'>
+              Locations:{' '}
+              {genre.locations.map((loc) =>
+                [loc.city, loc.country, loc.region]
+                  .filter((s) => s.length > 0)
+                  .join(', ')
+              )}
+            </div>
+          )}
+          {genre.cultures.length > 0 && (
+            <div className='text-stone-600 font-medium text-sm mt-1'>
+              Cultures: {genre.cultures.join(', ')}
+            </div>
+          )}
+          <Description
+            genre={genre}
+            expanded={expanded}
+            onExpandChange={(expanded) => setExpanded(expanded)}
+          />
+        </div>
       </div>
 
       <Hierarchy genre={genre} />

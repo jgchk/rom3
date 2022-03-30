@@ -63,6 +63,12 @@ export const makeCorrectionGenre = (
       }
     : { ...originalGenre, changes: undefined }
 
+  if (
+    createdGenres.some((createdGenre) => createdGenre.id === originalGenre.id)
+  ) {
+    genre.changes = 'created'
+  }
+
   return {
     ...genre,
     parents: [

@@ -55,7 +55,7 @@ const Loaded: FC<{
     <div className='space-y-4'>
       <Breadcrumbs genre={genre} />
 
-      <div className='bg-white border border-stone-300 shadow-sm p-6'>
+      <div className='bg-white border border-stone-300 shadow-sm p-5'>
         <div className='text-xs font-bold'>
           <span className={color}>{genre.type}</span>
           {genre.trial && (
