@@ -4,8 +4,10 @@ import { useRouter } from 'next/router'
 import { FC, useMemo, useState } from 'react'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
 
+import { ButtonPrimaryLink } from '../../../common/components/ButtonPrimary'
 import { ButtonSecondaryLink } from '../../../common/components/ButtonSecondary'
 import { GenreApiOutput } from '../../../common/model'
+import { genreChildTypes } from '../../../common/model/parents'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import useCorrectionGenreQuery, {
   CorrectionGenre,
@@ -44,11 +46,13 @@ const Loaded: FC<{
     () => getTopbarText(genre.changes),
     [genre.changes]
   )
-
   const topbarColor: string = useMemo(
     () => getTopbarColor(genre.changes),
     [genre.changes]
   )
+
+  const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
+
   return (
     <div className='space-y-4'>
       <Breadcrumbs genre={genre} />
@@ -100,14 +104,24 @@ const Loaded: FC<{
       <Hierarchy genre={genre} />
 
       {isMyCorrection && (
-        <ButtonSecondaryLink
-          href={{
-            pathname: `/corrections/${correctionId}/genres/edit`,
-            query: { genreId: genre.id, from: asPath },
-          }}
-        >
-          Edit
-        </ButtonSecondaryLink>
+        <div className='space-x-1'>
+          <ButtonPrimaryLink
+            href={{
+              pathname: `/corrections/${correctionId}/genres/edit`,
+              query: { genreId: genre.id, from: asPath },
+            }}
+          >
+            Edit
+          </ButtonPrimaryLink>
+          <ButtonSecondaryLink
+            href={{
+              pathname: `/corrections/${correctionId}/genres/create`,
+              query: { type: childTypes[0], parentId: genre.id, from: asPath },
+            }}
+          >
+            Add Child Genre
+          </ButtonSecondaryLink>
+        </div>
       )}
     </div>
   )
