@@ -34,7 +34,7 @@ const ListView: FC = () => {
     }
 
     return (
-      <ul className='space-y-2'>
+      <ul className='space-y-4'>
         {data.create.map((genre) => (
           <CreateItem key={genre.id} genre={genre} />
         ))}
