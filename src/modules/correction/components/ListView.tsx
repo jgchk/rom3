@@ -13,6 +13,7 @@ import {
 } from '../../../common/services/corrections'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
+import { getTopbarText } from '../utils/display'
 
 const ListView: FC = () => {
   const { id: correctionId } = useCorrectionContext()
@@ -74,13 +75,16 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
     )
   }, [correctionId, genre.id, mutate])
 
+  const topbarText = useMemo(() => getTopbarText('created'), [])
+
   return (
     <li className='border border-stone-300 bg-white shadow-sm'>
       <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-green-600'>
-        Create
+        {topbarText}
       </div>
+
       <div className='p-5'>
-        <div className='text-xs font-semibold text-stone-500'>
+        <div className='text-xs font-bold text-stone-500'>
           {genre.type}
           {genre.trial && <> (TRIAL)</>}
         </div>
@@ -91,6 +95,7 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
         </div>
         <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
       </div>
+
       {isMyCorrection && (
         <div className='flex justify-between border-t border-stone-200'>
           <Link
@@ -202,13 +207,16 @@ const EditItem: FC<{
     return updatedGenre.shortDesc
   }, [targetGenre.shortDesc, updatedGenre.shortDesc])
 
+  const topbarText = useMemo(() => getTopbarText('edited'), [])
+
   return (
     <li className='border border-stone-300 bg-white shadow-sm'>
       <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-blue-600'>
-        Edit
+        {topbarText}
       </div>
+
       <div className='p-5'>
-        <div className={'text-xs font-semibold text-stone-500'}>{type}</div>
+        <div className={'text-xs font-bold text-stone-500'}>{type}</div>
         <div className='text-lg font-medium mt-0.5'>
           <Link href={`/corrections/${correctionId}/genres/${targetGenre.id}`}>
             <a className='hover:underline'>{name}</a>
@@ -216,6 +224,7 @@ const EditItem: FC<{
         </div>
         <div className='text-sm text-stone-700 mt-1'>{shortDesc}</div>
       </div>
+
       {isMyCorrection && (
         <div className='flex justify-between border-t border-stone-200'>
           <Link
@@ -266,8 +275,9 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
       <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-red-600'>
         Delete
       </div>
+
       <div className='p-5'>
-        <div className='text-xs font-semibold text-stone-500 line-through'>
+        <div className='text-xs font-bold text-stone-500 line-through'>
           {genre.type}
           {genre.trial && <> (TRIAL)</>}
         </div>
@@ -278,6 +288,7 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
           {genre.shortDesc}
         </div>
       </div>
+
       {isMyCorrection && (
         <div className='flex justify-end border-t border-stone-200'>
           <button
