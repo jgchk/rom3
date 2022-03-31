@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo } from 'react'
@@ -13,7 +14,7 @@ import {
 } from '../../../common/services/corrections'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
-import { getTopbarText } from '../utils/display'
+import { getTopbarColor, getTopbarText } from '../utils/display'
 
 const ListView: FC = () => {
   const { id: correctionId } = useCorrectionContext()
@@ -76,10 +77,16 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   }, [correctionId, genre.id, mutate])
 
   const topbarText = useMemo(() => getTopbarText('created'), [])
+  const topbarColor = useMemo(() => getTopbarColor('created'), [])
 
   return (
     <li className='border border-stone-300 bg-white shadow-sm'>
-      <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-green-600'>
+      <div
+        className={clsx(
+          'border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold',
+          topbarColor
+        )}
+      >
         {topbarText}
       </div>
 
@@ -208,10 +215,16 @@ const EditItem: FC<{
   }, [targetGenre.shortDesc, updatedGenre.shortDesc])
 
   const topbarText = useMemo(() => getTopbarText('edited'), [])
+  const topbarColor = useMemo(() => getTopbarColor('edited'), [])
 
   return (
     <li className='border border-stone-300 bg-white shadow-sm'>
-      <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-blue-600'>
+      <div
+        className={clsx(
+          'border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold',
+          topbarColor
+        )}
+      >
         {topbarText}
       </div>
 
@@ -270,10 +283,18 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
     )
   }, [correctionId, genre.id, mutate])
 
+  const topbarText = useMemo(() => getTopbarText('deleted'), [])
+  const topbarColor = useMemo(() => getTopbarColor('deleted'), [])
+
   return (
     <li className='border border-stone-300 bg-white shadow-sm'>
-      <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-red-600'>
-        Delete
+      <div
+        className={clsx(
+          'border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold',
+          topbarColor
+        )}
+      >
+        {topbarText}
       </div>
 
       <div className='p-5'>
