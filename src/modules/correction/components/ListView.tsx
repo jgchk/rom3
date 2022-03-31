@@ -79,7 +79,7 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
       <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-green-600'>
         Create
       </div>
-      <div className='p-2'>
+      <div className='p-5'>
         <div className='text-xs font-semibold text-stone-500'>
           {genre.type}
           {genre.trial && <> (TRIAL)</>}
@@ -212,7 +212,7 @@ const EditItem: FC<{
       <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-blue-600'>
         Edit
       </div>
-      <div className='p-2'>
+      <div className='p-5'>
         <div className={'text-xs font-semibold text-stone-500'}>{type}</div>
         <div className='text-lg font-medium mt-0.5'>
           <Link
@@ -276,7 +276,7 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
       <div className='border-b border-stone-200 px-2 py-1 uppercase text-xs font-bold text-white bg-red-600'>
         Delete
       </div>
-      <div className='p-2'>
+      <div className='p-5'>
         <div className='text-xs font-semibold text-stone-500 line-through'>
           {genre.type}
           {genre.trial && <> (TRIAL)</>}
