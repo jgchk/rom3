@@ -66,10 +66,7 @@ const Loaded: FC<{
             const firstParent = genre.parents[0]
             void navigate(
               firstParent !== undefined
-                ? {
-                    pathname: `/corrections/${correctionId}/genres/view`,
-                    query: { genreId: firstParent },
-                  }
+                ? `/corrections/${correctionId}/genres/${firstParent}`
                 : `/corrections/${correctionId}/tree`
             )
             toast.success(`Deleted ${genre.name}`)
@@ -241,12 +238,7 @@ const Breadcrumb: FC<{ id: number }> = ({ id }) => {
   const { data } = useCorrectionGenreQuery(id, correctionId)
 
   return (
-    <Link
-      href={{
-        pathname: `/corrections/${correctionId}/genres/view`,
-        query: { genreId: id },
-      }}
-    >
+    <Link href={`/corrections/${correctionId}/genres/${id}`}>
       <a className='text-sm text-stone-500 font-medium inline-flex items-center px-2 py-1 hover:underline'>
         {data ? data.name : 'Loading...'}
       </a>
@@ -285,12 +277,7 @@ const Parent: FC<{ id: number }> = ({ id }) => {
 
   return (
     <div className='py-1'>
-      <Link
-        href={{
-          pathname: `/corrections/${correctionId}/genres/view`,
-          query: { genreId: id },
-        }}
-      >
+      <Link href={`/corrections/${correctionId}/genres/${id}`}>
         <a
           className={clsx(
             'font-semibold hover:underline',
@@ -317,12 +304,7 @@ const Child: FC<{ id: number }> = ({ id }) => {
   return (
     <li className={clsx('pl-6 border-l-2', getChangeBorderColor(data.changes))}>
       <div className='py-2'>
-        <Link
-          href={{
-            pathname: `/corrections/${correctionId}/genres/view`,
-            query: { genreId: id },
-          }}
-        >
+        <Link href={`/corrections/${correctionId}/genres/${id}`}>
           <a
             className={clsx(
               'font-semibold hover:underline',

@@ -205,12 +205,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
           {genre.trial && <> (TRIAL)</>}
         </div>
         <div className='text-lg font-medium mt-0.5'>
-          <Link
-            href={{
-              pathname: `/corrections/${correctionId}/genres/view`,
-              query: { genreId: id },
-            }}
-          >
+          <Link href={`/corrections/${correctionId}/genres/${id}`}>
             <a className='hover:underline'>{genre.name}</a>
           </Link>
         </div>

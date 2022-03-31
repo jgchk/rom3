@@ -3,11 +3,11 @@ import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
-import { getFirstOrValue } from '../../../../common/utils/array'
-import Layout from '../../../../modules/correction/components/Layout'
-import ViewView from '../../../../modules/correction/components/ViewView'
+import { getFirstOrValue } from '../../../../../common/utils/array'
+import Layout from '../../../../../modules/correction/components/Layout'
+import ViewView from '../../../../../modules/correction/components/ViewView'
 
-const Create: NextPage = () => {
+const View: NextPage = () => {
   const router = useRouter()
 
   const correctionId = useMemo(() => {
@@ -37,4 +37,4 @@ const Create: NextPage = () => {
   )
 }
 
-export default Create
+export default View

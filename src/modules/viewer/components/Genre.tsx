@@ -93,10 +93,7 @@ const Loaded: FC<{
                   const firstParent = genre.parents[0]
                   void navigate(
                     firstParent !== undefined
-                      ? {
-                          pathname: `/corrections/${res.id}/genres/view`,
-                          query: { genreId: firstParent },
-                        }
+                      ? `/corrections/${res.id}/genres/${firstParent}`
                       : `/corrections/${res.id}/tree`
                   )
                   toast.success(`Deleted ${genre.name} in new correction`)

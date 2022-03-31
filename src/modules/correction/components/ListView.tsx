@@ -85,12 +85,7 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
           {genre.trial && <> (TRIAL)</>}
         </div>
         <div className='text-lg font-medium mt-0.5'>
-          <Link
-            href={{
-              pathname: `/corrections/${correctionId}/genres/view`,
-              query: { genreId: genre.id },
-            }}
-          >
+          <Link href={`/corrections/${correctionId}/genres/${genre.id}`}>
             <a className='hover:underline'>{genre.name}</a>
           </Link>
         </div>
@@ -215,12 +210,7 @@ const EditItem: FC<{
       <div className='p-5'>
         <div className={'text-xs font-semibold text-stone-500'}>{type}</div>
         <div className='text-lg font-medium mt-0.5'>
-          <Link
-            href={{
-              pathname: `/corrections/${correctionId}/genres/view`,
-              query: { genreId: targetGenre.id },
-            }}
-          >
+          <Link href={`/corrections/${correctionId}/genres/${targetGenre.id}`}>
             <a className='hover:underline'>{name}</a>
           </Link>
         </div>

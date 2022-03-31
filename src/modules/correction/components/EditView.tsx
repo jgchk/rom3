@@ -21,10 +21,7 @@ const EditView: FC<{ genreId: number; from?: string }> = ({
   useEffect(() => {
     if (isMyCorrection === undefined) return
     if (!isMyCorrection) {
-      void navigate({
-        pathname: `/corrections/${correctionId}/genres/view`,
-        query: { genreId },
-      })
+      void navigate(`/corrections/${correctionId}/genres/${genreId}`)
     }
   }, [correctionId, genreId, isMyCorrection, navigate])
 
