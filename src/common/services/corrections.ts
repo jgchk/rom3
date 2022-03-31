@@ -1,6 +1,34 @@
-import trpc, { InferQueryOptions, InferQueryOutput } from '../utils/trpc'
+import trpc, {
+  InferContextType,
+  InferQueryOptions,
+  InferQueryOutput,
+} from '../utils/trpc'
 
 export type CorrectionApiOutput = InferQueryOutput<'corrections.byId'>
+
+const setCorrectionGenresQueryData = (
+  utils: InferContextType,
+  correction: CorrectionApiOutput
+) => {
+  for (const createdGenre of correction.create) {
+    utils.setQueryData(['genres.byId', { id: createdGenre.id }], createdGenre)
+  }
+
+  for (const editedGenre of correction.edit) {
+    utils.setQueryData(
+      ['genres.byId', { id: editedGenre.targetGenre.id }],
+      editedGenre.targetGenre
+    )
+    utils.setQueryData(
+      ['genres.byId', { id: editedGenre.updatedGenre.id }],
+      editedGenre.updatedGenre
+    )
+  }
+
+  for (const deletedGenre of correction.delete) {
+    utils.setQueryData(['genres.byId', { id: deletedGenre.id }], deletedGenre)
+  }
+}
 
 export const useSubmittedCorrectionsQuery = (
   opts?: InferQueryOptions<'corrections.submitted'>
@@ -15,6 +43,8 @@ export const useSubmittedCorrectionsQuery = (
           ['corrections.byId', { id: correction.id }],
           correction
         )
+
+        setCorrectionGenresQueryData(utils, correction)
       }
 
       if (opts?.onSuccess) {
@@ -37,6 +67,8 @@ export const useDraftCorrectionsQuery = (
           ['corrections.byId', { id: correction.id }],
           correction
         )
+
+        setCorrectionGenresQueryData(utils, correction)
       }
 
       if (opts?.onSuccess) {
@@ -49,11 +81,20 @@ export const useDraftCorrectionsQuery = (
 export const useCorrectionQuery = (
   id: number,
   opts?: InferQueryOptions<'corrections.byId'>
-) =>
-  trpc.useQuery(['corrections.byId', { id }], {
+) => {
+  const utils = trpc.useContext()
+  return trpc.useQuery(['corrections.byId', { id }], {
     ...opts,
     useErrorBoundary: opts?.useErrorBoundary ?? true,
+    onSuccess: (res) => {
+      setCorrectionGenresQueryData(utils, res)
+
+      if (opts?.onSuccess) {
+        opts.onSuccess(res)
+      }
+    },
   })
+}
 
 export const useCreateCorrectionMutation = () => {
   const utils = trpc.useContext()
@@ -65,6 +106,7 @@ export const useCreateCorrectionMutation = () => {
         void utils.invalidateQueries('corrections.submitted')
       }
       utils.setQueryData(['corrections.byId', { id: res.id }], res)
+      setCorrectionGenresQueryData(utils, res)
     },
   })
 }
@@ -90,6 +132,7 @@ export const useAddCreatedGenreMutation = () => {
         void utils.invalidateQueries('corrections.submitted')
       }
       utils.setQueryData(['corrections.byId', { id: res.id }], res)
+      setCorrectionGenresQueryData(utils, res)
     },
   })
 }
@@ -104,6 +147,7 @@ export const useCorrectGenreMutation = () => {
         void utils.invalidateQueries('corrections.submitted')
       }
       utils.setQueryData(['corrections.byId', { id: res.id }], res)
+      setCorrectionGenresQueryData(utils, res)
     },
   })
 }
@@ -118,6 +162,7 @@ export const useDeleteCorrectionGenreMutation = () => {
         void utils.invalidateQueries('corrections.submitted')
       }
       utils.setQueryData(['corrections.byId', { id: res.id }], res)
+      setCorrectionGenresQueryData(utils, res)
     },
   })
 }
@@ -132,6 +177,7 @@ export const useRemoveCreateGenreMutation = () => {
         void utils.invalidateQueries('corrections.submitted')
       }
       utils.setQueryData(['corrections.byId', { id: res.id }], res)
+      setCorrectionGenresQueryData(utils, res)
     },
   })
 }
@@ -146,6 +192,7 @@ export const useRemoveEditGenreMutation = () => {
         void utils.invalidateQueries('corrections.submitted')
       }
       utils.setQueryData(['corrections.byId', { id: res.id }], res)
+      setCorrectionGenresQueryData(utils, res)
     },
   })
 }
@@ -160,6 +207,7 @@ export const useRemoveDeleteGenreMutation = () => {
         void utils.invalidateQueries('corrections.submitted')
       }
       utils.setQueryData(['corrections.byId', { id: res.id }], res)
+      setCorrectionGenresQueryData(utils, res)
     },
   })
 }
@@ -187,6 +235,7 @@ export const useUpdateCorrectionNameMutation = () => {
         void utils.invalidateQueries('corrections.submitted')
       }
       utils.setQueryData(['corrections.byId', { id: res.id }], res)
+      setCorrectionGenresQueryData(utils, res)
     },
   })
 }
@@ -200,6 +249,7 @@ export const useUpdateCorrectionDraftStatusMutation = () => {
       void utils.invalidateQueries('corrections.drafts')
       void utils.invalidateQueries('corrections.submitted')
       utils.setQueryData(['corrections.byId', { id: res.id }], res)
+      setCorrectionGenresQueryData(utils, res)
     },
   })
 }
