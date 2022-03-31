@@ -227,7 +227,7 @@ const Changes: FC<{ changes: Set<ChangeType> }> = ({ changes }) => {
         {sorted.map((type) => (
           <div
             className={clsx(
-              'w-2 h-2 rounded-full ring-1 ring-stone-200',
+              'w-2 h-2 rounded-full ring-1 ring-white',
               getChangeBackgroundColor(type)
             )}
             key={type}
