@@ -148,9 +148,14 @@ const Loaded: FC<{
               Add Child
             </ButtonSecondaryLink>
           )}
-          <ButtonTertiary onClick={() => handleDelete()} disabled={isDeleting}>
-            Delete
-          </ButtonTertiary>
+          {genre.changes !== 'deleted' && (
+            <ButtonTertiary
+              onClick={() => handleDelete()}
+              disabled={isDeleting}
+            >
+              Delete
+            </ButtonTertiary>
+          )}
         </div>
       )}
     </div>
