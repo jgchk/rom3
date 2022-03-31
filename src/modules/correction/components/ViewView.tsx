@@ -133,8 +133,8 @@ const Loaded: FC<{
         <div>
           <ButtonPrimaryLink
             href={{
-              pathname: `/corrections/${correctionId}/genres/edit`,
-              query: { genreId: genre.id, from: asPath },
+              pathname: `/corrections/${correctionId}/genres/${genre.id}/edit`,
+              query: { from: asPath },
             }}
           >
             Edit

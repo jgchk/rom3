@@ -3,9 +3,9 @@ import ErrorPage from 'next/error'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 
-import { getFirstOrValue } from '../../../../common/utils/array'
-import EditView from '../../../../modules/correction/components/EditView'
-import Layout from '../../../../modules/correction/components/Layout'
+import { getFirstOrValue } from '../../../../../common/utils/array'
+import EditView from '../../../../../modules/correction/components/EditView'
+import Layout from '../../../../../modules/correction/components/Layout'
 
 const Edit: NextPage = () => {
   const { query } = useRouter()

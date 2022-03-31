@@ -46,8 +46,8 @@ const Loaded: FC<{
         {
           onSuccess: (res) => {
             void navigate({
-              pathname: `/corrections/${res.id}/genres/edit`,
-              query: { genreId: genre.id, from: asPath },
+              pathname: `/corrections/${res.id}/genres/${genre.id}/edit`,
+              query: { from: asPath },
             })
           },
           onError: (error) => {

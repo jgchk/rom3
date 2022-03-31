@@ -216,8 +216,8 @@ const Node: FC<{ id: number }> = ({ id }) => {
         <div className='flex justify-between border-t border-stone-200'>
           <Link
             href={{
-              pathname: `/corrections/${correctionId}/genres/edit`,
-              query: { genreId: id, from: asPath },
+              pathname: `/corrections/${correctionId}/genres/${id}/edit`,
+              query: { from: asPath },
             }}
           >
             <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>

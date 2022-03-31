@@ -95,8 +95,8 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
         <div className='flex justify-between border-t border-stone-200'>
           <Link
             href={{
-              pathname: `/corrections/${correctionId}/genres/edit`,
-              query: { genreId: genre.id, from: asPath },
+              pathname: `/corrections/${correctionId}/genres/${genre.id}/edit`,
+              query: { from: asPath },
             }}
           >
             <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
@@ -220,8 +220,8 @@ const EditItem: FC<{
         <div className='flex justify-between border-t border-stone-200'>
           <Link
             href={{
-              pathname: `/corrections/${correctionId}/genres/edit`,
-              query: { genreId: targetGenre.id, from: asPath },
+              pathname: `/corrections/${correctionId}/genres/${targetGenre.id}/edit`,
+              query: { from: asPath },
             }}
           >
             <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
