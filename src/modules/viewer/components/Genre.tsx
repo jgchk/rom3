@@ -157,7 +157,7 @@ const Loaded: FC<{
       <Hierarchy genre={genre} />
 
       {isLoggedIn && (
-        <div className='space-x-1'>
+        <div>
           <ButtonPrimary
             onClick={() => handleEditGenre()}
             disabled={isCreatingCorrection}
@@ -166,6 +166,7 @@ const Loaded: FC<{
           </ButtonPrimary>
           {childTypes.length > 0 && (
             <ButtonSecondary
+              className='ml-1.5'
               onClick={() => handleAddChildGenre()}
               disabled={isCreatingCorrection}
             >
