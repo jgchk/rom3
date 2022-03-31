@@ -6,7 +6,6 @@ import toast from 'react-hot-toast'
 
 import {
   useCorrectionQuery,
-  useDeleteCorrectionMutation,
   useMergeCorrectionMutation,
   useUpdateCorrectionDraftStatusMutation,
 } from '../../../common/services/corrections'
@@ -49,26 +48,6 @@ const Navbar: FC = () => {
     )
   }, [id, mergeCorrection, router])
 
-  const { mutate: deleteCorrection, isLoading: isDeleting } =
-    useDeleteCorrectionMutation()
-  const handleDeleteCorrection = useCallback(() => {
-    const conf = confirm('Are you sure? (This action is irreversible)')
-    if (!conf) return
-
-    deleteCorrection(
-      { id },
-      {
-        onSuccess: () => {
-          toast.success('Deleted correction')
-          void router.push('/corrections')
-        },
-        onError: (error) => {
-          toast.error(error.message)
-        },
-      }
-    )
-  }, [deleteCorrection, id, router])
-
   const { mutate: updateDraftStatus, isLoading: isUpdatingDraftStatus } =
     useUpdateCorrectionDraftStatusMutation()
   const handleUpdateDraftStatus = useCallback(
@@ -104,7 +83,7 @@ const Navbar: FC = () => {
                     : 'border-transparent'
                 )}
               >
-                {isMyCorrection ? 'Edit' : 'View'}
+                {isMyCorrection ? 'Edit' : 'Preview'} Tree
               </a>
             </Link>
             <Link href={`/corrections/${id}`}>
@@ -116,7 +95,7 @@ const Navbar: FC = () => {
                     : 'border-transparent'
                 )}
               >
-                Changes
+                Changelist
               </a>
             </Link>
           </div>
@@ -127,29 +106,17 @@ const Navbar: FC = () => {
                 onClick={() => handleUpdateDraftStatus(!data?.draft)}
                 disabled={isUpdatingDraftStatus}
               >
-                {data?.draft ? 'Set Ready' : 'Set Draft'}
+                {data?.draft ? 'Mark as Ready' : 'Mark as Draft'}
               </button>
-              <button
-                className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
-                onClick={() => setShowNameDialog(true)}
-                disabled={showNameDialog}
-              >
-                Rename
-              </button>
-              <button
-                className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
-                onClick={() => handleDeleteCorrection()}
-                disabled={isDeleting}
-              >
-                Delete
-              </button>
-              <button
-                className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
-                onClick={() => handleMergeCorrection()}
-                disabled={isMerging}
-              >
-                Merge
-              </button>
+              {data && !data.draft && (
+                <button
+                  className='h-full flex items-center px-2 font-semibold hover:bg-primary-700'
+                  onClick={() => handleMergeCorrection()}
+                  disabled={isMerging}
+                >
+                  Merge
+                </button>
+              )}
             </div>
           )}
         </div>
