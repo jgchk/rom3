@@ -1,12 +1,10 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useMemo, useState } from 'react'
-import toast from 'react-hot-toast'
+import { FC, useMemo, useState } from 'react'
 
 import { ButtonSecondaryLink } from '../../../common/components/ButtonSecondary'
 import Tooltip from '../../../common/components/Tooltip'
-import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
 import useCorrectionGenreQuery, {
@@ -152,9 +150,6 @@ const Tree: FC<{ tree: GenreTree; parentGenre?: CorrectionGenre }> = ({
 
 const Node: FC<{ id: number }> = ({ id }) => {
   const { id: correctionId } = useCorrectionContext()
-  const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
-
-  const { asPath } = useRouter()
 
   const tree = useGenreTree()
 
@@ -166,20 +161,6 @@ const Node: FC<{ id: number }> = ({ id }) => {
   const descendantChanges = useMemo(
     () => getDescendantChanges(id, tree),
     [id, tree]
-  )
-
-  const { mutate } = useDeleteCorrectionGenreMutation()
-  const handleDelete = useCallback(
-    () =>
-      mutate(
-        { id: correctionId, targetId: id },
-        {
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
-    [correctionId, id, mutate]
   )
 
   const topbarText: string = useMemo(
@@ -217,43 +198,17 @@ const Node: FC<{ id: number }> = ({ id }) => {
         <p className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</p>
       </div>
 
-      {(isMyCorrection || descendantIds.length > 0) && (
-        <div
+      {descendantIds.length > 0 && (
+        <button
           className={clsx(
-            'flex justify-between border-t border-stone-200',
+            'w-full border-t border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100',
             expanded && 'border-b'
           )}
+          onClick={() => setExpanded(!expanded)}
         >
-          {isMyCorrection && (
-            <Link
-              href={{
-                pathname: `/corrections/${correctionId}/genres/${id}/edit`,
-                query: { from: asPath },
-              }}
-            >
-              <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-                Edit
-              </a>
-            </Link>
-          )}
-          {descendantIds.length > 0 && (
-            <button
-              className='flex-1 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'
-              onClick={() => setExpanded(!expanded)}
-            >
-              {expanded ? 'Hide' : 'Show'} {descendantIds.length} subgenre
-              {descendantIds.length !== 1 && 's'}
-            </button>
-          )}
-          {isMyCorrection && (
-            <button
-              className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
-              onClick={() => handleDelete()}
-            >
-              Delete
-            </button>
-          )}
-        </div>
+          {expanded ? 'Hide' : 'Show'} {descendantIds.length} subgenre
+          {descendantIds.length !== 1 && 's'}
+        </button>
       )}
 
       {expanded && <Children className='p-4 pb-1' childIds={genre.children} />}
