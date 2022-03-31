@@ -19,6 +19,8 @@ import useCorrectionGenreTreeQuery, {
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 import {
   getChangeBackgroundColor,
+  getChangeBorderColor,
+  getChangeTextColor,
   getTopbarColor,
   getTopbarText,
 } from '../utils/display'
@@ -289,9 +291,7 @@ const Children: FC<{ childIds: number[]; className?: string }> = ({
 }) => (
   <ul className={clsx('space-y-4', className)}>
     {childIds.map((id) => (
-      <li className='pl-6 border-l-2 border-primary-600' key={id}>
-        <Child id={id} />
-      </li>
+      <Child key={id} id={id} />
     ))}
   </ul>
 )
@@ -305,19 +305,24 @@ const Child: FC<{ id: number }> = ({ id }) => {
   }
 
   return (
-    <div>
+    <li className={clsx('pl-6 border-l-2', getChangeBorderColor(data.changes))}>
       <div className='py-2'>
-        <Link href={`/genres/${data.id}`}>
-          <a className='text-primary-600 font-semibold hover:underline'>
+        <Link href={`/corrections/${correctionId}/genres/${id}`}>
+          <a
+            className={clsx(
+              'font-semibold hover:underline',
+              getChangeTextColor(data.changes)
+            )}
+          >
             {data.name}
           </a>
         </Link>
 
-        <div className='text-sm text-stone-600'>{data.shortDesc}</div>
+        <div className='text-sm text-stone-500'>{data.shortDesc}</div>
       </div>
 
       <Children className='mt-4' childIds={data.children} />
-    </div>
+    </li>
   )
 }
 

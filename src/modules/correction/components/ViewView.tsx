@@ -293,6 +293,14 @@ const Parent: FC<{ id: number }> = ({ id }) => {
   )
 }
 
+const Children: FC<{ childIds: number[] }> = ({ childIds }) => (
+  <ul className='mt-4 space-y-4'>
+    {childIds.map((id) => (
+      <Child key={id} id={id} />
+    ))}
+  </ul>
+)
+
 const Child: FC<{ id: number }> = ({ id }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data } = useCorrectionGenreQuery(id, correctionId)
@@ -322,11 +330,3 @@ const Child: FC<{ id: number }> = ({ id }) => {
     </li>
   )
 }
-
-const Children: FC<{ childIds: number[] }> = ({ childIds }) => (
-  <ul className='mt-4 space-y-4'>
-    {childIds.map((id) => (
-      <Child key={id} id={id} />
-    ))}
-  </ul>
-)

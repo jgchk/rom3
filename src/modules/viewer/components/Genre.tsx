@@ -300,6 +300,16 @@ const Parent: FC<{ id: number }> = ({ id }) => {
   )
 }
 
+const Children: FC<{ childIds: number[] }> = ({ childIds }) => (
+  <ul className='mt-4 space-y-4'>
+    {childIds.map((id) => (
+      <li className='pl-6 border-l-2 border-primary-600' key={id}>
+        <Child id={id} />
+      </li>
+    ))}
+  </ul>
+)
+
 const Child: FC<{ id: number }> = ({ id }) => {
   const { data } = useGenreQuery(id)
 
@@ -323,13 +333,3 @@ const Child: FC<{ id: number }> = ({ id }) => {
     </div>
   )
 }
-
-const Children: FC<{ childIds: number[] }> = ({ childIds }) => (
-  <ul className='mt-4 space-y-4'>
-    {childIds.map((id) => (
-      <li className='pl-6 border-l-2 border-primary-600' key={id}>
-        <Child id={id} />
-      </li>
-    ))}
-  </ul>
-)
