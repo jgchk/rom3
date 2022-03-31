@@ -114,7 +114,7 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
             onClick={() => handleRemove()}
             disabled={isLoading}
           >
-            Remove
+            Undo
           </button>
         </div>
       )}
@@ -244,7 +244,7 @@ const EditItem: FC<{
             onClick={() => handleRemove()}
             disabled={isLoading}
           >
-            Remove
+            Undo
           </button>
         </div>
       )}
@@ -296,7 +296,7 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
             onClick={() => handleRemove()}
             disabled={isLoading}
           >
-            Remove
+            Undo
           </button>
         </div>
       )}
