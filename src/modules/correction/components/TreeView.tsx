@@ -22,7 +22,7 @@ import {
   getTopbarColor,
   getTopbarText,
 } from '../utils/display'
-import { getDescendantChanges } from '../utils/genre'
+import { getDescendantChanges, getDescendantIds } from '../utils/genre'
 
 const TreeView: FC<{ parentId?: number }> = ({ parentId }) => {
   const { id: correctionId } = useCorrectionContext()
@@ -158,6 +158,9 @@ const Node: FC<{ id: number }> = ({ id }) => {
 
   const genre = useMemo(() => tree[id], [id, tree])
 
+  const descendantIds = useMemo(() => getDescendantIds(id, tree), [id, tree])
+  const [expanded, setExpanded] = useState(false)
+
   const descendantChanges = useMemo(
     () => getDescendantChanges(id, tree),
     [id, tree]
@@ -212,26 +215,46 @@ const Node: FC<{ id: number }> = ({ id }) => {
         <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
       </div>
 
-      {isMyCorrection && (
-        <div className='flex justify-between border-t border-stone-200'>
-          <Link
-            href={{
-              pathname: `/corrections/${correctionId}/genres/${id}/edit`,
-              query: { from: asPath },
-            }}
-          >
-            <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-              Edit
-            </a>
-          </Link>
-          <button
-            className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
-            onClick={() => handleDelete()}
-          >
-            Delete
-          </button>
+      {(isMyCorrection || descendantIds.length > 0) && (
+        <div
+          className={clsx(
+            'flex justify-between border-t border-stone-200',
+            expanded && 'border-b'
+          )}
+        >
+          {isMyCorrection && (
+            <Link
+              href={{
+                pathname: `/corrections/${correctionId}/genres/${id}/edit`,
+                query: { from: asPath },
+              }}
+            >
+              <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
+                Edit
+              </a>
+            </Link>
+          )}
+          {descendantIds.length > 0 && (
+            <button
+              className='flex-1 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded ? 'Hide' : 'Show'} {descendantIds.length} subgenre
+              {descendantIds.length !== 1 && 's'}
+            </button>
+          )}
+          {isMyCorrection && (
+            <button
+              className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
+              onClick={() => handleDelete()}
+            >
+              Delete
+            </button>
+          )}
         </div>
       )}
+
+      {expanded && <Children className='p-4 pb-1' childIds={genre.children} />}
     </div>
   )
 }
@@ -257,6 +280,44 @@ const Changes: FC<{ changes: Set<ChangeType> }> = ({ changes }) => {
 
       <Tooltip referenceElement={ref}>Has changes in subtree</Tooltip>
     </>
+  )
+}
+
+const Children: FC<{ childIds: number[]; className?: string }> = ({
+  childIds,
+  className,
+}) => (
+  <ul className={clsx('space-y-4', className)}>
+    {childIds.map((id) => (
+      <li className='pl-6 border-l-2 border-primary-600' key={id}>
+        <Child id={id} />
+      </li>
+    ))}
+  </ul>
+)
+
+const Child: FC<{ id: number }> = ({ id }) => {
+  const { id: correctionId } = useCorrectionContext()
+  const { data } = useCorrectionGenreQuery(id, correctionId)
+
+  if (!data) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <div>
+      <div className='py-2'>
+        <Link href={`/genres/${data.id}`}>
+          <a className='text-primary-600 font-semibold hover:underline'>
+            {data.name}
+          </a>
+        </Link>
+
+        <div className='text-sm text-stone-600'>{data.shortDesc}</div>
+      </div>
+
+      <Children className='mt-4' childIds={data.children} />
+    </div>
   )
 }
 

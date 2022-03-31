@@ -141,19 +141,37 @@ const Node: FC<{ id: number }> = ({ id }) => {
         </div>
         <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
       </div>
-      <button
-        className={clsx(
-          'w-full text-left border-t border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100',
-          expanded && 'border-b'
-        )}
-        onClick={() => setExpanded(!expanded)}
-      >
-        {expanded ? 'Hide' : 'Show'} {descendantIds.length} subgenres
-      </button>
+
+      {descendantIds.length > 0 && (
+        <button
+          className={clsx(
+            'w-full border-t border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100',
+            expanded && 'border-b'
+          )}
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? 'Hide' : 'Show'} {descendantIds.length} subgenre
+          {descendantIds.length !== 1 && 's'}
+        </button>
+      )}
+
       {expanded && <Children className='p-4 pb-1' childIds={genre.children} />}
     </div>
   )
 }
+
+const Children: FC<{ childIds: number[]; className?: string }> = ({
+  childIds,
+  className,
+}) => (
+  <ul className={clsx('space-y-4', className)}>
+    {childIds.map((id) => (
+      <li className='pl-6 border-l-2 border-primary-600' key={id}>
+        <Child id={id} />
+      </li>
+    ))}
+  </ul>
+)
 
 const Child: FC<{ id: number }> = ({ id }) => {
   const { data } = useGenreQuery(id)
@@ -178,18 +196,5 @@ const Child: FC<{ id: number }> = ({ id }) => {
     </div>
   )
 }
-
-const Children: FC<{ childIds: number[]; className?: string }> = ({
-  childIds,
-  className,
-}) => (
-  <ul className={clsx('space-y-4', className)}>
-    {childIds.map((id) => (
-      <li className='pl-6 border-l-2 border-primary-600' key={id}>
-        <Child id={id} />
-      </li>
-    ))}
-  </ul>
-)
 
 export default TreeView
