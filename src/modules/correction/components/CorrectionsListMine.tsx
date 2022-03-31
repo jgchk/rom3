@@ -1,18 +1,15 @@
-import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useState } from 'react'
+import { FC, useCallback } from 'react'
 import toast from 'react-hot-toast'
 
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
 import {
-  CorrectionApiOutput,
   useCreateCorrectionMutation,
-  useDeleteCorrectionMutation,
   useDraftCorrectionsQuery,
 } from '../../../common/services/corrections'
 import { defaultCorrectionName } from '../constants'
 import useAccountSubmittedCorrectionsQuery from '../hooks/useAccountSubmittedCorrectionsQuery'
-import UpdateNameDialog from './UpdateNameDialog'
+import CorrectionsTable from './CorrectionsTable'
 
 const CorrectionsListMine: FC = () => {
   const { mutate, isLoading } = useCreateCorrectionMutation()
@@ -72,14 +69,14 @@ const DraftsList: FC = () => {
     refetchOnWindowFocus: false,
   })
 
-  if (data)
+  if (data) {
     return (
-      <ul className='space-y-2'>
-        {data.map((correction) => (
-          <Correction key={correction.id} correction={correction} />
-        ))}
-      </ul>
+      <CorrectionsTable
+        corrections={data}
+        emptyText="You don't have any drafts"
+      />
     )
+  }
 
   return <div>Loading...</div>
 }
@@ -98,80 +95,14 @@ const SubmittedList: FC = () => {
     refetchOnWindowFocus: false,
   })
 
-  if (data)
+  if (data) {
     return (
-      <ul className='space-y-2'>
-        {data.map((correction) => (
-          <Correction key={correction.id} correction={correction} />
-        ))}
-      </ul>
+      <CorrectionsTable
+        corrections={data}
+        emptyText="You don't have any submitted corrections"
+      />
     )
+  }
 
   return <div>Loading...</div>
-}
-
-const Correction: FC<{ correction: CorrectionApiOutput }> = ({
-  correction,
-}) => {
-  const [showNameDialog, setShowNameDialog] = useState(false)
-
-  const { mutate, isLoading } = useDeleteCorrectionMutation()
-  const handleDeleteCorrection = useCallback(() => {
-    const conf = confirm('Are you sure? (This action is irreversible)')
-    if (!conf) return
-
-    mutate(
-      { id: correction.id },
-      {
-        onSuccess: () => {
-          toast.success('Deleted correction')
-        },
-        onError: (error) => {
-          toast.error(error.message)
-        },
-      }
-    )
-  }, [correction.id, mutate])
-
-  return (
-    <>
-      <li className='border border-stone-300 bg-white shadow-sm'>
-        <Link href={`/corrections/${correction.id}/tree`}>
-          <a className='font-bold text-lg hover:underline px-2 py-1'>
-            {correction.name ?? defaultCorrectionName}
-          </a>
-        </Link>
-        {/* TODO: add small preview of create/edit/delete actions */}
-        <div className='flex justify-between border-t border-stone-200'>
-          <div className='flex'>
-            <Link href={`/corrections/${correction.id}/tree`}>
-              <a className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'>
-                Edit
-              </a>
-            </Link>
-            <button
-              className='border-r border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100'
-              onClick={() => setShowNameDialog(true)}
-              disabled={showNameDialog}
-            >
-              Rename
-            </button>
-          </div>
-          <button
-            className='border-l border-stone-200 px-2 py-1 uppercase text-xs font-medium text-stone-400 hover:bg-stone-100 -ml-px'
-            onClick={() => handleDeleteCorrection()}
-            disabled={isLoading}
-          >
-            Delete
-          </button>
-        </div>
-      </li>
-      {showNameDialog && (
-        <UpdateNameDialog
-          id={correction.id}
-          onClose={() => setShowNameDialog(false)}
-        />
-      )}
-    </>
-  )
 }
