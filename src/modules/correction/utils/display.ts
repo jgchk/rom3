@@ -18,9 +18,9 @@ export const getChangeBackgroundColor = (
 export const getChangeTextColor = (type: ChangeType | undefined): string => {
   switch (type) {
     case 'created':
-      return 'text-green-600'
+      return 'text-green-700'
     case 'edited':
-      return 'text-blue-600'
+      return 'text-blue-700'
     case undefined:
       return 'text-stone-500'
   }
@@ -33,7 +33,7 @@ export const getChangeBorderColor = (type: ChangeType | undefined): string => {
     case 'edited':
       return 'border-blue-600'
     case undefined:
-      return 'border-stone-500'
+      return 'border-stone-400'
   }
 }
 

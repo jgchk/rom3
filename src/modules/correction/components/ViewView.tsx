@@ -262,7 +262,7 @@ const Parent: FC<{ id: number }> = ({ id }) => {
         </a>
       </Link>
 
-      <div className='text-sm text-stone-600'>{data.shortDesc}</div>
+      <div className='text-sm text-stone-500'>{data.shortDesc}</div>
     </div>
   )
 }
@@ -294,7 +294,7 @@ const Child: FC<{ id: number }> = ({ id }) => {
           </a>
         </Link>
 
-        <div className='text-sm text-stone-600'>{data.shortDesc}</div>
+        <div className='text-sm text-stone-500'>{data.shortDesc}</div>
       </div>
 
       <Children childIds={data.children} />
