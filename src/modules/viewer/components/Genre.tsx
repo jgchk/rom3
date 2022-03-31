@@ -7,11 +7,15 @@ import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
 
 import ButtonPrimary from '../../../common/components/ButtonPrimary'
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
+import ButtonTertiary from '../../../common/components/ButtonTertiary'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import useLoggedInQuery from '../../../common/hooks/useLoggedInQuery'
 import { GenreApiOutput } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
-import { useCreateCorrectionMutation } from '../../../common/services/corrections'
+import {
+  useCreateCorrectionMutation,
+  useDeleteCorrectionGenreMutation,
+} from '../../../common/services/corrections'
 import { useGenreQuery } from '../../../common/services/genres'
 
 const Genre: FC<{ genreId: number }> = ({ genreId }) => {
@@ -32,12 +36,12 @@ const Loaded: FC<{
 
   const color = useGenreTypeColor(genre.type)
 
-  const { mutate, isLoading: isCreatingCorrection } =
+  const { mutate: createMutation, isLoading: isCreatingCorrection } =
     useCreateCorrectionMutation()
   const { push: navigate, asPath } = useRouter()
   const handleEditGenre = useCallback(
     () =>
-      mutate(
+      createMutation(
         {},
         {
           onSuccess: (res) => {
@@ -51,13 +55,13 @@ const Loaded: FC<{
           },
         }
       ),
-    [asPath, genre.id, mutate, navigate]
+    [asPath, genre.id, createMutation, navigate]
   )
 
   const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
   const handleAddChildGenre = useCallback(
     () =>
-      mutate(
+      createMutation(
         {},
         {
           onSuccess: (res) => {
@@ -66,9 +70,49 @@ const Loaded: FC<{
               query: { type: childTypes[0], parentId: genre.id, from: asPath },
             })
           },
+          onError: (error) => {
+            toast.error(error.message)
+          },
         }
       ),
-    [asPath, childTypes, genre.id, mutate, navigate]
+    [asPath, childTypes, genre.id, createMutation, navigate]
+  )
+
+  const { mutate: deleteGenre, isLoading: isDeleting } =
+    useDeleteCorrectionGenreMutation()
+  const handleDelete = useCallback(
+    () =>
+      createMutation(
+        {},
+        {
+          onSuccess: (res) => {
+            deleteGenre(
+              { id: res.id, targetId: genre.id },
+              {
+                onSuccess: () => {
+                  const firstParent = genre.parents[0]
+                  void navigate(
+                    firstParent !== undefined
+                      ? {
+                          pathname: `/corrections/${res.id}/genres/view`,
+                          query: { genreId: firstParent },
+                        }
+                      : `/corrections/${res.id}/tree`
+                  )
+                  toast.success(`Deleted ${genre.name} in new correction`)
+                },
+                onError: (error) => {
+                  toast.error(error.message)
+                },
+              }
+            )
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [createMutation, deleteGenre, genre.id, genre.name, genre.parents, navigate]
   )
 
   return (
@@ -128,9 +172,12 @@ const Loaded: FC<{
               onClick={() => handleAddChildGenre()}
               disabled={isCreatingCorrection}
             >
-              Add Child Genre
+              Add Child
             </ButtonSecondary>
           )}
+          <ButtonTertiary onClick={() => handleDelete()} disabled={isDeleting}>
+            Delete
+          </ButtonTertiary>
         </div>
       )}
     </div>

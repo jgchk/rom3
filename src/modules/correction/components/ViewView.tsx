@@ -1,13 +1,16 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useMemo, useState } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
 
 import { ButtonPrimaryLink } from '../../../common/components/ButtonPrimary'
 import { ButtonSecondaryLink } from '../../../common/components/ButtonSecondary'
+import ButtonTertiary from '../../../common/components/ButtonTertiary'
 import { GenreApiOutput } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
+import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import useCorrectionGenreQuery, {
   CorrectionGenre,
@@ -40,7 +43,7 @@ const Loaded: FC<{
   const { id: correctionId } = useCorrectionContext()
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
 
-  const { asPath } = useRouter()
+  const { push: navigate, asPath } = useRouter()
 
   const topbarText: string = useMemo(
     () => getTopbarText(genre.changes),
@@ -52,6 +55,32 @@ const Loaded: FC<{
   )
 
   const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
+
+  const { mutate, isLoading: isDeleting } = useDeleteCorrectionGenreMutation()
+  const handleDelete = useCallback(
+    () =>
+      mutate(
+        { id: correctionId, targetId: genre.id },
+        {
+          onSuccess: () => {
+            const firstParent = genre.parents[0]
+            void navigate(
+              firstParent !== undefined
+                ? {
+                    pathname: `/corrections/${correctionId}/genres/view`,
+                    query: { genreId: firstParent },
+                  }
+                : `/corrections/${correctionId}/tree`
+            )
+            toast.success(`Deleted ${genre.name}`)
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [correctionId, genre.id, genre.name, genre.parents, mutate, navigate]
+  )
 
   return (
     <div className='space-y-4'>
@@ -104,7 +133,7 @@ const Loaded: FC<{
       <Hierarchy genre={genre} />
 
       {isMyCorrection && (
-        <div className='space-x-1'>
+        <div>
           <ButtonPrimaryLink
             href={{
               pathname: `/corrections/${correctionId}/genres/edit`,
@@ -113,14 +142,24 @@ const Loaded: FC<{
           >
             Edit
           </ButtonPrimaryLink>
-          <ButtonSecondaryLink
-            href={{
-              pathname: `/corrections/${correctionId}/genres/create`,
-              query: { type: childTypes[0], parentId: genre.id, from: asPath },
-            }}
-          >
-            Add Child Genre
-          </ButtonSecondaryLink>
+          {childTypes.length > 0 && (
+            <ButtonSecondaryLink
+              className='ml-1.5'
+              href={{
+                pathname: `/corrections/${correctionId}/genres/create`,
+                query: {
+                  type: childTypes[0],
+                  parentId: genre.id,
+                  from: asPath,
+                },
+              }}
+            >
+              Add Child
+            </ButtonSecondaryLink>
+          )}
+          <ButtonTertiary onClick={() => handleDelete()} disabled={isDeleting}>
+            Delete
+          </ButtonTertiary>
         </div>
       )}
     </div>
