@@ -55,5 +55,3 @@ export type InferAsyncSubscriptionOutput<TRouteKey extends TSubscription> =
   inferSubscriptionOutput<AppRouter, TRouteKey>
 export type InferSubscriptionInput<TRouteKey extends TSubscription> =
   inferProcedureInput<AppRouter['_def']['subscriptions'][TRouteKey]>
-
-export type InferContextType = ReturnType<typeof trpc['useContext']>
