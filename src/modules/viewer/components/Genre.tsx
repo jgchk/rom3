@@ -1,14 +1,16 @@
 import { Genre } from '@prisma/client'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useState } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
 
+import ButtonPrimary from '../../../common/components/ButtonPrimary'
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import useLoggedInQuery from '../../../common/hooks/useLoggedInQuery'
 import { GenreApiOutput } from '../../../common/model'
+import { genreChildTypes } from '../../../common/model/parents'
 import { useCreateCorrectionMutation } from '../../../common/services/corrections'
 import { useGenreQuery } from '../../../common/services/genres'
 
@@ -30,8 +32,9 @@ const Loaded: FC<{
 
   const color = useGenreTypeColor(genre.type)
 
-  const { mutate, isLoading } = useCreateCorrectionMutation()
-  const { push: navigate } = useRouter()
+  const { mutate, isLoading: isCreatingCorrection } =
+    useCreateCorrectionMutation()
+  const { push: navigate, asPath } = useRouter()
   const handleEditGenre = useCallback(
     () =>
       mutate(
@@ -40,7 +43,7 @@ const Loaded: FC<{
           onSuccess: (res) => {
             void navigate({
               pathname: `/corrections/${res.id}/genres/edit`,
-              query: { genreId: genre.id },
+              query: { genreId: genre.id, from: asPath },
             })
           },
           onError: (error) => {
@@ -48,7 +51,24 @@ const Loaded: FC<{
           },
         }
       ),
-    [genre.id, mutate, navigate]
+    [asPath, genre.id, mutate, navigate]
+  )
+
+  const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
+  const handleAddChildGenre = useCallback(
+    () =>
+      mutate(
+        {},
+        {
+          onSuccess: (res) => {
+            void navigate({
+              pathname: `/corrections/${res.id}/genres/create`,
+              query: { type: childTypes[0], parentId: genre.id, from: asPath },
+            })
+          },
+        }
+      ),
+    [asPath, childTypes, genre.id, mutate, navigate]
   )
 
   return (
@@ -96,9 +116,22 @@ const Loaded: FC<{
       <Hierarchy genre={genre} />
 
       {isLoggedIn && (
-        <ButtonSecondary onClick={() => handleEditGenre()} disabled={isLoading}>
-          Edit
-        </ButtonSecondary>
+        <div className='space-x-1'>
+          <ButtonPrimary
+            onClick={() => handleEditGenre()}
+            disabled={isCreatingCorrection}
+          >
+            Edit
+          </ButtonPrimary>
+          {childTypes.length > 0 && (
+            <ButtonSecondary
+              onClick={() => handleAddChildGenre()}
+              disabled={isCreatingCorrection}
+            >
+              Add Child Genre
+            </ButtonSecondary>
+          )}
+        </div>
       )}
     </div>
   )
