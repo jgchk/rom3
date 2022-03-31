@@ -1,4 +1,10 @@
-import { Correction, GenreCreate, GenreDelete, GenreEdit } from '@prisma/client'
+import {
+  Correction,
+  GenreCreate,
+  GenreDelete,
+  GenreEdit,
+  Prisma,
+} from '@prisma/client'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
@@ -28,15 +34,49 @@ type CorrectionInclude = Correction & {
   })[]
   delete: (GenreDelete & { targetGenre: GenreInclude })[]
 }
-const correctionInclude = {
-  create: { include: { createdGenre: { include: genreInclude } } },
-  edit: {
-    include: {
-      updatedGenre: { include: genreInclude },
-      targetGenre: { include: genreInclude },
+const correctionGenreFilter: Prisma.GenreWhereInput = {
+  editedInCorrection: null,
+}
+const correctionGenreInclude = {
+  ...genreInclude,
+  parents: {
+    where: {
+      parent: correctionGenreFilter,
     },
   },
-  delete: { include: { targetGenre: { include: genreInclude } } },
+  children: {
+    where: {
+      child: correctionGenreFilter,
+    },
+  },
+  influencedBy: {
+    where: {
+      influencer: correctionGenreFilter,
+    },
+  },
+  influences: {
+    where: {
+      influenced: correctionGenreFilter,
+    },
+  },
+} as const
+const correctionInclude = {
+  create: {
+    include: {
+      createdGenre: { include: correctionGenreInclude },
+    },
+  },
+  edit: {
+    include: {
+      updatedGenre: { include: correctionGenreInclude },
+      targetGenre: { include: correctionGenreInclude },
+    },
+  },
+  delete: {
+    include: {
+      targetGenre: { include: correctionGenreInclude },
+    },
+  },
 } as const
 
 const toCorrectionApiOutput = (
