@@ -9,7 +9,7 @@ import { makeCorrectionGenre } from '../utils/genre'
 export type CorrectionGenre = GenreApiOutput & {
   changes: ChangeType | undefined
 }
-export type ChangeType = 'created' | 'edited'
+export type ChangeType = 'created' | 'edited' | 'deleted'
 
 const useCorrectionGenreQuery = (
   genreId: number,

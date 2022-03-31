@@ -87,13 +87,7 @@ const Loaded: FC<{
               { id: res.id, targetId: genre.id },
               {
                 onSuccess: () => {
-                  const firstParent = genre.parents[0]
-                  void navigate(
-                    firstParent !== undefined
-                      ? `/corrections/${res.id}/genres/${firstParent}`
-                      : `/corrections/${res.id}/tree`
-                  )
-                  toast.success(`Deleted ${genre.name} in new correction`)
+                  void navigate(`/corrections/${res.id}/genres/${genre.id}`)
                 },
                 onError: (error) => {
                   toast.error(error.message)
@@ -106,7 +100,7 @@ const Loaded: FC<{
           },
         }
       ),
-    [createMutation, deleteGenre, genre.id, genre.name, genre.parents, navigate]
+    [createMutation, deleteGenre, genre.id, navigate]
   )
 
   return (

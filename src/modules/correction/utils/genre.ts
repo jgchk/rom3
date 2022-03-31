@@ -26,7 +26,7 @@ export const makeUiData = (
 export const makeCorrectionGenre = (
   originalGenre: GenreApiOutput,
   correction: CorrectionApiOutput
-): CorrectionGenre | undefined => {
+): CorrectionGenre => {
   const createdGenres = Object.values(correction.create)
   const deletedIds = new Set(correction.delete.map((genre) => genre.id))
   const editedIds: Record<number, GenreApiOutput | undefined> =
@@ -36,10 +36,6 @@ export const makeCorrectionGenre = (
         updatedGenre,
       ])
     )
-
-  if (deletedIds.has(originalGenre.id)) {
-    return
-  }
 
   const editedGenre = editedIds[originalGenre.id]
   const genre: CorrectionGenre = editedGenre
@@ -67,24 +63,26 @@ export const makeCorrectionGenre = (
     createdGenres.some((createdGenre) => createdGenre.id === originalGenre.id)
   ) {
     genre.changes = 'created'
+  } else if (deletedIds.has(originalGenre.id)) {
+    genre.changes = 'deleted'
   }
 
   return {
     ...genre,
     parents: [
-      ...genre.parents.filter((parentId) => !deletedIds.has(parentId)),
+      ...genre.parents,
       ...createdGenres
         .filter((createdGenre) => createdGenre.children.includes(genre.id))
         .map((createdGenre) => createdGenre.id),
     ],
     children: [
-      ...genre.children.filter((childId) => !deletedIds.has(childId)),
+      ...genre.children,
       ...createdGenres
         .filter((createdGenre) => createdGenre.parents.includes(genre.id))
         .map((genre) => genre.id),
     ],
     influencedBy: [
-      ...genre.influencedBy.filter((inf) => !deletedIds.has(inf.id)),
+      ...genre.influencedBy,
       ...createdGenres
         .map((createdGenre) =>
           createdGenre.influences.find((inf) => inf.id === genre.id)
@@ -92,7 +90,7 @@ export const makeCorrectionGenre = (
         .filter(isDefined),
     ],
     influences: [
-      ...genre.influences.filter((inf) => !deletedIds.has(inf.id)),
+      ...genre.influences,
       ...createdGenres
         .map((createdGenre) =>
           createdGenre.influencedBy.find((inf) => inf.id === genre.id)
