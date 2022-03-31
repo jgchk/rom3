@@ -170,7 +170,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
             <a className='hover:underline'>{genre.name}</a>
           </Link>
         </div>
-        <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
+        <p className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</p>
       </div>
       {isMyCorrection && (
         <div className='flex justify-between border-t border-stone-200'>

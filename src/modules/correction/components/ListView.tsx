@@ -93,7 +93,7 @@ const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
             <a className='hover:underline'>{genre.name}</a>
           </Link>
         </div>
-        <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
+        <p className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</p>
       </div>
 
       {isMyCorrection && (
@@ -222,7 +222,7 @@ const EditItem: FC<{
             <a className='hover:underline'>{name}</a>
           </Link>
         </div>
-        <div className='text-sm text-stone-700 mt-1'>{shortDesc}</div>
+        <p className='text-sm text-stone-700 mt-1'>{shortDesc}</p>
       </div>
 
       {isMyCorrection && (
@@ -284,9 +284,9 @@ const DeleteItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
         <div className='text-lg font-medium mt-0.5 line-through'>
           {genre.name}
         </div>
-        <div className='text-sm text-stone-700 mt-1 line-through'>
+        <p className='text-sm text-stone-700 mt-1 line-through'>
           {genre.shortDesc}
-        </div>
+        </p>
       </div>
 
       {isMyCorrection && (

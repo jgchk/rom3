@@ -190,7 +190,7 @@ const Description: FC<{
     return (
       <div className='mt-3'>
         {/* TODO: render markdown for long desc */}
-        <div>{expanded ? genre.longDesc : genre.shortDesc}</div>
+        <p>{expanded ? genre.longDesc : genre.shortDesc}</p>
         <button
           className='text-sm font-semibold text-stone-700 hover:text-primary-600'
           onClick={() => onExpandChange(!expanded)}
@@ -202,14 +202,14 @@ const Description: FC<{
   }
 
   if (genre.shortDesc) {
-    return <div className='mt-3'>{genre.shortDesc}</div>
+    return <p className='mt-3'>{genre.shortDesc}</p>
   }
 
   if (genre.longDesc) {
     return (
       <div className='mt-3'>
         {/* TODO: render markdown for long desc */}
-        {expanded && <div>{genre.longDesc}</div>}
+        {expanded && <p>{genre.longDesc}</p>}
         <button
           className='text-sm font-semibold text-stone-700 hover:text-primary-600'
           onClick={() => onExpandChange(!expanded)}
@@ -295,7 +295,7 @@ const Parent: FC<{ id: number }> = ({ id }) => {
         </a>
       </Link>
 
-      <div className='text-sm text-stone-600'>{data.shortDesc}</div>
+      <p className='text-sm text-stone-600'>{data.shortDesc}</p>
     </div>
   )
 }
@@ -326,7 +326,7 @@ const Child: FC<{ id: number }> = ({ id }) => {
           </a>
         </Link>
 
-        <div className='text-sm text-stone-600'>{data.shortDesc}</div>
+        <p className='text-sm text-stone-600'>{data.shortDesc}</p>
       </div>
 
       <Children childIds={data.children} />

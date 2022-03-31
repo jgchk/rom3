@@ -139,7 +139,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
             <a className='hover:underline'>{genre.name}</a>
           </Link>
         </div>
-        <div className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</div>
+        <p className='text-sm text-stone-700 mt-1'>{genre.shortDesc}</p>
       </div>
 
       {descendantIds.length > 0 && (
@@ -189,7 +189,7 @@ const Child: FC<{ id: number }> = ({ id }) => {
           </a>
         </Link>
 
-        <div className='text-sm text-stone-600'>{data.shortDesc}</div>
+        <p className='text-sm text-stone-600'>{data.shortDesc}</p>
       </div>
 
       <Children className='mt-4' childIds={data.children} />
