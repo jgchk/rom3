@@ -10,7 +10,6 @@ import {
   useCreateCorrectionMutation,
   useSubmittedCorrectionsQuery,
 } from '../../../common/services/corrections'
-import { compareUpdatedAt } from '../utils/correction'
 import CorrectionsTable from './CorrectionsTable'
 
 const CorrectionsList: FC = () => {
@@ -18,8 +17,6 @@ const CorrectionsList: FC = () => {
   const query = useFromQueryParams()
 
   const { data } = useSubmittedCorrectionsQuery({
-    select: (res) => res.sort(compareUpdatedAt),
-
     // TODO: Temporarily fixes a race condition where this query would refetch after clicking the confirm
     // button for removing a change. Ideally we build some sort of confirm dialog so focus is not lost.
     refetchOnWindowFocus: false,

@@ -8,7 +8,6 @@ import {
   useDraftCorrectionsQuery,
 } from '../../../common/services/corrections'
 import useAccountSubmittedCorrectionsQuery from '../hooks/useAccountSubmittedCorrectionsQuery'
-import { compareUpdatedAt } from '../utils/correction'
 import CorrectionsTable from './CorrectionsTable'
 
 const CorrectionsListMine: FC = () => {
@@ -54,8 +53,6 @@ export default CorrectionsListMine
 
 const DraftsList: FC = () => {
   const { data } = useDraftCorrectionsQuery({
-    select: (res) => res.sort(compareUpdatedAt),
-
     // TODO: Temporarily fixes a race condition where this query would refetch after clicking the confirm
     // button for removing a change. Ideally we build some sort of confirm dialog so focus is not lost.
     refetchOnWindowFocus: false,
@@ -75,8 +72,6 @@ const DraftsList: FC = () => {
 
 const SubmittedList: FC = () => {
   const { data } = useAccountSubmittedCorrectionsQuery({
-    select: (res) => res.sort(compareUpdatedAt),
-
     // TODO: Temporarily fixes a race condition where this query would refetch after clicking the confirm
     // button for removing a change. Ideally we build some sort of confirm dialog so focus is not lost.
     refetchOnWindowFocus: false,
