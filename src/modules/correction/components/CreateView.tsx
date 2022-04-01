@@ -37,16 +37,14 @@ const CreateView: FC<{
         { id: correctionId, data: uiState },
         {
           onSuccess: (res) => {
-            void navigate(
-              from ?? `/corrections/${correctionId}/genres/${res.genreId}`
-            )
+            void navigate(`/corrections/${correctionId}/genres/${res.genreId}`)
           },
           onError: (error) => {
             toast.error(error.message)
           },
         }
       ),
-    [correctionId, from, mutate, navigate, uiState]
+    [correctionId, mutate, navigate, uiState]
   )
 
   const handleCancel = useCallback(
