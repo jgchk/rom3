@@ -10,7 +10,7 @@ import {
   useCreateCorrectionMutation,
   useSubmittedCorrectionsQuery,
 } from '../../../common/services/corrections'
-import { defaultCorrectionName } from '../constants'
+import { compareUpdatedAt } from '../utils/correction'
 import CorrectionsTable from './CorrectionsTable'
 
 const CorrectionsList: FC = () => {
@@ -18,12 +18,7 @@ const CorrectionsList: FC = () => {
   const query = useFromQueryParams()
 
   const { data } = useSubmittedCorrectionsQuery({
-    select: (res) =>
-      res.sort((a, b) =>
-        (a.name ?? defaultCorrectionName)
-          .toLowerCase()
-          .localeCompare((b.name ?? defaultCorrectionName).toLowerCase())
-      ),
+    select: (res) => res.sort(compareUpdatedAt),
 
     // TODO: Temporarily fixes a race condition where this query would refetch after clicking the confirm
     // button for removing a change. Ideally we build some sort of confirm dialog so focus is not lost.
@@ -34,18 +29,15 @@ const CorrectionsList: FC = () => {
   const { push: navigate } = useRouter()
   const handleCreateCorrection = useCallback(
     () =>
-      mutate(
-        {},
-        {
-          onSuccess: (res) => {
-            toast.success('Created new correction')
-            void navigate(`/corrections/${res.id}/tree`)
-          },
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
+      mutate(null, {
+        onSuccess: (res) => {
+          toast.success('Created new correction')
+          void navigate(`/corrections/${res.id}/tree`)
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }),
     [mutate, navigate]
   )
 

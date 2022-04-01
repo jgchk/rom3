@@ -177,20 +177,6 @@ export const useMergeCorrectionMutation = () => {
   })
 }
 
-export const useUpdateCorrectionNameMutation = () => {
-  const utils = trpc.useContext()
-  return trpc.useMutation(['corrections.edit.name'], {
-    onSuccess: (res) => {
-      if (res.draft) {
-        void utils.invalidateQueries('corrections.drafts')
-      } else {
-        void utils.invalidateQueries('corrections.submitted')
-      }
-      utils.setQueryData(['corrections.byId', { id: res.id }], res)
-    },
-  })
-}
-
 // TODO: make optimistic
 // https://react-query.tanstack.com/guides/optimistic-updates
 export const useUpdateCorrectionDraftStatusMutation = () => {

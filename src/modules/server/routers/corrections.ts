@@ -92,11 +92,10 @@ const toCorrectionApiOutput = (
 })
 
 const addCorrection = async (
-  creatorId: number,
-  name?: string
+  creatorId: number
 ): Promise<CorrectionApiOutput> => {
   const correction = await prisma.correction.create({
-    data: { creatorId, name, draft: true },
+    data: { creatorId, draft: true },
     include: correctionInclude,
   })
   return toCorrectionApiOutput(correction)
@@ -117,19 +116,8 @@ const addCreatedGenre = async (
           },
         },
       },
+      updatedAt: new Date(),
     },
-    include: correctionInclude,
-  })
-  return toCorrectionApiOutput(correction)
-}
-
-const updateCorrectionName = async (
-  id: number,
-  name?: string
-): Promise<CorrectionApiOutput> => {
-  const correction = await prisma.correction.update({
-    where: { id },
-    data: { name },
     include: correctionInclude,
   })
   return toCorrectionApiOutput(correction)
@@ -154,6 +142,7 @@ const updateCreatedGenre = async (
           },
         },
       },
+      updatedAt: new Date(),
     },
     include: correctionInclude,
   })
@@ -165,7 +154,14 @@ const removeCreatedGenre = async (
   createdGenreId: number
 ): Promise<CorrectionApiOutput> => {
   await prisma.genre.delete({ where: { id: createdGenreId } })
-  return getCorrection(correctionId)
+  const correction = await prisma.correction.update({
+    where: { id: correctionId },
+    data: {
+      updatedAt: new Date(),
+    },
+    include: correctionInclude,
+  })
+  return toCorrectionApiOutput(correction)
 }
 
 const addEditedGenre = async (
@@ -189,6 +185,7 @@ const addEditedGenre = async (
           },
         },
       },
+      updatedAt: new Date(),
     },
     include: correctionInclude,
   })
@@ -239,6 +236,7 @@ const updateEditedGenre = async (
           },
         },
       },
+      updatedAt: new Date(),
     },
     include: correctionInclude,
   })
@@ -250,7 +248,14 @@ const removeEditedGenre = async (
   updatedGenreId: number
 ): Promise<CorrectionApiOutput> => {
   await prisma.genre.delete({ where: { id: updatedGenreId } })
-  return getCorrection(correctionId)
+  const correction = await prisma.correction.update({
+    where: { id: correctionId },
+    data: {
+      updatedAt: new Date(),
+    },
+    include: correctionInclude,
+  })
+  return toCorrectionApiOutput(correction)
 }
 
 const removeGenre = async (
@@ -273,6 +278,7 @@ const addDeletedGenre = async (
       delete: {
         create: { targetGenreId },
       },
+      updatedAt: new Date(),
     },
     include: correctionInclude,
   })
@@ -294,6 +300,7 @@ const removeDeletedGenre = async (
           },
         },
       },
+      updatedAt: new Date(),
     },
     include: correctionInclude,
   })
@@ -306,7 +313,7 @@ const editCorrectionDraftStatus = async (
 ): Promise<CorrectionApiOutput> => {
   const correction = await prisma.correction.update({
     where: { id: correctionId },
-    data: { draft },
+    data: { draft, updatedAt: new Date() },
     include: correctionInclude,
   })
   return toCorrectionApiOutput(correction)
@@ -442,13 +449,12 @@ const mergeCorrection = async (id: number) => {
 
 const correctionsRouter = createRouter()
   .mutation('add', {
-    input: z.object({ name: z.string().min(1).optional() }),
-    resolve: ({ input, ctx }) => {
+    resolve: ({ ctx }) => {
       if (ctx.accountId === undefined) {
         throw new TRPCError({ code: 'UNAUTHORIZED' })
       }
 
-      return addCorrection(ctx.accountId, input.name)
+      return addCorrection(ctx.accountId)
     },
   })
   .query('submitted', {
@@ -466,16 +472,6 @@ const correctionsRouter = createRouter()
   .query('byId', {
     input: z.object({ id: z.number() }),
     resolve: ({ input }) => getCorrection(input.id),
-  })
-  .mutation('edit.name', {
-    input: z.object({ id: z.number(), name: z.string().min(1).optional() }),
-    resolve: ({ input, ctx }) => {
-      if (ctx.accountId === undefined) {
-        throw new TRPCError({ code: 'UNAUTHORIZED' })
-      }
-
-      return updateCorrectionName(input.id, input.name)
-    },
   })
   .mutation('edit.create.add', {
     input: z.object({ id: z.number(), data: GenreApiInput }),

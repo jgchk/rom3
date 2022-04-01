@@ -107,7 +107,6 @@ model Culture {
 
 model Correction {
   id    Int     @id @default(autoincrement())
-  name  String? @db.VarChar(255)
   draft Boolean
 
   creator   Account @relation(fields: [creatorId], references: [id], onDelete: Cascade)
@@ -116,6 +115,9 @@ model Correction {
   create GenreCreate[]
   edit   GenreEdit[]
   delete GenreDelete[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model GenreCreate {

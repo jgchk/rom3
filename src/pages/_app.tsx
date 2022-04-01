@@ -9,7 +9,7 @@ import ErrorBoundary from '../common/components/ErrorBoundary'
 import Navbar from '../common/components/Navbar'
 import { tokenKey } from '../common/utils/auth'
 import { isBrowser } from '../common/utils/ssr'
-import { trpcPath, trpcUrl } from '../common/utils/trpc'
+import { trpcOptions } from '../common/utils/trpc'
 import { AppRouter } from '../modules/server/routers/_app'
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
@@ -25,11 +25,11 @@ const MyApp = ({ Component, pageProps }: AppProps) => (
 )
 
 export default withTRPC<AppRouter>({
-  config: ({ ctx }) =>
-    isBrowser
-      ? { url: trpcPath }
+  config: ({ ctx }) => ({
+    ...trpcOptions,
+    ...(isBrowser
+      ? {}
       : {
-          url: trpcUrl,
           headers: () => {
             // tRPC context does not receive cookies when using SSR, but it does receive headers.
             // Here we forward the token cookie through the Authorization header so the tRPC context
@@ -45,6 +45,27 @@ export default withTRPC<AppRouter>({
 
             return {}
           },
-        },
+        }),
+  }),
+  // isBrowser
+  //   ? { url: trpcPath }
+  //   : {
+  //       url: trpcUrl,
+  //       headers: () => {
+  //         // tRPC context does not receive cookies when using SSR, but it does receive headers.
+  //         // Here we forward the token cookie through the Authorization header so the tRPC context
+  //         // can receive it.
+
+  //         const cookieStr = ctx?.req?.headers.cookie
+
+  //         if (cookieStr) {
+  //           const cookie = cookies.parse(cookieStr)
+  //           const token = cookie[tokenKey]
+  //           return token ? { Authorization: `Bearer ${token}` } : {}
+  //         }
+
+  //         return {}
+  //       },
+  //     },
   ssr: true,
 })(MyApp)

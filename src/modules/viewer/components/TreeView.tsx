@@ -21,20 +21,17 @@ const TreeView: FC<{ parentId?: number }> = ({ parentId }) => {
   const { push: navigate } = useRouter()
   const handleCreate = useCallback(
     () =>
-      mutate(
-        {},
-        {
-          onSuccess: (res) => {
-            void navigate({
-              pathname: `/corrections/${res.id}/genres/create`,
-              query: { type: 'STYLE' },
-            })
-          },
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
+      mutate(null, {
+        onSuccess: (res) => {
+          void navigate({
+            pathname: `/corrections/${res.id}/genres/create`,
+            query: { type: 'STYLE' },
+          })
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }),
     [mutate, navigate]
   )
 

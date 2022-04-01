@@ -1,6 +1,7 @@
 import {
   createReactQueryHooks,
   createTRPCClient,
+  CreateTRPCClientOptions,
   TRPCClientErrorLike,
   UseTRPCQueryOptions,
 } from '@trpc/react'
@@ -9,6 +10,7 @@ import type {
   inferProcedureOutput,
   inferSubscriptionOutput,
 } from '@trpc/server'
+import superjson from 'superjson'
 
 import type { AppRouter } from '../../modules/server/routers/_app'
 import { isBrowser } from './ssr'
@@ -17,11 +19,13 @@ export const trpcPath = '/api/trpc'
 export const trpcUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}/api/trpc`
   : 'http://localhost:3000/api/trpc'
+export const trpcOptions: CreateTRPCClientOptions<AppRouter> = {
+  ...(isBrowser ? { url: trpcPath } : { url: trpcUrl }),
+  transformer: superjson,
+}
 
 export const trpc = createReactQueryHooks<AppRouter>()
-export const trpcClient = createTRPCClient<AppRouter>(
-  isBrowser ? { url: trpcPath } : { url: trpcUrl }
-)
+export const trpcClient = createTRPCClient<AppRouter>(trpcOptions)
 
 export default trpc
 

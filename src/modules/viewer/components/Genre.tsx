@@ -41,37 +41,31 @@ const Loaded: FC<{
   const { push: navigate } = useRouter()
   const handleEditGenre = useCallback(
     () =>
-      createMutation(
-        {},
-        {
-          onSuccess: (res) => {
-            void navigate(`/corrections/${res.id}/genres/${genre.id}/edit`)
-          },
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
+      createMutation(null, {
+        onSuccess: (res) => {
+          void navigate(`/corrections/${res.id}/genres/${genre.id}/edit`)
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }),
     [createMutation, genre.id, navigate]
   )
 
   const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
   const handleAddChildGenre = useCallback(
     () =>
-      createMutation(
-        {},
-        {
-          onSuccess: (res) => {
-            void navigate({
-              pathname: `/corrections/${res.id}/genres/create`,
-              query: { type: childTypes[0], parentId: genre.id },
-            })
-          },
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
+      createMutation(null, {
+        onSuccess: (res) => {
+          void navigate({
+            pathname: `/corrections/${res.id}/genres/create`,
+            query: { type: childTypes[0], parentId: genre.id },
+          })
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }),
     [childTypes, createMutation, genre.id, navigate]
   )
 
@@ -79,27 +73,24 @@ const Loaded: FC<{
     useDeleteCorrectionGenreMutation()
   const handleDelete = useCallback(
     () =>
-      createMutation(
-        {},
-        {
-          onSuccess: (res) => {
-            deleteGenre(
-              { id: res.id, targetId: genre.id },
-              {
-                onSuccess: () => {
-                  void navigate(`/corrections/${res.id}/genres/${genre.id}`)
-                },
-                onError: (error) => {
-                  toast.error(error.message)
-                },
-              }
-            )
-          },
-          onError: (error) => {
-            toast.error(error.message)
-          },
-        }
-      ),
+      createMutation(null, {
+        onSuccess: (res) => {
+          deleteGenre(
+            { id: res.id, targetId: genre.id },
+            {
+              onSuccess: () => {
+                void navigate(`/corrections/${res.id}/genres/${genre.id}`)
+              },
+              onError: (error) => {
+                toast.error(error.message)
+              },
+            }
+          )
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }),
     [createMutation, deleteGenre, genre.id, navigate]
   )
 

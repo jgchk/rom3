@@ -1,5 +1,6 @@
+import { format } from 'date-fns'
 import { useRouter } from 'next/router'
-import { FC, useMemo } from 'react'
+import { FC, useCallback, useMemo } from 'react'
 
 import { useAccountQuery } from '../../../common/services/accounts'
 import { CorrectionApiOutput } from '../../../common/services/corrections'
@@ -8,11 +9,12 @@ const CorrectionsTable: FC<{
   corrections: CorrectionApiOutput[]
   emptyText?: string
 }> = ({ corrections, emptyText }) => (
-  <table className='bg-white w-full border border-stone-300 shadow-sm'>
+  <table className='bg-white w-full border border-stone-300 shadow-sm table-auto'>
     <thead>
       <tr className='border-b border-stone-200 font-bold text-stone-500 uppercase text-sm tracking-wide'>
         <td className='p-2'>Submitter</td>
         <td className='p-2'>Changes</td>
+        <td className='p-2'>Updated</td>
       </tr>
     </thead>
     <tbody>
@@ -83,17 +85,29 @@ const CorrectionRow: FC<{ correction: CorrectionApiOutput }> = ({
   )
 
   const { push: navigate } = useRouter()
+  const handleClick = useCallback(
+    () => void navigate(`/corrections/${correction.id}`),
+    [correction.id, navigate]
+  )
+
+  const date = useMemo(
+    () => format(correction.updatedAt, 'PPpp'),
+    [correction.updatedAt]
+  )
 
   return (
     <tr
       className='border-b border-stone-200 last:border-none hover:bg-stone-100'
       role='button'
-      onClick={() => void navigate(`/corrections/${correction.id}`)}
+      onClick={() => handleClick()}
     >
-      <td className='p-2'>{data?.username ?? 'Loading...'}</td>
+      <td className='p-2 text-sm font-medium text-stone-700'>
+        {data?.username ?? 'Loading...'}
+      </td>
       <td className='p-2'>
         <ul className='flex gap-1'>{chips}</ul>
       </td>
+      <td className='p-2 text-sm font-medium text-stone-700'>{date}</td>
     </tr>
   )
 }
