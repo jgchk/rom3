@@ -30,29 +30,29 @@ const CreateView: FC<{
     makeUiData(type ?? 'META', parentId)
   )
 
-  const navigateBack = useCallback(
-    () => void navigate(from ?? `/corrections/${correctionId}`),
-    [correctionId, from, navigate]
-  )
-
   const { mutate } = useAddCreatedGenreMutation()
   const handleCreate = useCallback(
     () =>
       mutate(
         { id: correctionId, data: uiState },
         {
-          onSuccess: () => {
-            navigateBack()
+          onSuccess: (res) => {
+            void navigate(
+              from ?? `/corrections/${correctionId}/genres/${res.genreId}`
+            )
           },
           onError: (error) => {
             toast.error(error.message)
           },
         }
       ),
-    [correctionId, mutate, navigateBack, uiState]
+    [correctionId, from, mutate, navigate, uiState]
   )
 
-  const handleCancel = useCallback(() => navigateBack(), [navigateBack])
+  const handleCancel = useCallback(
+    () => void navigate(from ?? `/corrections/${correctionId}`),
+    [correctionId, from, navigate]
+  )
 
   return (
     <GenreForm

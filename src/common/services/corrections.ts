@@ -84,12 +84,15 @@ export const useAddCreatedGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['corrections.edit.create.add'], {
     onSuccess: (res) => {
-      if (res.draft) {
+      if (res.correction.draft) {
         void utils.invalidateQueries('corrections.drafts')
       } else {
         void utils.invalidateQueries('corrections.submitted')
       }
-      utils.setQueryData(['corrections.byId', { id: res.id }], res)
+      utils.setQueryData(
+        ['corrections.byId', { id: res.correction.id }],
+        res.correction
+      )
     },
   })
 }

@@ -104,23 +104,26 @@ const addCorrection = async (
 const addCreatedGenre = async (
   correctionId: number,
   input: GenreApiInput
-): Promise<CorrectionApiOutput> => {
+): Promise<{ correction: CorrectionApiOutput; genreId: number }> => {
   const createdGenreData = await dbGenreCreateInput(input)
+  const genre = await prisma.genre.create({
+    data: {
+      ...createdGenreData,
+      createdInCorrection: {
+        create: {
+          correctionId,
+        },
+      },
+    },
+  })
   const correction = await prisma.correction.update({
     where: { id: correctionId },
     data: {
-      create: {
-        create: {
-          createdGenre: {
-            create: createdGenreData,
-          },
-        },
-      },
       updatedAt: new Date(),
     },
     include: correctionInclude,
   })
-  return toCorrectionApiOutput(correction)
+  return { correction: toCorrectionApiOutput(correction), genreId: genre.id }
 }
 
 const updateCreatedGenre = async (

@@ -48,10 +48,6 @@ const Loaded: FC<{
   const [uiState, setUiState] = useState<GenreApiInput>(data)
 
   const { push: navigate } = useRouter()
-  const navigateBack = useCallback(
-    () => void navigate(from ?? `/corrections/${correctionId}`),
-    [correctionId, from, navigate]
-  )
 
   const { mutate } = useCorrectGenreMutation()
   const handleEdit = useCallback(
@@ -60,17 +56,20 @@ const Loaded: FC<{
         { id: correctionId, genreId, data: uiState },
         {
           onSuccess: () => {
-            navigateBack()
+            void navigate(`/corrections/${correctionId}/genres/${genreId}`)
           },
           onError: (error) => {
             toast.error(error.message)
           },
         }
       ),
-    [correctionId, genreId, mutate, navigateBack, uiState]
+    [correctionId, genreId, mutate, navigate, uiState]
   )
 
-  const handleCancel = useCallback(() => navigateBack(), [navigateBack])
+  const handleCancel = useCallback(
+    () => void navigate(from ?? `/corrections/${correctionId}`),
+    [correctionId, from, navigate]
+  )
 
   return (
     <GenreForm
