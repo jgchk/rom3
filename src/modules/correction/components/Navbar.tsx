@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useCallback } from 'react'
 import toast from 'react-hot-toast'
-import { HiChevronLeft } from 'react-icons/hi'
 
 import {
   useCorrectionQuery,
