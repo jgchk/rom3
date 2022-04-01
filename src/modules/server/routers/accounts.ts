@@ -26,12 +26,7 @@ const getAccount = async (id: number): Promise<AccountApiOutput> => {
 
 const accountsRouter = createRouter().query('byId', {
   input: z.object({ id: z.number() }),
-  resolve: async ({ input, ctx }) => {
-    if (ctx.accountId === undefined)
-      throw new TRPCError({ code: 'UNAUTHORIZED' })
-
-    return getAccount(input.id)
-  },
+  resolve: async ({ input }) => getAccount(input.id),
 })
 
 export default accountsRouter
