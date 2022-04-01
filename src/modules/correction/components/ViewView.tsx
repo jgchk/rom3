@@ -63,14 +63,23 @@ const Loaded: FC<{
         { id: correctionId, targetId: genre.id },
         {
           onSuccess: () => {
-            void navigate(`/corrections/${correctionId}/genres/${genre.id}`)
+            if (genre.changes === 'created') {
+              const firstParent = genre.parents[0]
+              void navigate(
+                firstParent !== undefined
+                  ? `/corrections/${correctionId}/genres/${firstParent}`
+                  : `/corrections/${correctionId}/tree`
+              )
+            } else {
+              void navigate(`/corrections/${correctionId}/genres/${genre.id}`)
+            }
           },
           onError: (error) => {
             toast.error(error.message)
           },
         }
       ),
-    [correctionId, genre.id, mutate, navigate]
+    [correctionId, genre.changes, genre.id, genre.parents, mutate, navigate]
   )
 
   return (
