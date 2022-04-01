@@ -192,6 +192,11 @@ const Child: FC<{ id: number }> = ({ id }) => {
   return (
     <div>
       <div className='py-2'>
+        <div className='text-xs font-bold text-stone-500'>
+          {data.type}
+          {data.trial && <> (TRIAL)</>}
+        </div>
+
         <Link href={`/genres/${data.id}`}>
           <a className='text-primary-600 font-semibold hover:underline'>
             {data.name}

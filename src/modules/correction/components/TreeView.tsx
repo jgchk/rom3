@@ -262,6 +262,11 @@ const Child: FC<{ id: number }> = ({ id }) => {
   return (
     <li className={clsx('pl-6 border-l-2', getChangeBorderColor(data.changes))}>
       <div className='py-2'>
+        <div className='text-xs font-bold text-stone-500'>
+          {data.type}
+          {data.trial && <> (TRIAL)</>}
+        </div>
+
         <Link href={`/corrections/${correctionId}/genres/${id}`}>
           <a
             className={clsx(
