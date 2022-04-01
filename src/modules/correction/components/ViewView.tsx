@@ -70,6 +70,7 @@ const Loaded: FC<{
                   ? `/corrections/${correctionId}/genres/${firstParent}`
                   : `/corrections/${correctionId}/tree`
               )
+              toast.success(`Deleted ${genre.name}`)
             } else {
               void navigate(`/corrections/${correctionId}/genres/${genre.id}`)
             }
@@ -79,7 +80,15 @@ const Loaded: FC<{
           },
         }
       ),
-    [correctionId, genre.changes, genre.id, genre.parents, mutate, navigate]
+    [
+      correctionId,
+      genre.changes,
+      genre.id,
+      genre.name,
+      genre.parents,
+      mutate,
+      navigate,
+    ]
   )
 
   return (
