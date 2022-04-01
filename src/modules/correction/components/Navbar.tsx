@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { FC, useCallback } from 'react'
 import toast from 'react-hot-toast'
+import { HiChevronLeft } from 'react-icons/hi'
 
 import {
   useCorrectionQuery,
@@ -62,18 +63,6 @@ const Navbar: FC = () => {
       <div className='flex justify-center bg-primary-600 px-2 h-9 drop-shadow shadow'>
         <div className='flex-1 max-w-screen-lg flex justify-between text-white text-sm min-w-0'>
           <div className='flex items-center min-w-0'>
-            <Link href={`/corrections/${id}/tree`}>
-              <a
-                className={clsx(
-                  'h-full flex items-center border-b-2 px-2 font-semibold hover:bg-primary-700',
-                  router.pathname === '/corrections/[id]/tree'
-                    ? 'border-white'
-                    : 'border-transparent'
-                )}
-              >
-                {isMyCorrection ? 'Edit' : 'Preview'} Tree
-              </a>
-            </Link>
             <Link href={`/corrections/${id}`}>
               <a
                 className={clsx(
@@ -84,6 +73,18 @@ const Navbar: FC = () => {
                 )}
               >
                 Changelist
+              </a>
+            </Link>
+            <Link href={`/corrections/${id}/tree`}>
+              <a
+                className={clsx(
+                  'h-full flex items-center border-b-2 px-2 font-semibold hover:bg-primary-700',
+                  router.pathname === '/corrections/[id]/tree'
+                    ? 'border-white'
+                    : 'border-transparent'
+                )}
+              >
+                {isMyCorrection ? 'Edit' : 'Preview'} Tree
               </a>
             </Link>
           </div>
