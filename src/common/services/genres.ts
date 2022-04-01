@@ -2,6 +2,7 @@ import trpc, { InferQueryInput, InferQueryOptions } from '../utils/trpc'
 
 export type {
   ApiGenreInfluence,
+  ApiInfluenceType,
   GenreApiInput,
 } from '../../modules/server/routers/genres'
 

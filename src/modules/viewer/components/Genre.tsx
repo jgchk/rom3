@@ -17,7 +17,10 @@ import {
   useCreateCorrectionMutation,
   useDeleteCorrectionGenreMutation,
 } from '../../../common/services/corrections'
-import { useGenreQuery } from '../../../common/services/genres'
+import {
+  ApiGenreInfluence,
+  useGenreQuery,
+} from '../../../common/services/genres'
 
 const Genre: FC<{ genreId: number }> = ({ genreId }) => {
   const { data } = useGenreQuery(genreId)
@@ -267,11 +270,16 @@ const Hierarchy: FC<{ genre: GenreApiOutput }> = ({ genre }) => (
           <Parent id={id} />
         </li>
       ))}
+      {genre.influencedBy.map((inf) => (
+        <li key={`${inf.id}_${inf.influenceType ?? ''}`}>
+          <Influencer influence={inf} />
+        </li>
+      ))}
 
       <li>
         <div className='text-stone-600 font-medium text-lg'>{genre.name}</div>
 
-        <Children childIds={genre.children} />
+        <Children childIds={genre.children} influences={genre.influences} />
       </li>
     </ul>
   </div>
@@ -302,12 +310,43 @@ const Parent: FC<{ id: number }> = ({ id }) => {
   )
 }
 
-const Children: FC<{ childIds: number[] }> = ({ childIds }) => (
+const Influencer: FC<{ influence: ApiGenreInfluence }> = ({ influence }) => {
+  const { data } = useGenreQuery(influence.id)
+
+  if (!data) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <div>
+      <div className='text-xs font-bold text-stone-500'>
+        {data.type}
+        {data.trial && <> (TRIAL)</>}
+        &nbsp;&nbsp;{'•'}&nbsp;&nbsp;
+        {influence.influenceType ?? ''} INFLUENCE
+      </div>
+
+      <Link href={`/genres/${data.id}`}>
+        <a className='text-primary-600 font-semibold hover:underline'>
+          {data.name}
+        </a>
+      </Link>
+
+      <p className='text-sm text-stone-600'>{data.shortDesc}</p>
+    </div>
+  )
+}
+
+const Children: FC<{ childIds: number[]; influences: ApiGenreInfluence[] }> = ({
+  childIds,
+  influences,
+}) => (
   <ul className='mt-4 space-y-4'>
     {childIds.map((id) => (
-      <li className='pl-6 border-l-2 border-primary-600' key={id}>
-        <Child id={id} />
-      </li>
+      <Child key={id} id={id} />
+    ))}
+    {influences.map((inf) => (
+      <Influence key={`${inf.id}_${inf.influenceType ?? ''}`} influence={inf} />
     ))}
   </ul>
 )
@@ -320,7 +359,7 @@ const Child: FC<{ id: number }> = ({ id }) => {
   }
 
   return (
-    <div>
+    <li className='pl-6 border-l-2 border-primary-600'>
       <div className='py-2'>
         <div className='text-xs font-bold text-stone-500'>
           {data.type}
@@ -336,7 +375,38 @@ const Child: FC<{ id: number }> = ({ id }) => {
         <p className='text-sm text-stone-600'>{data.shortDesc}</p>
       </div>
 
-      <Children childIds={data.children} />
-    </div>
+      <Children childIds={data.children} influences={data.influences} />
+    </li>
+  )
+}
+
+const Influence: FC<{ influence: ApiGenreInfluence }> = ({ influence }) => {
+  const { data } = useGenreQuery(influence.id)
+
+  if (!data) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <li className='pl-6 border-l-2 border-primary-600'>
+      <div className='py-2'>
+        <div className='text-xs font-bold text-stone-500'>
+          {data.type}
+          {data.trial && <> (TRIAL)</>}
+          &nbsp;&nbsp;{'•'}&nbsp;&nbsp;
+          {influence.influenceType ?? ''} INFLUENCE
+        </div>
+
+        <Link href={`/genres/${data.id}`}>
+          <a className='text-primary-600 font-semibold hover:underline'>
+            {data.name}
+          </a>
+        </Link>
+
+        <p className='text-sm text-stone-500'>{data.shortDesc}</p>
+      </div>
+
+      <Children childIds={data.children} influences={data.influences} />
+    </li>
   )
 }

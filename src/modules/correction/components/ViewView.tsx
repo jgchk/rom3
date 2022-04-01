@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useMemo, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
 
@@ -11,6 +11,10 @@ import ButtonTertiary from '../../../common/components/ButtonTertiary'
 import { GenreApiOutput } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
 import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
+import {
+  ApiGenreInfluence,
+  ApiInfluenceType,
+} from '../../../common/services/genres'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import useCorrectionGenreQuery, {
   CorrectionGenre,
@@ -274,11 +278,16 @@ const Hierarchy: FC<{ genre: GenreApiOutput }> = ({ genre }) => (
           <Parent id={id} />
         </li>
       ))}
+      {genre.influencedBy.map((inf) => (
+        <li key={`${inf.id}_${inf.influenceType ?? ''}`}>
+          <Influencer influence={inf} />
+        </li>
+      ))}
 
       <li>
         <div className='text-stone-600 font-medium text-lg'>{genre.name}</div>
 
-        <Children childIds={genre.children} />
+        <Children childIds={genre.children} influences={genre.influences} />
       </li>
     </ul>
   </div>
@@ -315,17 +324,59 @@ const Parent: FC<{ id: number }> = ({ id }) => {
   )
 }
 
-const Children: FC<{ childIds: number[] }> = ({ childIds }) => (
+const Influencer: FC<{ influence: ApiGenreInfluence }> = ({ influence }) => {
+  const { id: correctionId } = useCorrectionContext()
+  const { data } = useCorrectionGenreQuery(influence.id, correctionId)
+
+  if (!data) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <div className='py-1'>
+      <div className='text-xs font-bold text-stone-500'>
+        {data.type}
+        {data.trial && <> (TRIAL)</>}
+        &nbsp;&nbsp;{'•'}&nbsp;&nbsp;
+        {influence.influenceType ?? ''} INFLUENCE
+      </div>
+
+      <Link href={`/corrections/${correctionId}/genres/${influence.id}`}>
+        <a
+          className={clsx(
+            'font-semibold hover:underline',
+            getChangeTextColor(data.changes)
+          )}
+        >
+          {data.name}
+        </a>
+      </Link>
+
+      <p className='text-sm text-stone-500'>{data.shortDesc}</p>
+    </div>
+  )
+}
+
+const Children: FC<{ childIds: number[]; influences: ApiGenreInfluence[] }> = ({
+  childIds,
+  influences,
+}) => (
   <ul className='mt-4 space-y-4'>
     {childIds.map((id) => (
       <Child key={id} id={id} />
     ))}
+    {influences.map((inf) => (
+      <Influence key={`${inf.id}_${inf.influenceType ?? ''}`} influence={inf} />
+    ))}
   </ul>
 )
 
-const Child: FC<{ id: number }> = ({ id }) => {
+const Child: FC<{ id: number; influenceType?: ApiInfluenceType }> = ({
+  id,
+}) => {
   const { id: correctionId } = useCorrectionContext()
   const { data } = useCorrectionGenreQuery(id, correctionId)
+  useEffect(() => console.log('chile', data), [data])
 
   if (!data) {
     return <div>Loading...</div>
@@ -353,7 +404,45 @@ const Child: FC<{ id: number }> = ({ id }) => {
         <p className='text-sm text-stone-500'>{data.shortDesc}</p>
       </div>
 
-      <Children childIds={data.children} />
+      <Children childIds={data.children} influences={data.influences} />
+    </li>
+  )
+}
+
+const Influence: FC<{ influence: ApiGenreInfluence }> = ({ influence }) => {
+  const { id: correctionId } = useCorrectionContext()
+  const { data } = useCorrectionGenreQuery(influence.id, correctionId)
+  useEffect(() => console.log('inf', data), [data])
+
+  if (!data) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <li className={clsx('pl-6 border-l-2', getChangeBorderColor(data.changes))}>
+      <div className='py-2'>
+        <div className='text-xs font-bold text-stone-500'>
+          {data.type}
+          {data.trial && <> (TRIAL)</>}
+          &nbsp;&nbsp;{'•'}&nbsp;&nbsp;
+          {influence.influenceType ?? ''} INFLUENCE
+        </div>
+
+        <Link href={`/corrections/${correctionId}/genres/${influence.id}`}>
+          <a
+            className={clsx(
+              'font-semibold hover:underline',
+              getChangeTextColor(data.changes)
+            )}
+          >
+            {data.name}
+          </a>
+        </Link>
+
+        <p className='text-sm text-stone-500'>{data.shortDesc}</p>
+      </div>
+
+      <Children childIds={data.children} influences={data.influences} />
     </li>
   )
 }

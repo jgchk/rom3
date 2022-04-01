@@ -5,11 +5,11 @@ import { FC, useMemo, useState } from 'react'
 
 import { ButtonSecondaryLink } from '../../../common/components/ButtonSecondary'
 import Tooltip from '../../../common/components/Tooltip'
+import { ApiGenreInfluence } from '../../../common/services/genres'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
 import useCorrectionGenreQuery, {
   ChangeType,
-  CorrectionGenre,
 } from '../hooks/useCorrectionGenreQuery'
 import useCorrectionGenreTreeQuery, {
   GenreTree,
@@ -24,19 +24,16 @@ import {
 } from '../utils/display'
 import { getDescendantChanges, getDescendantIds } from '../utils/genre'
 
-const TreeView: FC<{ parentId?: number }> = ({ parentId }) => {
+const TreeView: FC = () => {
   const { id: correctionId } = useCorrectionContext()
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
+  const { data: treeData } = useCorrectionGenreTreeQuery(correctionId)
 
   const { asPath } = useRouter()
 
   return (
     <div>
-      {parentId !== undefined ? (
-        <HasParent parentId={parentId} />
-      ) : (
-        <NoParent />
-      )}
+      {treeData ? <Tree tree={treeData} /> : <div>Loading...</div>}
 
       {isMyCorrection && (
         <ButtonSecondaryLink
@@ -56,42 +53,18 @@ const TreeView: FC<{ parentId?: number }> = ({ parentId }) => {
   )
 }
 
-const HasParent: FC<{ parentId: number }> = ({ parentId }) => {
-  const { id: correctionId } = useCorrectionContext()
-  const { data: treeData } = useCorrectionGenreTreeQuery(correctionId)
-  const { data: genreData } = useCorrectionGenreQuery(parentId, correctionId)
-
-  if (treeData && genreData) {
-    return <Tree tree={treeData} parentGenre={genreData} />
-  }
-
-  return <div>Loading...</div>
-}
-
-const NoParent: FC = () => {
-  const { id: correctionId } = useCorrectionContext()
-  const { data: treeData } = useCorrectionGenreTreeQuery(correctionId)
-
-  if (treeData) {
-    return <Tree tree={treeData} />
-  }
-
-  return <div>Loading...</div>
-}
-
-const Tree: FC<{ tree: GenreTree; parentGenre?: CorrectionGenre }> = ({
-  tree,
-  parentGenre,
-}) => {
+const Tree: FC<{ tree: GenreTree }> = ({ tree }) => {
   const topLevelGenres = useMemo(
     () =>
-      (parentGenre
-        ? parentGenre.children.map((id) => tree[id])
-        : Object.values(tree).filter((genre) => genre.parents.length === 0)
-      ).sort((a, b) =>
-        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-      ),
-    [parentGenre, tree]
+      Object.values(tree)
+        .filter(
+          (genre) =>
+            genre.parents.length === 0 && genre.influencedBy.length === 0
+        )
+        .sort((a, b) =>
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        ),
+    [tree]
   )
 
   const changedTopLevelIds = useMemo(
@@ -211,7 +184,13 @@ const Node: FC<{ id: number }> = ({ id }) => {
         </button>
       )}
 
-      {expanded && <Children className='p-4 pb-1' childIds={genre.children} />}
+      {expanded && (
+        <Children
+          className='p-4 pb-1'
+          childIds={genre.children}
+          influences={genre.influences}
+        />
+      )}
     </div>
   )
 }
@@ -240,13 +219,17 @@ const Changes: FC<{ changes: Set<ChangeType> }> = ({ changes }) => {
   )
 }
 
-const Children: FC<{ childIds: number[]; className?: string }> = ({
-  childIds,
-  className,
-}) => (
+const Children: FC<{
+  childIds: number[]
+  influences: ApiGenreInfluence[]
+  className?: string
+}> = ({ childIds, influences, className }) => (
   <ul className={clsx('space-y-4', className)}>
     {childIds.map((id) => (
       <Child key={id} id={id} />
+    ))}
+    {influences.map((inf) => (
+      <Influence key={`${inf.id}_${inf.influenceType ?? ''}`} influence={inf} />
     ))}
   </ul>
 )
@@ -281,7 +264,52 @@ const Child: FC<{ id: number }> = ({ id }) => {
         <p className='text-sm text-stone-500'>{data.shortDesc}</p>
       </div>
 
-      <Children className='mt-4' childIds={data.children} />
+      <Children
+        className='mt-4'
+        childIds={data.children}
+        influences={data.influences}
+      />
+    </li>
+  )
+}
+
+const Influence: FC<{ influence: ApiGenreInfluence }> = ({ influence }) => {
+  const { id: correctionId } = useCorrectionContext()
+  const { data } = useCorrectionGenreQuery(influence.id, correctionId)
+
+  if (!data) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <li className={clsx('pl-6 border-l-2', getChangeBorderColor(data.changes))}>
+      <div className='py-2'>
+        <div className='text-xs font-bold text-stone-500'>
+          {data.type}
+          {data.trial && <> (TRIAL)</>}
+          &nbsp;&nbsp;{'•'}&nbsp;&nbsp;
+          {influence.influenceType ?? ''} INFLUENCE
+        </div>
+
+        <Link href={`/corrections/${correctionId}/genres/${influence.id}`}>
+          <a
+            className={clsx(
+              'font-semibold hover:underline',
+              getChangeTextColor(data.changes)
+            )}
+          >
+            {data.name}
+          </a>
+        </Link>
+
+        <p className='text-sm text-stone-500'>{data.shortDesc}</p>
+      </div>
+
+      <Children
+        className='mt-4'
+        childIds={data.children}
+        influences={data.influences}
+      />
     </li>
   )
 }

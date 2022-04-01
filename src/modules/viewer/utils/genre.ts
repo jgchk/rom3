@@ -1,7 +1,7 @@
 import { GenreTree } from '../hooks/useGenreTreeQuery'
 
 export const getDescendantIds = (id: number, tree: GenreTree) => {
-  const descendantIds = []
+  const descendantIds: number[] = []
 
   const queue = [id]
   while (queue.length > 0) {
@@ -9,8 +9,14 @@ export const getDescendantIds = (id: number, tree: GenreTree) => {
     if (descendantId === undefined) continue
 
     const descendant = tree[descendantId]
-    descendantIds.push(...descendant.children)
-    queue.push(...descendant.children)
+
+    const descendantChildren = [
+      ...descendant.children,
+      ...descendant.influences.map((inf) => inf.id),
+    ].filter((id) => !descendantIds.includes(id))
+
+    descendantIds.push(...descendantChildren)
+    queue.push(...descendantChildren)
   }
 
   return descendantIds
