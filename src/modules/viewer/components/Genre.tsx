@@ -8,6 +8,7 @@ import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
 import ButtonPrimary from '../../../common/components/ButtonPrimary'
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
 import ButtonTertiary from '../../../common/components/ButtonTertiary'
+import { useFromQueryParams } from '../../../common/hooks/useFromQueryParam'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import useLoggedInQuery from '../../../common/hooks/useLoggedInQuery'
 import { GenreApiOutput } from '../../../common/model'
@@ -94,6 +95,8 @@ const Loaded: FC<{
     [createMutation, deleteGenre, genre.id, navigate]
   )
 
+  const query = useFromQueryParams()
+
   return (
     <div className='space-y-4'>
       <Breadcrumbs genre={genre} />
@@ -138,7 +141,7 @@ const Loaded: FC<{
 
       <Hierarchy genre={genre} />
 
-      {isLoggedIn && (
+      {isLoggedIn ? (
         <div>
           <ButtonPrimary
             onClick={() => handleEditGenre()}
@@ -158,6 +161,15 @@ const Loaded: FC<{
           <ButtonTertiary onClick={() => handleDelete()} disabled={isDeleting}>
             Delete
           </ButtonTertiary>
+        </div>
+      ) : (
+        <div className='text-stone-700 mt-4'>
+          <Link href={{ pathname: '/register', query }}>
+            <a className='text-primary-600 font-bold hover:underline'>
+              Register
+            </a>
+          </Link>{' '}
+          to edit this page
         </div>
       )}
     </div>

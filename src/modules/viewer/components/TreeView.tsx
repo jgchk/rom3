@@ -5,6 +5,7 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
+import { useFromQueryParams } from '../../../common/hooks/useFromQueryParam'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import useLoggedInQuery from '../../../common/hooks/useLoggedInQuery'
 import { GenreApiOutput } from '../../../common/model'
@@ -35,6 +36,8 @@ const TreeView: FC<{ parentId?: number }> = ({ parentId }) => {
     [mutate, navigate]
   )
 
+  const query = useFromQueryParams()
+
   return (
     <div>
       {parentId !== undefined ? (
@@ -43,7 +46,7 @@ const TreeView: FC<{ parentId?: number }> = ({ parentId }) => {
         <NoParent />
       )}
 
-      {isLoggedIn && (
+      {isLoggedIn ? (
         <ButtonSecondary
           className='mt-4'
           onClick={() => handleCreate()}
@@ -51,6 +54,15 @@ const TreeView: FC<{ parentId?: number }> = ({ parentId }) => {
         >
           Add New Genre
         </ButtonSecondary>
+      ) : (
+        <div className='text-stone-700 mt-4'>
+          <Link href={{ pathname: '/register', query }}>
+            <a className='text-primary-600 font-bold hover:underline'>
+              Register
+            </a>
+          </Link>{' '}
+          to add a genre
+        </div>
       )}
     </div>
   )
