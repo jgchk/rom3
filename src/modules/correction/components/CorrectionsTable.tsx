@@ -44,7 +44,7 @@ const CorrectionRow: FC<{ correction: CorrectionApiOutput }> = ({
     () =>
       correction.create.map((createdGenre) => (
         <li
-          className='border text-sm font-semibold px-2 py-1 bg-green-300 border-green-400 text-green-600'
+          className='whitespace-nowrap border text-sm font-semibold px-2 py-1 bg-green-300 border-green-400 text-green-600'
           key={createdGenre.id}
         >
           + {createdGenre.name}
@@ -57,7 +57,7 @@ const CorrectionRow: FC<{ correction: CorrectionApiOutput }> = ({
     () =>
       correction.edit.map(({ updatedGenre }) => (
         <li
-          className='border text-sm font-semibold px-2 py-1 bg-blue-300 border-blue-400 text-blue-600'
+          className='whitespace-nowrap border text-sm font-semibold px-2 py-1 bg-blue-300 border-blue-400 text-blue-600'
           key={updatedGenre.id}
         >
           ~ {updatedGenre.name}
@@ -70,7 +70,7 @@ const CorrectionRow: FC<{ correction: CorrectionApiOutput }> = ({
     () =>
       correction.delete.map((deletedGenre) => (
         <li
-          className='border text-sm font-semibold px-2 py-1 bg-red-300 border-red-400 text-red-600'
+          className='whitespace-nowrap border text-sm font-semibold px-2 py-1 bg-red-300 border-red-400 text-red-600'
           key={deletedGenre.id}
         >
           - {deletedGenre.name}
@@ -105,7 +105,7 @@ const CorrectionRow: FC<{ correction: CorrectionApiOutput }> = ({
         {data?.username ?? 'Loading...'}
       </td>
       <td className='p-2'>
-        <ul className='flex gap-1'>{chips}</ul>
+        <ul className='flex gap-1 flex-wrap'>{chips}</ul>
       </td>
       <td className='p-2 text-sm font-medium text-stone-700'>{date}</td>
     </tr>
