@@ -25,15 +25,8 @@ const useCorrectionGenreQuery = (
   const genre = useMemo(() => {
     if (!correctionQuery.data) return
     if (!genreQuery.data) return
-
-    const genre = makeCorrectionGenre(genreQuery.data, correctionQuery.data)
-
-    if (genre === undefined) {
-      throw new Error(`No account with id '${genreId}'`)
-    }
-
-    return genre
-  }, [correctionQuery.data, genreId, genreQuery.data])
+    return makeCorrectionGenre(genreQuery.data, correctionQuery.data)
+  }, [correctionQuery.data, genreQuery.data])
 
   if (genre) {
     return { data: genre, error: null, isLoading: false }

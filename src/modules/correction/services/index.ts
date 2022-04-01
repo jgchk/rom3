@@ -1,21 +1,17 @@
 import { GenreApiOutput } from '../../../common/model'
 import { trpcClient } from '../../../common/utils/trpc'
+import { makeCorrectionGenre } from '../utils/genre'
 
 const fetchCorrectionGenre = async (
   genreId: number,
   correctionId: number
 ): Promise<GenreApiOutput> => {
+  const genre = await trpcClient.query('genres.byId', { id: genreId })
   const correction = await trpcClient.query('corrections.byId', {
     id: correctionId,
   })
 
-  const editedGenre = correction.edit.find(
-    (e) => e.targetGenre.id === genreId
-  )?.updatedGenre
-
-  if (editedGenre) return editedGenre
-
-  return trpcClient.query('genres.byId', { id: genreId })
+  return makeCorrectionGenre(genre, correction)
 }
 
 export default fetchCorrectionGenre
