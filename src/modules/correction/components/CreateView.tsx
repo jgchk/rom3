@@ -30,7 +30,7 @@ const CreateView: FC<{
     makeUiData(type ?? 'META', parentId)
   )
 
-  const { mutate } = useAddCreatedGenreMutation()
+  const { mutate, isLoading } = useAddCreatedGenreMutation()
   const handleCreate = useCallback(
     () =>
       mutate(
@@ -58,6 +58,7 @@ const CreateView: FC<{
       onChange={setUiState}
       onSubmit={() => handleCreate()}
       onCancel={() => handleCancel()}
+      isSubmitting={isLoading}
     />
   )
 }

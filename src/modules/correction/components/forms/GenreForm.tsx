@@ -23,8 +23,9 @@ const GenreForm: FC<{
   onChange: Dispatch<SetStateAction<GenreApiInput>>
   onSubmit: () => void
   onCancel: () => void
+  isSubmitting: boolean
   selfId?: number
-}> = ({ data, onChange, onSubmit, onCancel, selfId }) => (
+}> = ({ data, onChange, onSubmit, onCancel, isSubmitting, selfId }) => (
   <form
     className='space-y-2'
     onSubmit={(e) => {
@@ -137,7 +138,13 @@ const GenreForm: FC<{
       />
     </div>
     <div className='space-x-1'>
-      <ButtonPrimary type='submit'>Submit</ButtonPrimary>
+      <ButtonPrimary
+        type='submit'
+        loading={isSubmitting}
+        disabled={isSubmitting}
+      >
+        Submit
+      </ButtonPrimary>
       <ButtonTertiary type='button' onClick={() => onCancel()}>
         Cancel
       </ButtonTertiary>

@@ -49,7 +49,7 @@ const Loaded: FC<{
 
   const { push: navigate } = useRouter()
 
-  const { mutate } = useCorrectGenreMutation()
+  const { mutate, isLoading } = useCorrectGenreMutation()
   const handleEdit = useCallback(
     () =>
       mutate(
@@ -78,6 +78,7 @@ const Loaded: FC<{
       selfId={genreId}
       onSubmit={() => handleEdit()}
       onCancel={() => handleCancel()}
+      isSubmitting={isLoading}
     />
   )
 }
