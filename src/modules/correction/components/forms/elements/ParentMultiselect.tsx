@@ -1,18 +1,12 @@
 import clsx from 'clsx'
-import {
-  FC,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaExclamationTriangle } from 'react-icons/fa'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
 import Tooltip from '../../../../../common/components/Tooltip'
 import { GenreType } from '../../../../../common/model'
+import { genreParentTypes } from '../../../../../common/model/parents'
+import { capitalize } from '../../../../../common/utils/string'
 import { useCorrectionContext } from '../../../contexts/CorrectionContext'
 import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
@@ -21,14 +15,15 @@ const ParentMultiselect: FC<{
   id?: string
   parents: number[]
   onChange: (value: number[]) => void
-  selectableTypes: GenreType[]
+  childType: GenreType
   selfId?: number
-  renderTooltip: (selectedType?: GenreType) => ReactNode
-}> = ({ id, parents, onChange, selectableTypes, selfId, renderTooltip }) => {
+}> = ({ id, parents, onChange, childType, selfId }) => {
   const { id: correctionId } = useCorrectionContext()
 
   const [inputValue, setInputValue] = useState('')
   const [open, setOpen] = useState(false)
+
+  const parentTypes = useMemo(() => genreParentTypes[childType], [childType])
 
   const addParent = useCallback(
     (addItem: number) => onChange([...parents, addItem]),
@@ -62,12 +57,12 @@ const ParentMultiselect: FC<{
     () =>
       data?.filter(
         (item) =>
-          selectableTypes.includes(item.type) &&
+          parentTypes.includes(item.type) &&
           (selfId !== undefined ? selfId !== item.id : true) &&
           !parents.includes(item.id) &&
           item.name.toLowerCase().includes(inputValue.toLowerCase())
       ),
-    [data, inputValue, parents, selectableTypes, selfId]
+    [data, parentTypes, selfId, parents, inputValue]
   )
 
   const renderOptions = useCallback(() => {
@@ -98,12 +93,11 @@ const ParentMultiselect: FC<{
       <div className='flex bg-white shadow-sm border border-stone-300 focus-within:border-primary-500 ring-0 focus-within:ring-1 focus-within:ring-primary-500 transition'>
         <div className='flex-1 flex flex-wrap gap-1 w-full p-1'>
           {parents.map((selectedItem) => (
-            <SelectedItem
+            <SelectedParent
               key={selectedItem}
               id={selectedItem}
               onRemove={() => removeParent(selectedItem)}
-              selectableTypes={selectableTypes}
-              renderTooltip={renderTooltip}
+              childType={childType}
             />
           ))}
           <input
@@ -139,19 +133,20 @@ const ParentMultiselect: FC<{
   )
 }
 
-const SelectedItem: FC<{
+const SelectedParent: FC<{
   id: number
   onRemove: () => void
-  selectableTypes: GenreType[]
-  renderTooltip: (selectedType?: GenreType) => ReactNode
-}> = ({ id, onRemove, selectableTypes, renderTooltip }) => {
+  childType: GenreType
+}> = ({ id, onRemove, childType }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data } = useCorrectionGenreQuery(id, correctionId)
 
   const isInvalid = useMemo(() => {
     if (!data) return false
-    return !selectableTypes.includes(data.type)
-  }, [data, selectableTypes])
+
+    const parentTypes = genreParentTypes[childType]
+    return !parentTypes.includes(data.type)
+  }, [childType, data])
 
   const renderText = useCallback(() => {
     if (data) return data.name
@@ -194,7 +189,14 @@ const SelectedItem: FC<{
 
       {isInvalid && (
         <Tooltip referenceElement={referenceElement}>
-          {renderTooltip(data?.type)}
+          <span className='font-semibold'>
+            {capitalize(childType.toLowerCase())}s
+          </span>{' '}
+          cannot have{' '}
+          <span className='font-semibold'>
+            {capitalize(data?.type.toLowerCase() ?? '')}
+          </span>{' '}
+          parents
         </Tooltip>
       )}
     </>

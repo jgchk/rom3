@@ -13,10 +13,7 @@ import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 
 import { genreInfluencedByTypes } from '../../../common/model/influences'
-import {
-  genreChildTypes,
-  genreParentTypes,
-} from '../../../common/model/parents'
+import { genreParentTypes } from '../../../common/model/parents'
 import { isNotNull } from '../../../common/utils/types'
 import createRouter from '../createRouter'
 import prisma from '../prisma'
@@ -54,7 +51,6 @@ export const GenreApiInput = z.object({
   longDesc: z.string().optional(),
   trial: z.boolean(),
   parents: z.number().array(),
-  children: z.number().array(),
   influencedBy: ApiGenreInfluence.array(),
   locations: ApiLocation.array(),
   cultures: z.string().array(),
@@ -111,14 +107,6 @@ const cleanInput = async (input: GenreApiInput): Promise<GenreApiInput> => {
     .filter((parent) => parentTypes.includes(parent.type))
     .map((parent) => parent.id)
 
-  const childTypes = genreChildTypes[input.type]
-  const dbChildren = await prisma.genre.findMany({
-    where: { id: { in: input.children } },
-  })
-  const children = dbChildren
-    .filter((child) => childTypes.includes(child.type))
-    .map((child) => child.id)
-
   const influenceTypes = genreInfluencedByTypes[input.type]
   const dbInfluences = await Promise.all(
     input.influencedBy.map(async (inf) => {
@@ -160,7 +148,6 @@ const cleanInput = async (input: GenreApiInput): Promise<GenreApiInput> => {
     shortDesc,
     longDesc,
     parents,
-    children,
     influencedBy,
     alternateNames: input.alternateNames.filter((s) => s.length > 0),
     cultures,
@@ -183,9 +170,6 @@ export const dbGenreCreateInput = async (
     trial: input.trial,
     parents: {
       create: input.parents.map((parentId) => ({ parentId })),
-    },
-    children: {
-      create: input.children.map((childId) => ({ childId })),
     },
     influencedBy: {
       create: input.influencedBy.map(({ id, influenceType }) => ({
@@ -241,10 +225,6 @@ export const dbGenreUpdateInput = async (
     parents: {
       deleteMany: { childId: id },
       create: input.parents.map((parentId) => ({ parentId })),
-    },
-    children: {
-      deleteMany: { parentId: id },
-      create: input.children.map((childId) => ({ childId })),
     },
     influencedBy: {
       deleteMany: { influencedId: id },
