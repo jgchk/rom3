@@ -18,7 +18,7 @@ import { isBrowser } from './ssr'
 export const trpcPath = '/api/trpc'
 export const trpcUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}/api/trpc`
-  : 'http://localhost:3000/api/trpc'
+  : 'http://127.0.0.1:3000/api/trpc'
 export const trpcOptions: CreateTRPCClientOptions<AppRouter> = {
   ...(isBrowser ? { url: trpcPath } : { url: trpcUrl }),
   transformer: superjson,
