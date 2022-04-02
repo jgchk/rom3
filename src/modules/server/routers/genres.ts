@@ -307,30 +307,6 @@ const getGenre = async (id: number): Promise<GenreApiOutput> => {
   return toGenreApiOutput(genre)
 }
 
-const getGenreWithDescendants = async (
-  id: number
-): Promise<{ genre: GenreApiOutput; descendants: GenreApiOutput[] }> => {
-  const visited = new Set<number>()
-
-  const genre = await getGenre(id)
-  const descendants: GenreApiOutput[] = []
-
-  const queue = [...genre.children, ...genre.influences.map((inf) => inf.id)]
-  while (queue.length > 0) {
-    const id = queue.pop()
-    if (id === undefined) continue
-    if (visited.has(id)) continue
-
-    const genre = await getGenre(id)
-    descendants.push(genre)
-    queue.push(...genre.children, ...genre.influences.map((inf) => inf.id))
-
-    visited.add(id)
-  }
-
-  return { genre, descendants }
-}
-
 const getGenres = async (): Promise<GenreApiOutput[]> => {
   const genres = await prisma.genre.findMany({
     where: nonCorrectionGenreFilter,
@@ -382,10 +358,6 @@ const genresRouter = createRouter()
   .query('byId', {
     input: z.object({ id: z.number() }),
     resolve: ({ input }) => getGenre(input.id),
-  })
-  .query('byId.withDescendants', {
-    input: z.object({ id: z.number() }),
-    resolve: ({ input }) => getGenreWithDescendants(input.id),
   })
   .mutation('edit', {
     input: z.object({ id: z.number(), data: GenreApiInput }),
