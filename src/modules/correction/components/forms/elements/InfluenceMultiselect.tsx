@@ -13,8 +13,15 @@ import {
 import { ApiGenreInfluence } from '../../../../../common/services/genres'
 import { capitalize } from '../../../../../common/utils/string'
 import { useCorrectionContext } from '../../../contexts/CorrectionContext'
-import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
+import useCorrectionGenreQuery, {
+  CorrectionGenre,
+} from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
+
+const makeInfluence = (item: CorrectionGenre): ApiGenreInfluence => ({
+  id: item.id,
+  influenceType: item.type === 'STYLE' ? 'HISTORICAL' : undefined,
+})
 
 const InfluenceMultiselect: FC<{
   id?: string
@@ -71,15 +78,19 @@ const InfluenceMultiselect: FC<{
 
   const options = useMemo(
     () =>
-      data?.filter(
-        (item) =>
-          influencedByTypes.includes(item.type) &&
-          (selfId !== undefined ? selfId !== item.id : true) &&
-          !influences.some(
-            (selectedInfluence) => item.id === selectedInfluence.id
-          ) &&
-          item.name.toLowerCase().includes(inputValue.toLowerCase())
-      ),
+      data
+        ?.filter(
+          (item) =>
+            influencedByTypes.includes(item.type) &&
+            (selfId !== undefined ? selfId !== item.id : true) &&
+            !influences.some(
+              (selectedInfluence) => item.id === selectedInfluence.id
+            ) &&
+            item.name.toLowerCase().includes(inputValue.toLowerCase())
+        )
+        .sort((a, b) =>
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        ),
     [data, influencedByTypes, selfId, influences, inputValue]
   )
 
@@ -96,7 +107,7 @@ const InfluenceMultiselect: FC<{
           className='w-full text-left text-sm text-stone-700 px-2 py-1 border-b border-stone-200 group-last:border-0'
           type='button'
           onClick={() => {
-            addInfluence({ id: item.id, influenceType: 'HISTORICAL' })
+            addInfluence(makeInfluence(item))
             setInputValue('')
           }}
         >
@@ -126,6 +137,16 @@ const InfluenceMultiselect: FC<{
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={() => setOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                const topOption = options?.[0]
+                if (topOption) {
+                  addInfluence(makeInfluence(topOption))
+                  setInputValue('')
+                }
+              }
+            }}
           />
         </div>
         <button
@@ -142,7 +163,7 @@ const InfluenceMultiselect: FC<{
       </div>
       {open && (
         <ul
-          className='absolute z-10 w-full bg-white border border-stone-300 shadow'
+          className='absolute z-10 w-full bg-white border border-stone-300 shadow max-h-64 overflow-auto'
           style={{ top: 'calc(100% - 1px)' }}
         >
           {renderOptions()}

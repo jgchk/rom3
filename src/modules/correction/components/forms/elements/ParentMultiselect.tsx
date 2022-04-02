@@ -55,13 +55,17 @@ const ParentMultiselect: FC<{
 
   const options = useMemo(
     () =>
-      data?.filter(
-        (item) =>
-          parentTypes.includes(item.type) &&
-          (selfId !== undefined ? selfId !== item.id : true) &&
-          !parents.includes(item.id) &&
-          item.name.toLowerCase().includes(inputValue.toLowerCase())
-      ),
+      data
+        ?.filter(
+          (item) =>
+            parentTypes.includes(item.type) &&
+            (selfId !== undefined ? selfId !== item.id : true) &&
+            !parents.includes(item.id) &&
+            item.name.toLowerCase().includes(inputValue.toLowerCase())
+        )
+        .sort((a, b) =>
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        ),
     [data, parentTypes, selfId, parents, inputValue]
   )
 
@@ -107,6 +111,16 @@ const ParentMultiselect: FC<{
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={() => setOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                const topOption = options?.[0]
+                if (topOption) {
+                  addParent(topOption.id)
+                  setInputValue('')
+                }
+              }
+            }}
           />
         </div>
         <button
@@ -123,7 +137,7 @@ const ParentMultiselect: FC<{
       </div>
       {open && (
         <ul
-          className='absolute z-10 w-full bg-white border border-stone-300 shadow'
+          className='absolute z-10 w-full bg-white border border-stone-300 shadow max-h-64 overflow-auto'
           style={{ top: 'calc(100% - 1px)' }}
         >
           {renderOptions()}
