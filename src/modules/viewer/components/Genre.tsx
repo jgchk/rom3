@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
+import ReactMarkdown from 'react-markdown'
 
 import ButtonPrimary from '../../../common/components/ButtonPrimary'
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
@@ -189,8 +190,13 @@ const Description: FC<{
   if (genre.shortDesc && genre.longDesc) {
     return (
       <div className='mt-3'>
-        {/* TODO: render markdown for long desc */}
-        <p>{expanded ? genre.longDesc : genre.shortDesc}</p>
+        {expanded ? (
+          <ReactMarkdown className='prose prose-stone'>
+            {genre.longDesc}
+          </ReactMarkdown>
+        ) : (
+          <p>{genre.shortDesc}</p>
+        )}
         <button
           className='text-sm font-semibold text-stone-700 hover:text-primary-600'
           onClick={() => onExpandChange(!expanded)}
@@ -208,8 +214,11 @@ const Description: FC<{
   if (genre.longDesc) {
     return (
       <div className='mt-3'>
-        {/* TODO: render markdown for long desc */}
-        {expanded && <p>{genre.longDesc}</p>}
+        {expanded && (
+          <ReactMarkdown className='prose prose-stone'>
+            {genre.longDesc}
+          </ReactMarkdown>
+        )}
         <button
           className='text-sm font-semibold text-stone-700 hover:text-primary-600'
           onClick={() => onExpandChange(!expanded)}

@@ -26,7 +26,7 @@ const MarkdownEditor: FC<{
         />
       )}
       {tab === Tab.VIEW && (
-        <div className='flex-1 overflow-auto'>
+        <div className='flex-1 overflow-auto prose prose-stone px-2 py-1'>
           <ReactMarkdown>{value}</ReactMarkdown>
         </div>
       )}

@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@stylelint/postcss-css-in-js": "^0.37.2",
+    "@tailwindcss/typography": "^0.5.2",
     "@types/bcryptjs": "^2.4.2",
     "@types/cookie": "^0.4.1",
     "@types/dagre": "^0.7.47",
