@@ -5,24 +5,23 @@ import { FC, useMemo, useState } from 'react'
 
 import { ButtonSecondaryLink } from '../../../common/components/ButtonSecondary'
 import Tooltip from '../../../common/components/Tooltip'
-import { ApiGenreInfluence } from '../../../common/services/genres'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
-import useCorrectionGenreQuery, {
-  ChangeType,
-} from '../hooks/useCorrectionGenreQuery'
 import useCorrectionGenreTreeQuery, {
   GenreTree,
 } from '../hooks/useCorrectionGenreTreeQuery'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 import {
   getChangeBackgroundColor,
-  getChangeBorderColor,
-  getChangeTextColor,
   getTopbarColor,
   getTopbarText,
 } from '../utils/display'
-import { getDescendantChanges, getDescendantIds } from '../utils/genre'
+import {
+  ChangeType,
+  getDescendantChanges,
+  getDescendantIds,
+} from '../utils/genre'
+import { Children } from './Hierarchy'
 
 const TreeView: FC = () => {
   const { id: correctionId } = useCorrectionContext()
@@ -186,7 +185,7 @@ const Node: FC<{ id: number }> = ({ id }) => {
 
       {expanded && (
         <Children
-          className='p-4 pb-1'
+          className='p-4'
           childIds={genre.children}
           influences={genre.influences}
         />
@@ -216,101 +215,6 @@ const Changes: FC<{ changes: Set<ChangeType> }> = ({ changes }) => {
 
       <Tooltip referenceElement={ref}>Has changes in subtree</Tooltip>
     </>
-  )
-}
-
-const Children: FC<{
-  childIds: number[]
-  influences: ApiGenreInfluence[]
-  className?: string
-}> = ({ childIds, influences, className }) => (
-  <ul className={clsx('space-y-4', className)}>
-    {childIds.map((id) => (
-      <Child key={id} id={id} />
-    ))}
-    {influences.map((inf) => (
-      <Influence key={`${inf.id}_${inf.influenceType ?? ''}`} influence={inf} />
-    ))}
-  </ul>
-)
-
-const Child: FC<{ id: number }> = ({ id }) => {
-  const { id: correctionId } = useCorrectionContext()
-  const { data } = useCorrectionGenreQuery(id, correctionId)
-
-  if (!data) {
-    return <div>Loading...</div>
-  }
-
-  return (
-    <li className={clsx('pl-6 border-l-2', getChangeBorderColor(data.changes))}>
-      <div className='py-2'>
-        <div className='text-xs font-bold text-stone-500'>
-          {data.type}
-          {data.trial && <> (TRIAL)</>}
-        </div>
-
-        <Link href={`/corrections/${correctionId}/genres/${id}`}>
-          <a
-            className={clsx(
-              'font-semibold hover:underline',
-              getChangeTextColor(data.changes)
-            )}
-          >
-            {data.name}
-          </a>
-        </Link>
-
-        <p className='text-sm text-stone-500'>{data.shortDesc}</p>
-      </div>
-
-      <Children
-        className='mt-4'
-        childIds={data.children}
-        influences={data.influences}
-      />
-    </li>
-  )
-}
-
-const Influence: FC<{ influence: ApiGenreInfluence }> = ({ influence }) => {
-  const { id: correctionId } = useCorrectionContext()
-  const { data } = useCorrectionGenreQuery(influence.id, correctionId)
-
-  if (!data) {
-    return <div>Loading...</div>
-  }
-
-  return (
-    <li className={clsx('pl-6 border-l-2', getChangeBorderColor(data.changes))}>
-      <div className='py-2'>
-        <div className='text-xs font-bold text-stone-500'>
-          {data.type}
-          {data.trial && <> (TRIAL)</>}
-          &nbsp;&nbsp;{'•'}&nbsp;&nbsp;
-          {influence.influenceType ?? ''} INFLUENCE
-        </div>
-
-        <Link href={`/corrections/${correctionId}/genres/${influence.id}`}>
-          <a
-            className={clsx(
-              'font-semibold hover:underline',
-              getChangeTextColor(data.changes)
-            )}
-          >
-            {data.name}
-          </a>
-        </Link>
-
-        <p className='text-sm text-stone-500'>{data.shortDesc}</p>
-      </div>
-
-      <Children
-        className='mt-4'
-        childIds={data.children}
-        influences={data.influences}
-      />
-    </li>
   )
 }
 

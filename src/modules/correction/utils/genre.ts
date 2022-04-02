@@ -4,7 +4,6 @@ import { GenreApiOutput } from '../../../common/model'
 import { CorrectionApiOutput } from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
 import { isDefined } from '../../../common/utils/types'
-import { CorrectionGenre } from '../hooks/useCorrectionGenreQuery'
 import { GenreTree } from '../hooks/useCorrectionGenreTreeQuery'
 
 export const makeUiData = (
@@ -22,6 +21,11 @@ export const makeUiData = (
   locations: [],
   cultures: [],
 })
+
+export type CorrectionGenre = GenreApiOutput & {
+  changes: ChangeType | undefined
+}
+export type ChangeType = 'created' | 'edited' | 'deleted'
 
 export const makeCorrectionGenre = (
   originalGenre: GenreApiOutput,

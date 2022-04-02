@@ -37,3 +37,23 @@ export const useGenreQuery = (
     ...opts,
     useErrorBoundary: opts?.useErrorBoundary ?? true,
   })
+
+export const useGenreWithDescendantsQuery = (
+  id: number,
+  opts?: InferQueryOptions<'genres.byId.withDescendants'>
+) => {
+  const utils = trpc.useContext()
+  return trpc.useQuery(['genres.byId.withDescendants', { id }], {
+    ...opts,
+    useErrorBoundary: opts?.useErrorBoundary ?? true,
+    onSuccess: (res) => {
+      for (const genre of [res.genre, ...res.descendants]) {
+        utils.setQueryData(['genres.byId', { id: genre.id }], genre)
+      }
+
+      if (opts?.onSuccess) {
+        opts.onSuccess(res)
+      }
+    },
+  })
+}

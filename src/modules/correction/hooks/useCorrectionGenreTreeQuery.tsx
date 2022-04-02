@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { CorrectionGenre } from './useCorrectionGenreQuery'
+import { CorrectionGenre } from '../utils/genre'
 import useCorrectionGenresQuery from './useCorrectionGenresQuery'
 
 export type GenreTree = Record<number, CorrectionGenre>

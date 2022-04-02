@@ -1,15 +1,9 @@
 import { useMemo } from 'react'
 
-import { GenreApiOutput } from '../../../common/model'
 import { useCorrectionQuery } from '../../../common/services/corrections'
 import { useGenreQuery } from '../../../common/services/genres'
 import { TError } from '../../../common/utils/trpc'
-import { makeCorrectionGenre } from '../utils/genre'
-
-export type CorrectionGenre = GenreApiOutput & {
-  changes: ChangeType | undefined
-}
-export type ChangeType = 'created' | 'edited' | 'deleted'
+import { CorrectionGenre, makeCorrectionGenre } from '../utils/genre'
 
 const useCorrectionGenreQuery = (
   genreId: number,

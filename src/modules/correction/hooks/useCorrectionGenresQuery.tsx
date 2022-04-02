@@ -4,8 +4,7 @@ import { useCorrectionQuery } from '../../../common/services/corrections'
 import { useGenresQuery } from '../../../common/services/genres'
 import { TError } from '../../../common/utils/trpc'
 import { isDefined } from '../../../common/utils/types'
-import { makeCorrectionGenre } from '../utils/genre'
-import { CorrectionGenre } from './useCorrectionGenreQuery'
+import { CorrectionGenre, makeCorrectionGenre } from '../utils/genre'
 
 const useCorrectionGenresQuery = (
   correctionId: number

@@ -13,10 +13,9 @@ import {
 import { ApiGenreInfluence } from '../../../../../common/services/genres'
 import { capitalize } from '../../../../../common/utils/string'
 import { useCorrectionContext } from '../../../contexts/CorrectionContext'
-import useCorrectionGenreQuery, {
-  CorrectionGenre,
-} from '../../../hooks/useCorrectionGenreQuery'
+import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
+import { CorrectionGenre } from '../../../utils/genre'
 
 const makeInfluence = (item: CorrectionGenre): ApiGenreInfluence => ({
   id: item.id,

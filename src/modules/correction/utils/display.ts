@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 
-import { ChangeType } from '../hooks/useCorrectionGenreQuery'
+import { ChangeType } from './genre'
 
 export const getChangeBackgroundColor = (
   type: ChangeType | undefined
