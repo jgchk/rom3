@@ -7,7 +7,10 @@ import Input from '../../../../common/components/Input'
 import Label from '../../../../common/components/Label'
 import TextArea from '../../../../common/components/TextArea'
 import { genreInfluencedByTypes } from '../../../../common/model/influences'
-import { genreParentTypes } from '../../../../common/model/parents'
+import {
+  genreChildTypes,
+  genreParentTypes,
+} from '../../../../common/model/parents'
 import { GenreApiInput } from '../../../server/routers/genres'
 import GenreTypeSelect from './elements/GenreTypeSelect'
 import InfluenceMultiselect from './elements/InfluenceMultiselect'
@@ -80,7 +83,25 @@ const GenreForm: FC<{
           id='parents'
           parents={data.parents}
           onChange={(parents) => onChange((d) => ({ ...d, parents }))}
-          childType={data.type}
+          selectableTypes={genreParentTypes[data.type]}
+          renderTooltip={(selectedType) =>
+            `${data.type} cannot have ${selectedType ?? 'Loading...'} parent`
+          }
+          selfId={selfId}
+        />
+      </div>
+    )}
+    {genreChildTypes[data.type].length > 0 && (
+      <div>
+        <Label htmlFor='children'>Children</Label>
+        <ParentMultiselect
+          id='children'
+          parents={data.children}
+          onChange={(children) => onChange((d) => ({ ...d, children }))}
+          selectableTypes={genreChildTypes[data.type]}
+          renderTooltip={(selectedType) =>
+            `${data.type} cannot have ${selectedType ?? 'Loading...'} child`
+          }
           selfId={selfId}
         />
       </div>

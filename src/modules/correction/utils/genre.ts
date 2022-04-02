@@ -18,6 +18,7 @@ export const makeUiData = (
   longDesc: '',
   trial: false,
   parents: parentId ? [parentId] : [],
+  children: [],
   influencedBy: [],
   locations: [],
   cultures: [],
@@ -42,10 +43,6 @@ export const makeCorrectionGenre = (
     ? {
         ...editedGenre,
         id: originalGenre.id,
-        children: originalGenre.children.filter((childId) => {
-          const editedChild = editedIds[childId]
-          return !editedChild || editedChild.parents.includes(originalGenre.id)
-        }),
         influences: originalGenre.influences.filter((inf) => {
           const editedInfluenced = editedIds[inf.id]
           return (

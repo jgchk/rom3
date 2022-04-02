@@ -1,12 +1,18 @@
 import clsx from 'clsx'
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  FC,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { FaExclamationTriangle } from 'react-icons/fa'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
 import Tooltip from '../../../../../common/components/Tooltip'
 import { GenreType } from '../../../../../common/model'
-import { genreParentTypes } from '../../../../../common/model/parents'
-import { capitalize } from '../../../../../common/utils/string'
 import { useCorrectionContext } from '../../../contexts/CorrectionContext'
 import useCorrectionGenreQuery from '../../../hooks/useCorrectionGenreQuery'
 import useCorrectionGenresQuery from '../../../hooks/useCorrectionGenresQuery'
@@ -15,15 +21,14 @@ const ParentMultiselect: FC<{
   id?: string
   parents: number[]
   onChange: (value: number[]) => void
-  childType: GenreType
+  selectableTypes: GenreType[]
   selfId?: number
-}> = ({ id, parents, onChange, childType, selfId }) => {
+  renderTooltip: (selectedType?: GenreType) => ReactNode
+}> = ({ id, parents, onChange, selectableTypes, selfId, renderTooltip }) => {
   const { id: correctionId } = useCorrectionContext()
 
   const [inputValue, setInputValue] = useState('')
   const [open, setOpen] = useState(false)
-
-  const parentTypes = useMemo(() => genreParentTypes[childType], [childType])
 
   const addParent = useCallback(
     (addItem: number) => onChange([...parents, addItem]),
@@ -57,12 +62,12 @@ const ParentMultiselect: FC<{
     () =>
       data?.filter(
         (item) =>
-          parentTypes.includes(item.type) &&
+          selectableTypes.includes(item.type) &&
           (selfId !== undefined ? selfId !== item.id : true) &&
           !parents.includes(item.id) &&
           item.name.toLowerCase().includes(inputValue.toLowerCase())
       ),
-    [data, parentTypes, selfId, parents, inputValue]
+    [data, inputValue, parents, selectableTypes, selfId]
   )
 
   const renderOptions = useCallback(() => {
@@ -93,11 +98,12 @@ const ParentMultiselect: FC<{
       <div className='flex bg-white shadow-sm border border-stone-300 focus-within:border-primary-500 ring-0 focus-within:ring-1 focus-within:ring-primary-500 transition'>
         <div className='flex-1 flex flex-wrap gap-1 w-full p-1'>
           {parents.map((selectedItem) => (
-            <SelectedParent
+            <SelectedItem
               key={selectedItem}
               id={selectedItem}
               onRemove={() => removeParent(selectedItem)}
-              childType={childType}
+              selectableTypes={selectableTypes}
+              renderTooltip={renderTooltip}
             />
           ))}
           <input
@@ -133,20 +139,19 @@ const ParentMultiselect: FC<{
   )
 }
 
-const SelectedParent: FC<{
+const SelectedItem: FC<{
   id: number
   onRemove: () => void
-  childType: GenreType
-}> = ({ id, onRemove, childType }) => {
+  selectableTypes: GenreType[]
+  renderTooltip: (selectedType?: GenreType) => ReactNode
+}> = ({ id, onRemove, selectableTypes, renderTooltip }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data } = useCorrectionGenreQuery(id, correctionId)
 
   const isInvalid = useMemo(() => {
     if (!data) return false
-
-    const parentTypes = genreParentTypes[childType]
-    return !parentTypes.includes(data.type)
-  }, [childType, data])
+    return !selectableTypes.includes(data.type)
+  }, [data, selectableTypes])
 
   const renderText = useCallback(() => {
     if (data) return data.name
@@ -189,14 +194,7 @@ const SelectedParent: FC<{
 
       {isInvalid && (
         <Tooltip referenceElement={referenceElement}>
-          <span className='font-semibold'>
-            {capitalize(childType.toLowerCase())}s
-          </span>{' '}
-          cannot have{' '}
-          <span className='font-semibold'>
-            {capitalize(data?.type.toLowerCase() ?? '')}
-          </span>{' '}
-          parents
+          {renderTooltip(data?.type)}
         </Tooltip>
       )}
     </>
