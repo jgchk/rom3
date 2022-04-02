@@ -1,5 +1,5 @@
 import dagre from 'dagre'
-import { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 import ReactFlow, { Edge, Node, Position } from 'react-flow-renderer'
 
 import { GenreApiOutput } from '../../../common/model'
@@ -80,7 +80,6 @@ const Loaded: FC<{ tree: GenreTree }> = ({ tree }) => {
       }),
     []
   )
-  useEffect(() => console.log(expanded), [expanded])
 
   const genres = useMemo(() => Object.values(tree), [tree])
 

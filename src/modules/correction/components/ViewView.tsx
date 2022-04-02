@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi'
 import ReactMarkdown from 'react-markdown'
@@ -385,7 +385,6 @@ const Child: FC<{ id: number; influenceType?: ApiInfluenceType }> = ({
 }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data } = useCorrectionGenreQuery(id, correctionId)
-  useEffect(() => console.log('chile', data), [data])
 
   if (!data) {
     return <div>Loading...</div>
@@ -421,7 +420,6 @@ const Child: FC<{ id: number; influenceType?: ApiInfluenceType }> = ({
 const Influence: FC<{ influence: ApiGenreInfluence }> = ({ influence }) => {
   const { id: correctionId } = useCorrectionContext()
   const { data } = useCorrectionGenreQuery(influence.id, correctionId)
-  useEffect(() => console.log('inf', data), [data])
 
   if (!data) {
     return <div>Loading...</div>
