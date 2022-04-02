@@ -9,13 +9,10 @@ import { useFromQueryParams } from '../../../common/hooks/useFromQueryParam'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import useLoggedInQuery from '../../../common/hooks/useLoggedInQuery'
 import { useCreateCorrectionMutation } from '../../../common/services/corrections'
-import {
-  ApiGenreInfluence,
-  useGenreQuery,
-} from '../../../common/services/genres'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
 import useGenreTreeQuery, { GenreTree } from '../hooks/useGenreTreeQuery'
 import { getDescendantIds } from '../utils/genre'
+import { Children } from './Hierarchy'
 
 const TreeView: FC = () => {
   const { data: isLoggedIn } = useLoggedInQuery()
@@ -143,95 +140,12 @@ const Node: FC<{ id: number }> = ({ id }) => {
 
       {expanded && (
         <Children
-          className='p-4 pb-1'
+          className='p-4'
           childIds={genre.children}
           influences={genre.influences}
         />
       )}
     </div>
-  )
-}
-
-const Children: FC<{
-  childIds: number[]
-  influences: ApiGenreInfluence[]
-  className?: string
-}> = ({ childIds, influences, className }) => (
-  <ul className={clsx('space-y-4', className)}>
-    {childIds.map((id) => (
-      <Child key={id} id={id} />
-    ))}
-    {influences.map((inf) => (
-      <Influence key={`${inf.id}_${inf.influenceType ?? ''}`} influence={inf} />
-    ))}
-  </ul>
-)
-
-const Child: FC<{ id: number }> = ({ id }) => {
-  const { data } = useGenreQuery(id)
-
-  if (!data) {
-    return <div>Loading...</div>
-  }
-
-  return (
-    <li className='pl-6 border-l-2 border-primary-600'>
-      <div className='py-2'>
-        <div className='text-xs font-bold text-stone-500'>
-          {data.type}
-          {data.trial && <> (TRIAL)</>}
-        </div>
-
-        <Link href={`/genres/${data.id}`}>
-          <a className='text-primary-600 font-semibold hover:underline'>
-            {data.name}
-          </a>
-        </Link>
-
-        <p className='text-sm text-stone-600'>{data.shortDesc}</p>
-      </div>
-
-      <Children
-        className='mt-4'
-        childIds={data.children}
-        influences={data.influences}
-      />
-    </li>
-  )
-}
-
-const Influence: FC<{ influence: ApiGenreInfluence }> = ({ influence }) => {
-  const { data } = useGenreQuery(influence.id)
-
-  if (!data) {
-    return <div>Loading...</div>
-  }
-
-  return (
-    <li className='pl-6 border-l-2 border-primary-600'>
-      <div className='py-2'>
-        <div className='text-xs font-bold text-stone-500'>
-          {data.type}
-          {data.trial && <> (TRIAL)</>}
-          &nbsp;&nbsp;{'•'}&nbsp;&nbsp;
-          {influence.influenceType ?? ''} INFLUENCE
-        </div>
-
-        <Link href={`/genres/${data.id}`}>
-          <a className='text-primary-600 font-semibold hover:underline'>
-            {data.name}
-          </a>
-        </Link>
-
-        <p className='text-sm text-stone-500'>{data.shortDesc}</p>
-      </div>
-
-      <Children
-        className='mt-4'
-        childIds={data.children}
-        influences={data.influences}
-      />
-    </li>
   )
 }
 
