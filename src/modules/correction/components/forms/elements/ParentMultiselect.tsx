@@ -23,6 +23,12 @@ const ParentMultiselect: FC<{
   const [inputValue, setInputValue] = useState('')
   const [open, setOpen] = useState(false)
 
+  useEffect(() => {
+    if (inputValue.length > 0) {
+      setOpen(true)
+    }
+  }, [inputValue.length])
+
   const parentTypes = useMemo(() => genreParentTypes[childType], [childType])
 
   const addParent = useCallback(
@@ -92,10 +98,18 @@ const ParentMultiselect: FC<{
     ))
   }, [addParent, options])
 
+  const inputRef = useRef<HTMLInputElement>(null)
+
   return (
     <div className='relative' ref={containerRef}>
       <div className='flex bg-white shadow-sm border border-stone-300 focus-within:border-primary-500 ring-0 focus-within:ring-1 focus-within:ring-primary-500 transition'>
-        <div className='flex-1 flex flex-wrap gap-1 w-full p-1'>
+        <div
+          className='flex-1 flex flex-wrap gap-1 w-full p-1'
+          onClick={() => {
+            setOpen(!open)
+            inputRef.current?.focus()
+          }}
+        >
           {parents.map((selectedItem) => (
             <SelectedParent
               key={selectedItem}
@@ -105,20 +119,34 @@ const ParentMultiselect: FC<{
             />
           ))}
           <input
+            ref={inputRef}
             id={id}
             className='flex-1 border border-transparent focus:outline-none'
             placeholder='Search...'
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onFocus={() => setOpen(true)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
+              if (e.key === 'Tab' || e.key === 'Enter') {
                 const topOption = options?.[0]
-                if (topOption) {
-                  addParent(topOption.id)
-                  setInputValue('')
+                if (
+                  (inputValue.length === 0 && !open) ||
+                  topOption === undefined
+                ) {
+                  setOpen(false)
+                  return
                 }
+
+                e.preventDefault()
+                addParent(topOption.id)
+                setInputValue('')
+                setOpen(false)
+              } else if (
+                e.key === 'Backspace' &&
+                inputValue.length === 0 &&
+                parents.length > 0
+              ) {
+                e.preventDefault()
+                removeParent(parents[parents.length - 1])
               }
             }}
           />
@@ -126,7 +154,11 @@ const ParentMultiselect: FC<{
         <button
           className='px-1 border-l text-stone-400 border-stone-200 hover:bg-stone-100'
           type='button'
-          onClick={() => setOpen(!open)}
+          onClick={() => {
+            setOpen(!open)
+            inputRef.current?.focus()
+          }}
+          tabIndex={-1}
         >
           {open ? (
             <RiArrowUpSLine className='pointer-events-none' />
@@ -196,6 +228,7 @@ const SelectedParent: FC<{
           )}
           type='button'
           onClick={() => onRemove()}
+          tabIndex={-1}
         >
           <RiCloseFill />
         </button>

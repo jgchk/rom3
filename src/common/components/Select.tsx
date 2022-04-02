@@ -11,6 +11,7 @@ export type SelectProps<
   value: V
   onChange: (value: V) => void
   className?: string
+  tabIndex?: number
 }
 
 const Select = <
@@ -23,6 +24,7 @@ const Select = <
   value,
   onChange,
   className,
+  ...props
 }: SelectProps<K, V, L>) => (
   <select
     id={id}
@@ -32,6 +34,7 @@ const Select = <
       'bg-white bg-arrow-down bg-no-repeat bg-[95%_center] bg-[length:18px] appearance-none shadow-sm border border-stone-300 pl-2 pr-6 py-1 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition',
       className
     )}
+    {...props}
   >
     {options.map(({ key, value, label }) => (
       <option key={key} value={value}>

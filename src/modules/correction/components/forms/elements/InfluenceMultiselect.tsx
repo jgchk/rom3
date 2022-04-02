@@ -35,6 +35,12 @@ const InfluenceMultiselect: FC<{
   const [inputValue, setInputValue] = useState('')
   const [open, setOpen] = useState(false)
 
+  useEffect(() => {
+    if (inputValue.length > 0) {
+      setOpen(true)
+    }
+  }, [inputValue.length])
+
   const influencedByTypes = useMemo(
     () => genreInfluencedByTypes[childType],
     [childType]
@@ -117,10 +123,18 @@ const InfluenceMultiselect: FC<{
     ))
   }, [addInfluence, options])
 
+  const inputRef = useRef<HTMLInputElement>(null)
+
   return (
     <div className='relative' ref={containerRef}>
       <div className='flex bg-white shadow-sm border border-stone-300 focus-within:border-primary-500 ring-0 focus-within:ring-1 focus-within:ring-primary-500 transition'>
-        <div className='flex-1 flex flex-wrap gap-1 w-full p-1'>
+        <div
+          className='flex-1 flex flex-wrap gap-1 w-full p-1'
+          onClick={() => {
+            setOpen(!open)
+            inputRef.current?.focus()
+          }}
+        >
           {influences.map((selectedItem) => (
             <SelectedInfluence
               key={`${selectedItem.id}_${selectedItem.influenceType ?? ''}`}
@@ -131,20 +145,34 @@ const InfluenceMultiselect: FC<{
             />
           ))}
           <input
+            ref={inputRef}
             id={id}
             className='flex-1 border border-transparent focus:outline-none'
             placeholder='Search...'
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onFocus={() => setOpen(true)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
+              if (e.key === 'Tab' || e.key === 'Enter') {
                 const topOption = options?.[0]
-                if (topOption) {
-                  addInfluence(makeInfluence(topOption))
-                  setInputValue('')
+                if (
+                  (inputValue.length === 0 && !open) ||
+                  topOption === undefined
+                ) {
+                  setOpen(false)
+                  return
                 }
+
+                e.preventDefault()
+                addInfluence(makeInfluence(topOption))
+                setInputValue('')
+                setOpen(false)
+              } else if (
+                e.key === 'Backspace' &&
+                inputValue.length === 0 &&
+                influences.length > 0
+              ) {
+                e.preventDefault()
+                removeInfluence(influences[influences.length - 1])
               }
             }}
           />
@@ -152,7 +180,11 @@ const InfluenceMultiselect: FC<{
         <button
           className='px-1 border-l text-stone-400 border-stone-200 hover:bg-stone-100'
           type='button'
-          onClick={() => setOpen(!open)}
+          onClick={() => {
+            setOpen(!open)
+            inputRef.current?.focus()
+          }}
+          tabIndex={-1}
         >
           {open ? (
             <RiArrowUpSLine className='pointer-events-none' />
@@ -222,6 +254,7 @@ const SelectedInfluence: FC<{
               onChange={(influenceType) =>
                 onChange({ ...influence, influenceType })
               }
+              tabIndex={-1}
             />
           </div>
         )
@@ -261,6 +294,7 @@ const SelectedInfluence: FC<{
           )}
           type='button'
           onClick={() => onRemove()}
+          tabIndex={-1}
         >
           <RiCloseFill />
         </button>
