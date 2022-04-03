@@ -3,7 +3,10 @@ import { FC, useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { GenreType } from '../../../common/model'
-import { useAddCreatedGenreMutation } from '../../../common/services/corrections'
+import {
+  useAddCreatedGenreMutation,
+  useDeleteCorrectionTimidMutation,
+} from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
@@ -14,7 +17,8 @@ const CreateView: FC<{
   type?: GenreType
   parentId?: number
   from?: string
-}> = ({ type, parentId, from }) => {
+  deleteOnCancel?: boolean
+}> = ({ type, parentId, from, deleteOnCancel }) => {
   const { id: correctionId } = useCorrectionContext()
 
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
@@ -30,10 +34,10 @@ const CreateView: FC<{
     makeUiData(type ?? 'META', parentId)
   )
 
-  const { mutate, isLoading } = useAddCreatedGenreMutation()
-  const handleCreate = useCallback(
+  const { mutate: addGenre, isLoading } = useAddCreatedGenreMutation()
+  const handleCreateGenre = useCallback(
     () =>
-      mutate(
+      addGenre(
         { id: correctionId, data: uiState },
         {
           onSuccess: (res) => {
@@ -44,19 +48,45 @@ const CreateView: FC<{
           },
         }
       ),
-    [correctionId, mutate, navigate, uiState]
+    [correctionId, addGenre, navigate, uiState]
   )
 
-  const handleCancel = useCallback(
-    () => void navigate(from ?? `/corrections/${correctionId}`),
-    [correctionId, from, navigate]
+  const { mutate: deleteCorrection } = useDeleteCorrectionTimidMutation()
+  const handleDeleteCorrection = useCallback(
+    () =>
+      deleteCorrection(
+        { id: correctionId },
+        {
+          onSuccess: (res) => {
+            if (res === false) {
+              // Correction was not deleted
+              void navigate(from ?? `/corrections/${correctionId}`)
+            } else {
+              // Correction was deleted
+              void navigate(from ?? '/corrections')
+            }
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [correctionId, deleteCorrection, from, navigate]
   )
+
+  const handleCancel = useCallback(() => {
+    if (deleteOnCancel) {
+      handleDeleteCorrection()
+    } else {
+      void navigate(from ?? `/corrections/${correctionId}`)
+    }
+  }, [correctionId, deleteOnCancel, from, handleDeleteCorrection, navigate])
 
   return (
     <GenreForm
       data={uiState}
       onChange={setUiState}
-      onSubmit={() => handleCreate()}
+      onSubmit={() => handleCreateGenre()}
       onCancel={() => handleCancel()}
       isSubmitting={isLoading}
     />

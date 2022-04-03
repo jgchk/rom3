@@ -80,6 +80,21 @@ export const useDeleteCorrectionMutation = () => {
   })
 }
 
+export const useDeleteCorrectionTimidMutation = () => {
+  const utils = trpc.useContext()
+  return trpc.useMutation(['corrections.delete.timid'], {
+    onSuccess: (res, input) => {
+      // Correction was not deleted
+      if (res === false) return
+
+      // Correction was deleted
+      void utils.invalidateQueries('corrections.drafts')
+      void utils.invalidateQueries('corrections.submitted')
+      void utils.invalidateQueries(['corrections.byId', { id: input.id }])
+    },
+  })
+}
+
 export const useAddCreatedGenreMutation = () => {
   const utils = trpc.useContext()
   return trpc.useMutation(['corrections.edit.create.add'], {

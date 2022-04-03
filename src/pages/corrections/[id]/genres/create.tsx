@@ -34,13 +34,23 @@ const Create: NextPage = () => {
 
   const from = useMemo(() => getFirstOrValue(query.from), [query.from])
 
+  const deleteOnCancel = useMemo(
+    () => getFirstOrValue(query.deleteOnCancel) === 'true',
+    [query.deleteOnCancel]
+  )
+
   if (correctionId === undefined) {
     return <ErrorPage statusCode={404} />
   }
 
   return (
     <Layout correctionId={correctionId}>
-      <CreateView type={type} parentId={parentId} from={from} />
+      <CreateView
+        type={type}
+        parentId={parentId}
+        from={from}
+        deleteOnCancel={deleteOnCancel}
+      />
     </Layout>
   )
 }

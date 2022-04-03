@@ -4,17 +4,21 @@ import toast from 'react-hot-toast'
 
 import Loader from '../../../common/components/Loader'
 import { GenreApiOutput } from '../../../common/model'
-import { useCorrectGenreMutation } from '../../../common/services/corrections'
+import {
+  useCorrectGenreMutation,
+  useDeleteCorrectionTimidMutation,
+} from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 import fetchCorrectionGenre from '../services'
 import GenreForm from './forms/GenreForm'
 
-const EditView: FC<{ genreId: number; from?: string }> = ({
-  genreId,
-  from,
-}) => {
+const EditView: FC<{
+  genreId: number
+  from?: string
+  deleteOnCancel?: boolean
+}> = ({ genreId, from, deleteOnCancel }) => {
   const { id: correctionId } = useCorrectionContext()
 
   const { data: isMyCorrection } = useIsMyCorrectionQuery(correctionId)
@@ -34,7 +38,14 @@ const EditView: FC<{ genreId: number; from?: string }> = ({
   useEffect(() => void fetchData(), [fetchData])
 
   if (data) {
-    return <Loaded genreId={genreId} data={data} from={from} />
+    return (
+      <Loaded
+        genreId={genreId}
+        data={data}
+        from={from}
+        deleteOnCancel={deleteOnCancel}
+      />
+    )
   }
 
   return <Loader size={32} className='text-stone-600' />
@@ -44,16 +55,17 @@ const Loaded: FC<{
   genreId: number
   data: GenreApiInput
   from?: string
-}> = ({ genreId, data, from }) => {
+  deleteOnCancel?: boolean
+}> = ({ genreId, data, from, deleteOnCancel }) => {
   const { id: correctionId } = useCorrectionContext()
   const [uiState, setUiState] = useState<GenreApiInput>(data)
 
   const { push: navigate } = useRouter()
 
-  const { mutate, isLoading } = useCorrectGenreMutation()
-  const handleEdit = useCallback(
+  const { mutate: editGenre, isLoading } = useCorrectGenreMutation()
+  const handleEditGenre = useCallback(
     () =>
-      mutate(
+      editGenre(
         { id: correctionId, genreId, data: uiState },
         {
           onSuccess: () => {
@@ -64,20 +76,46 @@ const Loaded: FC<{
           },
         }
       ),
-    [correctionId, genreId, mutate, navigate, uiState]
+    [correctionId, genreId, editGenre, navigate, uiState]
   )
 
-  const handleCancel = useCallback(
-    () => void navigate(from ?? `/corrections/${correctionId}`),
-    [correctionId, from, navigate]
+  const { mutate: deleteCorrection } = useDeleteCorrectionTimidMutation()
+  const handleDeleteCorrection = useCallback(
+    () =>
+      deleteCorrection(
+        { id: correctionId },
+        {
+          onSuccess: (res) => {
+            if (res === false) {
+              // Correction was not deleted
+              void navigate(from ?? `/corrections/${correctionId}`)
+            } else {
+              // Correction was deleted
+              void navigate(from ?? '/corrections')
+            }
+          },
+          onError: (error) => {
+            toast.error(error.message)
+          },
+        }
+      ),
+    [correctionId, deleteCorrection, from, navigate]
   )
+
+  const handleCancel = useCallback(() => {
+    if (deleteOnCancel) {
+      handleDeleteCorrection()
+    } else {
+      void navigate(from ?? `/corrections/${correctionId}`)
+    }
+  }, [correctionId, deleteOnCancel, from, handleDeleteCorrection, navigate])
 
   return (
     <GenreForm
       data={uiState}
       onChange={setUiState}
       selfId={genreId}
-      onSubmit={() => handleEdit()}
+      onSubmit={() => handleEditGenre()}
       onCancel={() => handleCancel()}
       isSubmitting={isLoading}
     />

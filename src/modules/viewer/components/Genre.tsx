@@ -42,18 +42,24 @@ const Loaded: FC<{
 
   const { mutate: createMutation, isLoading: isCreatingCorrection } =
     useCreateCorrectionMutation()
-  const { push: navigate } = useRouter()
+  const { push: navigate, asPath } = useRouter()
   const handleEditGenre = useCallback(
     () =>
       createMutation(null, {
         onSuccess: (res) => {
-          void navigate(`/corrections/${res.id}/genres/${genre.id}/edit`)
+          void navigate({
+            pathname: `/corrections/${res.id}/genres/${genre.id}/edit`,
+            query: {
+              deleteOnCancel: true,
+              from: asPath,
+            },
+          })
         },
         onError: (error) => {
           toast.error(error.message)
         },
       }),
-    [createMutation, genre.id, navigate]
+    [asPath, createMutation, genre.id, navigate]
   )
 
   const childTypes = useMemo(() => genreChildTypes[genre.type], [genre.type])
@@ -63,14 +69,19 @@ const Loaded: FC<{
         onSuccess: (res) => {
           void navigate({
             pathname: `/corrections/${res.id}/genres/create`,
-            query: { type: childTypes[0], parentId: genre.id },
+            query: {
+              type: childTypes[0],
+              parentId: genre.id,
+              deleteOnCancel: true,
+              from: asPath,
+            },
           })
         },
         onError: (error) => {
           toast.error(error.message)
         },
       }),
-    [childTypes, createMutation, genre.id, navigate]
+    [asPath, childTypes, createMutation, genre.id, navigate]
   )
 
   const { mutate: deleteGenre, isLoading: isDeleting } =

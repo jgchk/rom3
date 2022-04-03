@@ -28,13 +28,18 @@ const Edit: NextPage = () => {
 
   const from = useMemo(() => getFirstOrValue(query.from), [query.from])
 
+  const deleteOnCancel = useMemo(
+    () => getFirstOrValue(query.deleteOnCancel) === 'true',
+    [query.deleteOnCancel]
+  )
+
   if (correctionId === undefined || genreId === undefined) {
     return <ErrorPage statusCode={404} />
   }
 
   return (
     <Layout correctionId={correctionId}>
-      <EditView genreId={genreId} from={from} />
+      <EditView genreId={genreId} from={from} deleteOnCancel={deleteOnCancel} />
     </Layout>
   )
 }

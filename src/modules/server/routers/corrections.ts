@@ -618,6 +618,22 @@ const correctionsRouter = createRouter()
       return deleteCorrection(input.id)
     },
   })
+  .mutation('delete.timid', {
+    input: z.object({ id: z.number() }),
+    resolve: async ({ input, ctx }) => {
+      if (ctx.accountId === undefined) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+
+      // Only delete the correction if it's empty
+      const correction = await getCorrection(input.id)
+      return correction.create.length > 0 ||
+        correction.edit.length > 0 ||
+        correction.delete.length > 0
+        ? false
+        : deleteCorrection(input.id)
+    },
+  })
   .mutation('merge', {
     input: z.object({ id: z.number() }),
     resolve: ({ input, ctx }) => {

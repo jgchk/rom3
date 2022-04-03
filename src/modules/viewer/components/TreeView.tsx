@@ -20,21 +20,21 @@ const TreeView: FC = () => {
   const { data: treeData } = useGenreTreeQuery()
 
   const { mutate, isLoading } = useCreateCorrectionMutation()
-  const { push: navigate } = useRouter()
+  const { push: navigate, asPath } = useRouter()
   const handleCreate = useCallback(
     () =>
       mutate(null, {
         onSuccess: (res) => {
           void navigate({
             pathname: `/corrections/${res.id}/genres/create`,
-            query: { type: 'STYLE' },
+            query: { type: 'STYLE', deleteOnCancel: true, from: asPath },
           })
         },
         onError: (error) => {
           toast.error(error.message)
         },
       }),
-    [mutate, navigate]
+    [asPath, mutate, navigate]
   )
 
   const query = useFromQueryParams()
