@@ -38,19 +38,6 @@ const CorrectionsList: FC = () => {
     [mutate, navigate]
   )
 
-  const renderList = useCallback(() => {
-    if (data) {
-      return (
-        <CorrectionsTable
-          corrections={data}
-          emptyText='There are no corrections in queue'
-        />
-      )
-    }
-
-    return <div>Loading...</div>
-  }, [data])
-
   return (
     <div className='space-y-4'>
       {isLoggedIn ? (
@@ -71,7 +58,10 @@ const CorrectionsList: FC = () => {
         </div>
       )}
 
-      {renderList()}
+      <CorrectionsTable
+        corrections={data}
+        emptyText='There are no corrections in queue'
+      />
     </div>
   )
 }

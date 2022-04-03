@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useMemo } from 'react'
 import { HiTrash } from 'react-icons/hi'
 
+import Loader from '../../../common/components/Loader'
 import { useAccountQuery } from '../../../common/services/accounts'
 import {
   CorrectionApiOutput,
@@ -11,13 +12,43 @@ import {
 import useIsMyCorrectionQuery from '../hooks/useIsMyCorrectionQuery'
 
 const CorrectionsTable: FC<{
-  corrections: CorrectionApiOutput[]
+  corrections: CorrectionApiOutput[] | undefined
   emptyText?: string
 }> = ({ corrections, emptyText }) => {
   const sorted = useMemo(
-    () => corrections.sort((a, b) => compareDesc(a.updatedAt, b.updatedAt)),
+    () =>
+      corrections &&
+      corrections.sort((a, b) => compareDesc(a.updatedAt, b.updatedAt)),
     [corrections]
   )
+
+  const renderBody = useCallback(() => {
+    if (!sorted) {
+      return (
+        <tr className='relative'>
+          <td className='p-2' colSpan={3}>
+            <Loader size={22} className='text-stone-500' />
+          </td>
+        </tr>
+      )
+    }
+
+    if (sorted.length === 0) {
+      return (
+        <tr className='relative'>
+          <td className='p-2' colSpan={3}>
+            <div className='flex justify-center text-stone-500'>
+              {emptyText ?? 'No corrections'}
+            </div>
+          </td>
+        </tr>
+      )
+    }
+
+    return sorted.map((correction) => (
+      <CorrectionRow key={correction.id} correction={correction} />
+    ))
+  }, [emptyText, sorted])
 
   return (
     <table className='bg-white w-full border border-stone-300 shadow-sm table-auto'>
@@ -28,21 +59,7 @@ const CorrectionsTable: FC<{
           <td className='p-2'>Updated</td>
         </tr>
       </thead>
-      <tbody>
-        {sorted.length > 0 ? (
-          sorted.map((correction) => (
-            <CorrectionRow key={correction.id} correction={correction} />
-          ))
-        ) : (
-          <tr className='relative'>
-            <td className='p-2' colSpan={2}>
-              <div className='flex justify-center text-stone-500'>
-                {emptyText ?? 'No corrections'}
-              </div>
-            </td>
-          </tr>
-        )}
-      </tbody>
+      <tbody>{renderBody()}</tbody>
     </table>
   )
 }
@@ -123,7 +140,7 @@ const CorrectionRow: FC<{ correction: CorrectionApiOutput }> = ({
       onClick={() => handleClick()}
     >
       <td className='p-2 text-sm font-medium text-stone-700'>
-        {account?.username ?? 'Loading...'}
+        {account?.username ?? <Loader />}
       </td>
       <td className='p-2'>
         <ul className='flex gap-1 flex-wrap'>{chips}</ul>

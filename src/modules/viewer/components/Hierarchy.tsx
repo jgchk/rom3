@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import Link from 'next/link'
 import { FC, useMemo } from 'react'
 
+import Loader from '../../../common/components/Loader'
 import { GenreApiOutput } from '../../../common/model'
 import { ApiGenreInfluence } from '../../../common/services/genres'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
@@ -10,42 +11,43 @@ import useGenreTreeQuery from '../hooks/useGenreTreeQuery'
 const Hierarchy: FC<{ genre: GenreApiOutput }> = ({ genre }) => {
   const { data: tree } = useGenreTreeQuery()
 
-  if (!tree) {
-    return <div>Loading...</div>
-  }
-
   return (
-    <TreeProvider tree={tree}>
-      <div className='bg-white shadow-sm border border-stone-300'>
-        <div className='px-2 py-1 text-stone-600 font-medium border-b border-stone-200'>
-          Hierarchy
-        </div>
-        <ul className='px-6 pt-5 pb-3 space-y-4'>
-          {genre.parents.map((id) => (
-            <li key={id}>
-              <Parent id={id} />
-            </li>
-          ))}
-          {genre.influencedBy.map((inf) => (
-            <li key={`${inf.id}_${inf.influenceType ?? ''}`}>
-              <Influencer influence={inf} />
-            </li>
-          ))}
-
-          <li>
-            <div className='text-stone-600 font-medium text-lg'>
-              {genre.name}
-            </div>
-
-            <Children
-              className='mt-4 mb-3'
-              childIds={genre.children}
-              influences={genre.influences}
-            />
-          </li>
-        </ul>
+    <div className='bg-white shadow-sm border border-stone-300'>
+      <div className='px-2 py-1 text-stone-600 font-medium border-b border-stone-200'>
+        Hierarchy
       </div>
-    </TreeProvider>
+
+      {tree ? (
+        <TreeProvider tree={tree}>
+          <ul className='px-6 pt-5 pb-3 space-y-4'>
+            {genre.parents.map((id) => (
+              <li key={id}>
+                <Parent id={id} />
+              </li>
+            ))}
+            {genre.influencedBy.map((inf) => (
+              <li key={`${inf.id}_${inf.influenceType ?? ''}`}>
+                <Influencer influence={inf} />
+              </li>
+            ))}
+
+            <li>
+              <div className='text-stone-600 font-medium text-lg'>
+                {genre.name}
+              </div>
+
+              <Children
+                className='mt-4 mb-3'
+                childIds={genre.children}
+                influences={genre.influences}
+              />
+            </li>
+          </ul>
+        </TreeProvider>
+      ) : (
+        <Loader className='p-6 text-stone-600' size={24} />
+      )}
+    </div>
   )
 }
 

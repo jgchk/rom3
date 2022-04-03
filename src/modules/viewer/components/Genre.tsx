@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown'
 import ButtonPrimary from '../../../common/components/ButtonPrimary'
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
 import ButtonTertiary from '../../../common/components/ButtonTertiary'
+import Loader from '../../../common/components/Loader'
 import { useFromQueryParams } from '../../../common/hooks/useFromQueryParam'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import useLoggedInQuery from '../../../common/hooks/useLoggedInQuery'
@@ -25,7 +26,7 @@ const Genre: FC<{ genreId: number }> = ({ genreId }) => {
   const { data } = useGenreQuery(genreId)
 
   if (!data) {
-    return <div>Loading...</div>
+    return <Loader size={32} className='text-stone-600' />
   }
 
   return <Loaded genre={data} />

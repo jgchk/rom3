@@ -8,6 +8,7 @@ import useLoggedInQuery from '../hooks/useLoggedInQuery'
 import { useWhoamiQuery } from '../services/auth'
 import { clearToken } from '../utils/auth'
 import trpc from '../utils/trpc'
+import Loader from './Loader'
 
 const Navbar: FC = () => {
   const router = useRouter()
@@ -74,7 +75,11 @@ const Account: FC = () => {
   const { data } = useWhoamiQuery()
 
   if (!data) {
-    return <div>Loading...</div>
+    return (
+      <div>
+        <Loader className='text-stone-800' />
+      </div>
+    )
   }
 
   if (data === 'LOGGED_OUT') {

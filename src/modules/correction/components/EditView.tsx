@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 import { FC, useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import Loader from '../../../common/components/Loader'
 import { GenreApiOutput } from '../../../common/model'
 import { useCorrectGenreMutation } from '../../../common/services/corrections'
 import { GenreApiInput } from '../../../common/services/genres'
@@ -36,7 +37,7 @@ const EditView: FC<{ genreId: number; from?: string }> = ({
     return <Loaded genreId={genreId} data={data} from={from} />
   }
 
-  return <div>Loading...</div>
+  return <Loader size={32} className='text-stone-600' />
 }
 
 const Loaded: FC<{

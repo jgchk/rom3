@@ -3,6 +3,7 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaExclamationTriangle } from 'react-icons/fa'
 import { RiArrowDownSLine, RiArrowUpSLine, RiCloseFill } from 'react-icons/ri'
 
+import Loader from '../../../../../common/components/Loader'
 import Select from '../../../../../common/components/Select'
 import Tooltip from '../../../../../common/components/Tooltip'
 import { GenreType } from '../../../../../common/model'
@@ -100,11 +101,13 @@ const InfluenceMultiselect: FC<{
   )
 
   const renderOptions = useCallback(() => {
-    if (!options)
-      return <div className='px-2 py-1 text-sm text-stone-700'>Loading...</div>
+    if (!options) {
+      return <Loader className='p-2 text-stone-700' size={18} />
+    }
 
-    if (options.length === 0)
+    if (options.length === 0) {
       return <div className='px-2 py-1 text-sm text-stone-700'>No items</div>
+    }
 
     return options.map((item) => (
       <li className='group hover:bg-stone-100' key={item.id}>
@@ -174,6 +177,7 @@ const InfluenceMultiselect: FC<{
                 removeInfluence(influences[influences.length - 1])
               }
             }}
+            autoComplete='off'
           />
         </div>
         <button
@@ -270,7 +274,7 @@ const SelectedInfluence: FC<{
       )
     }
 
-    return <div className='px-2 py-0.5 text-sm font-medium'>Loading...</div>
+    return <Loader className='px-2 py-0.5' />
   }, [data, influence, isInvalid, onChange])
 
   return (

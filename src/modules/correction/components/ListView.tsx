@@ -5,6 +5,7 @@ import { FC, useCallback, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { RiArrowRightSLine } from 'react-icons/ri'
 
+import Loader from '../../../common/components/Loader'
 import { GenreApiOutput } from '../../../common/model'
 import {
   useCorrectionQuery,
@@ -52,7 +53,7 @@ const ListView: FC = () => {
     )
   }
 
-  return <div>Loading...</div>
+  return <Loader size={32} className='text-stone-600' />
 }
 
 const CreateItem: FC<{ genre: GenreApiOutput }> = ({ genre }) => {

@@ -13,11 +13,7 @@ const ButtonPrimary: FC<
   ButtonHTMLAttributes<HTMLButtonElement> & { loading?: boolean }
 > = ({ children, className, loading, ...props }) => (
   <button className={clsx(defaultClassName, className)} {...props}>
-    {loading && (
-      <div className='animate-spin-slow mr-2 text-base'>
-        <FiLoader />
-      </div>
-    )}
+    {loading && <FiLoader className='animate-spin-slow mr-2 text-base' />}
     {children}
   </button>
 )

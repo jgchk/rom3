@@ -2,6 +2,7 @@ import dagre from 'dagre'
 import { FC, useCallback, useMemo, useState } from 'react'
 import ReactFlow, { Edge, Node, Position } from 'react-flow-renderer'
 
+import Loader from '../../../common/components/Loader'
 import { GenreApiOutput } from '../../../common/model'
 import useGenreTreeQuery, { GenreTree } from '../hooks/useGenreTreeQuery'
 
@@ -59,7 +60,7 @@ const TreeView: FC = () => {
   const { data: tree } = useGenreTreeQuery()
 
   if (!tree) {
-    return <div>Loading...</div>
+    return <Loader size={32} className='text-stone-600' />
   }
 
   return <Loaded tree={tree} />

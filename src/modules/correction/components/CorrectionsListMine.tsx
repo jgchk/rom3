@@ -58,16 +58,12 @@ const DraftsList: FC = () => {
     refetchOnWindowFocus: false,
   })
 
-  if (data) {
-    return (
-      <CorrectionsTable
-        corrections={data}
-        emptyText="You don't have any drafts"
-      />
-    )
-  }
-
-  return <div>Loading...</div>
+  return (
+    <CorrectionsTable
+      corrections={data}
+      emptyText="You don't have any drafts"
+    />
+  )
 }
 
 const SubmittedList: FC = () => {
@@ -77,14 +73,10 @@ const SubmittedList: FC = () => {
     refetchOnWindowFocus: false,
   })
 
-  if (data) {
-    return (
-      <CorrectionsTable
-        corrections={data}
-        emptyText="You don't have any submitted corrections"
-      />
-    )
-  }
-
-  return <div>Loading...</div>
+  return (
+    <CorrectionsTable
+      corrections={data}
+      emptyText="You don't have any submitted corrections"
+    />
+  )
 }

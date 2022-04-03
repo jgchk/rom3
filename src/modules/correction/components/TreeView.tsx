@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import { FC, useMemo, useState } from 'react'
 
 import { ButtonSecondaryLink } from '../../../common/components/ButtonSecondary'
+import Loader from '../../../common/components/Loader'
 import Tooltip from '../../../common/components/Tooltip'
 import { useCorrectionContext } from '../contexts/CorrectionContext'
 import { TreeProvider, useGenreTree } from '../contexts/TreeContext'
@@ -32,7 +33,11 @@ const TreeView: FC = () => {
 
   return (
     <div>
-      {treeData ? <Tree tree={treeData} /> : <div>Loading...</div>}
+      {treeData ? (
+        <Tree tree={treeData} />
+      ) : (
+        <Loader size={32} className='text-stone-600 py-6' />
+      )}
 
       {isMyCorrection && (
         <ButtonSecondaryLink

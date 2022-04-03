@@ -9,6 +9,7 @@ import ReactMarkdown from 'react-markdown'
 import { ButtonPrimaryLink } from '../../../common/components/ButtonPrimary'
 import { ButtonSecondaryLink } from '../../../common/components/ButtonSecondary'
 import ButtonTertiary from '../../../common/components/ButtonTertiary'
+import Loader from '../../../common/components/Loader'
 import { GenreApiOutput } from '../../../common/model'
 import { genreChildTypes } from '../../../common/model/parents'
 import { useDeleteCorrectionGenreMutation } from '../../../common/services/corrections'
@@ -24,7 +25,7 @@ const ViewView: FC<{ genreId: number }> = ({ genreId }) => {
   const { data } = useCorrectionGenreQuery(genreId, correctionId)
 
   if (!data) {
-    return <div>Loading...</div>
+    return <Loader size={32} className='text-stone-600' />
   }
 
   return <Loaded genre={data} />

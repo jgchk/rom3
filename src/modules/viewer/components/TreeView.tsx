@@ -5,6 +5,7 @@ import { FC, useCallback, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import ButtonSecondary from '../../../common/components/ButtonSecondary'
+import Loader from '../../../common/components/Loader'
 import { useFromQueryParams } from '../../../common/hooks/useFromQueryParam'
 import useGenreTypeColor from '../../../common/hooks/useGenreTypeColor'
 import useLoggedInQuery from '../../../common/hooks/useLoggedInQuery'
@@ -40,7 +41,11 @@ const TreeView: FC = () => {
 
   return (
     <div>
-      {treeData ? <Tree tree={treeData} /> : <div>Loading...</div>}
+      {treeData ? (
+        <Tree tree={treeData} />
+      ) : (
+        <Loader size={32} className='p-6 text-stone-600' />
+      )}
 
       {isLoggedIn ? (
         <ButtonSecondary
